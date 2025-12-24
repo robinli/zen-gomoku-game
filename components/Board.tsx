@@ -19,7 +19,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
   const padding = 20;
   const boardSize = (BOARD_SIZE - 1) * cellSize + padding * 2;
 
-  // Show overlay automatically when winner is determined
+  // 當勝負揭曉時自動顯示視窗
   useEffect(() => {
     if (winner) {
       setOverlayVisible(true);
@@ -64,16 +64,17 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
             r={cellSize * 0.43}
             className={`transition-all duration-500 ${
               cell === 'black' ? 'fill-slate-900' : 'fill-slate-50 stroke-slate-200 stroke-1'
-            } ${isWinningStone ? 'ring-stone' : ''}`}
+            }`}
           />
+          {/* 高亮顯示獲勝連線 */}
           {isWinningStone && (
             <circle
               cx={padding + x * cellSize}
               cy={padding + y * cellSize}
               r={cellSize * 0.48}
               fill="none"
-              stroke={cell === 'black' ? '#fbbf24' : '#d97706'}
-              strokeWidth="2"
+              stroke={cell === 'black' ? '#fbbf24' : '#f59e0b'}
+              strokeWidth="2.5"
               className="animate-pulse"
             />
           )}
@@ -112,11 +113,11 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         {stones}
       </svg>
 
-      {/* Re-open Overlay Button */}
+      {/* 重新開啟視窗按鈕 (僅在視窗關閉且已有勝負時顯示) */}
       {winner && !overlayVisible && (
         <button 
           onClick={() => setOverlayVisible(true)}
-          className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur hover:bg-white text-slate-800 px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-left duration-300"
+          className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur hover:bg-white text-slate-800 px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-left duration-300 border border-slate-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -126,7 +127,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         </button>
       )}
 
-      {/* Overlay for waiting */}
+      {/* 等待對手指示器 */}
       {disabled && !winner && (
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
@@ -136,10 +137,11 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         </div>
       )}
 
-      {/* Winner Overlay */}
+      {/* 結算視窗 */}
       {winner && overlayVisible && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg backdrop-blur-[2px] z-40 animate-in fade-in duration-300">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl text-center transform scale-100 border border-white/20 max-w-[80%] relative">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl text-center transform scale-100 border border-white/20 max-w-[85%] relative animate-in zoom-in duration-300">
+            {/* 關閉按鈕 */}
             <button 
               onClick={() => setOverlayVisible(false)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
@@ -161,9 +163,9 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
             
             <button 
               onClick={() => setOverlayVisible(false)}
-              className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-semibold transition-all"
+              className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-semibold transition-all border border-slate-200/50"
             >
-              回棋盤看看
+              檢視棋盤連線
             </button>
           </div>
         </div>

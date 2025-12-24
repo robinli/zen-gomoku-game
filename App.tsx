@@ -191,11 +191,12 @@ const App: React.FC = () => {
     newBoard[pos.y][pos.x] = localPlayer;
     
     const winResult = checkWin(newBoard, pos);
-    const winnerResult = winResult ? winResult.winner : (isBoardFull(newBoard) ? 'draw' : null);
+    const winnerResult: Player | 'draw' | null = winResult ? winResult.winner : (isBoardFull(newBoard) ? 'draw' : null);
     const winningLine = winResult ? winResult.line : null;
     const nextTurn: Player = localPlayer === 'black' ? 'white' : 'black';
 
-    const moveData = {
+    // 傳送給對方的資料格式，包含 type 等控制資訊
+    const movePayload = {
       type: 'MOVE',
       board: newBoard,
       nextTurn,
@@ -204,10 +205,19 @@ const App: React.FC = () => {
       lastMove: pos
     };
 
-    setRoom(prev => prev ? { ...prev, ...moveData, updatedAt: Date.now() } : null);
+    // 更新本地狀態：僅更新符合 GameRoom 介面的欄位，避免 TS 錯誤
+    setRoom(prev => prev ? { 
+      ...prev, 
+      board: newBoard,
+      turn: nextTurn,
+      winner: winnerResult,
+      winningLine,
+      lastMove: pos,
+      updatedAt: Date.now() 
+    } : null);
     
     if (connRef.current) {
-      connRef.current.send(moveData);
+      connRef.current.send(movePayload);
     }
   };
 
