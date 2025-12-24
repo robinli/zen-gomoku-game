@@ -257,7 +257,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f8f5f2] p-4 flex flex-col items-center">
       <header className="py-8 text-center animate-in fade-in duration-1000">
-        <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
+        <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋v2</h1>
         <p className="text-slate-400 italic text-sm mt-1">
           {isConnected ? '即時對戰中' : (isReconnecting ? '正在嘗試重連...' : '跨電腦 P2P 連線版本')}
         </p>
