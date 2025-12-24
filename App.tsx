@@ -14,12 +14,14 @@ const App: React.FC = () => {
   const [localPlayer, setLocalPlayer] = useState<Player | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // 使用 Ref 來處理同步鎖定，防止 React 非同步更新產生的連續落子問題
+  // 使用 Ref 來處理同步鎖定與連線參考
   const isProcessingMove = useRef(false);
   const peerRef = useRef<any>(null);
   const connRef = useRef<any>(null);
+  const reconnectTimerRef = useRef<number | null>(null);
 
   // 初始化遊戲狀態
   const initGame = (id: string, side: Player) => {
@@ -52,7 +54,6 @@ const App: React.FC = () => {
           updatedAt: Date.now()
         };
       });
-      // 收到對方落子後，本地鎖定解除
       isProcessingMove.current = false;
     } else if (data.type === 'RESET') {
       setRoom(prev => prev ? {
@@ -69,17 +70,21 @@ const App: React.FC = () => {
       setRoom(data.state);
       setIsConnected(true);
       setIsConnecting(false);
+      setIsReconnecting(false);
+      if (reconnectTimerRef.current) {
+        window.clearInterval(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
     }
   }, []);
 
-  // 建立房主模式
+  // 建立房主模式 (Host)
   const handleCreate = (side: Player) => {
     setIsConnecting(true);
     setError(null);
     const id = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     if (peerRef.current) peerRef.current.destroy();
-    
     peerRef.current = new Peer(id);
     
     peerRef.current.on('open', (id: string) => {
@@ -91,35 +96,28 @@ const App: React.FC = () => {
     peerRef.current.on('connection', (conn: any) => {
       connRef.current = conn;
       setIsConnected(true);
+      setIsReconnecting(false);
       
       conn.on('open', () => {
-        const guestSide = side === 'black' ? 'white' : 'black';
-        conn.send({ 
-          type: 'SYNC_STATE', 
-          state: {
-            id,
-            board: createEmptyBoard(),
-            turn: 'black',
-            winner: null,
-            winningLine: null,
-            lastMove: null,
-            players: { [side]: 'host', [guestSide]: 'guest' },
-            updatedAt: Date.now()
+        // 當有新連線（或重連）進來時，Host 立即同步當前 Room 狀態
+        setRoom(currentRoom => {
+          if (currentRoom) {
+            const guestSide = side === 'black' ? 'white' : 'black';
+            const stateToSync = {
+              ...currentRoom,
+              players: { [side]: 'host', [guestSide]: 'guest' }
+            };
+            conn.send({ type: 'SYNC_STATE', state: stateToSync });
           }
+          return currentRoom;
         });
       });
 
       conn.on('data', handleData);
-      conn.on('close', () => setIsConnected(false));
-    });
-
-    peerRef.current.on('error', (err: any) => {
-      setIsConnecting(false);
-      if (err.type === 'unavailable-id') {
-        setError("此房間 ID 已被佔用，請嘗試重新創建。");
-      } else {
-        setError("建立連線伺服器時發生錯誤。");
-      }
+      conn.on('close', () => {
+        setIsConnected(false);
+        setIsReconnecting(true); // Host 進入等待重連狀態
+      });
     });
   };
 
@@ -130,12 +128,18 @@ const App: React.FC = () => {
     if (peerRef.current) peerRef.current.destroy();
     peerRef.current = new Peer(); 
     
-    peerRef.current.on('open', () => {
+    const connectToHost = () => {
       const conn = peerRef.current.connect(id, { reliable: true });
       connRef.current = conn;
 
       conn.on('open', () => {
         setIsConnected(true);
+        setIsReconnecting(false);
+        setIsConnecting(false);
+        if (reconnectTimerRef.current) {
+          window.clearInterval(reconnectTimerRef.current);
+          reconnectTimerRef.current = null;
+        }
       });
 
       conn.on('data', (data: any) => {
@@ -149,22 +153,28 @@ const App: React.FC = () => {
         }
       });
 
-      conn.on('error', (err: any) => {
-        setIsConnecting(false);
-        setError("無法連線到該房間。");
-      });
-
       conn.on('close', () => {
         setIsConnected(false);
-        setError("對方已中斷連線。");
+        setIsReconnecting(true);
+        // 觸發重連定時器
+        if (!reconnectTimerRef.current) {
+          reconnectTimerRef.current = window.setInterval(() => {
+            console.log("嘗試重新連接到房主...");
+            connectToHost();
+          }, 3000);
+        }
       });
-    });
+    };
+
+    peerRef.current.on('open', connectToHost);
 
     peerRef.current.on('error', (err: any) => {
-      setIsConnecting(false);
-      setError("連線伺服器失敗，房主可能已離線。");
+      if (!isConnected) {
+        setIsConnecting(false);
+        setError("無法連線到該房間，請確認網址正確或房主已開房。");
+      }
     });
-  }, [handleData]);
+  }, [handleData, isConnected]);
 
   useEffect(() => {
     const checkHash = () => {
@@ -182,6 +192,7 @@ const App: React.FC = () => {
 
   const handleMove = (pos: Position) => {
     if (isProcessingMove.current) return;
+    // 重連中不允許落子
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer || !isConnected) return;
     if (room.board[pos.y][pos.x]) return;
 
@@ -195,7 +206,6 @@ const App: React.FC = () => {
     const winningLine = winResult ? winResult.line : null;
     const nextTurn: Player = localPlayer === 'black' ? 'white' : 'black';
 
-    // 傳送給對方的資料格式，包含 type 等控制資訊
     const movePayload = {
       type: 'MOVE',
       board: newBoard,
@@ -205,7 +215,6 @@ const App: React.FC = () => {
       lastMove: pos
     };
 
-    // 更新本地狀態：僅更新符合 GameRoom 介面的欄位，避免 TS 錯誤
     setRoom(prev => prev ? { 
       ...prev, 
       board: newBoard,
@@ -238,6 +247,7 @@ const App: React.FC = () => {
   };
 
   const goHome = () => {
+    if (reconnectTimerRef.current) window.clearInterval(reconnectTimerRef.current);
     window.location.hash = '';
     window.location.reload();
   };
@@ -249,7 +259,7 @@ const App: React.FC = () => {
       <header className="py-8 text-center animate-in fade-in duration-1000">
         <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
         <p className="text-slate-400 italic text-sm mt-1">
-          {isConnected ? '即時對戰中' : '跨電腦 P2P 連線版本'}
+          {isConnected ? '即時對戰中' : (isReconnecting ? '正在嘗試重連...' : '跨電腦 P2P 連線版本')}
         </p>
       </header>
 
@@ -259,11 +269,11 @@ const App: React.FC = () => {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
-            <h2 className="font-bold">連線失敗</h2>
+            <h2 className="font-bold">連線中斷</h2>
           </div>
           <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
           <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
-            返回大廳重新開始
+            返回大廳
           </button>
         </div>
       )}
@@ -281,7 +291,7 @@ const App: React.FC = () => {
 
       {room && !error && (
         <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center relative">
             <Board 
               board={room.board} 
               onMove={handleMove} 
@@ -291,6 +301,15 @@ const App: React.FC = () => {
               turn={room.turn}
               disabled={isBoardDisabled}
             />
+            {/* 斷線重連提示浮層 */}
+            {isReconnecting && !room.winner && (
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
+                <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+                  <p className="text-amber-700 font-bold text-sm">網路不穩定，嘗試恢復連線中...</p>
+                </div>
+              </div>
+            )}
           </div>
           <aside className="w-full lg:w-80">
             <GameInfo 
@@ -298,6 +317,7 @@ const App: React.FC = () => {
               localPlayer={localPlayer} 
               onReset={handleReset} 
               isConnected={isConnected}
+              isReconnecting={isReconnecting}
             />
           </aside>
         </main>
