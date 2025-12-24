@@ -1,0 +1,5 @@
+{
+  "name": "Zen Gomoku Online",
+  "description": "A sophisticated online Five-in-a-Row (Gomoku) game featuring real-time synchronization and a minimalist Zen aesthetic.",
+  "requestFramePermissions": []
+}
