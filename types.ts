@@ -13,6 +13,7 @@ export interface GameRoom {
   board: BoardState;
   turn: Player;
   winner: Player | 'draw' | null;
+  winningLine: Position[] | null;
   lastMove: Position | null;
   players: {
     black?: string;

@@ -28,6 +28,7 @@ const App: React.FC = () => {
       board: createEmptyBoard(),
       turn: 'black',
       winner: null,
+      winningLine: null,
       lastMove: null,
       players: { [side]: 'me' },
       updatedAt: Date.now(),
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           board: data.board,
           turn: data.nextTurn,
           winner: data.winner,
+          winningLine: data.winningLine,
           lastMove: data.lastMove,
           updatedAt: Date.now()
         };
@@ -58,6 +60,7 @@ const App: React.FC = () => {
         board: createEmptyBoard(),
         turn: 'black',
         winner: null,
+        winningLine: null,
         lastMove: null,
         updatedAt: Date.now()
       } : null);
@@ -98,6 +101,7 @@ const App: React.FC = () => {
             board: createEmptyBoard(),
             turn: 'black',
             winner: null,
+            winningLine: null,
             lastMove: null,
             players: { [side]: 'host', [guestSide]: 'guest' },
             updatedAt: Date.now()
@@ -177,17 +181,18 @@ const App: React.FC = () => {
   }, [joinRoom, room, isConnecting]);
 
   const handleMove = (pos: Position) => {
-    // 核心修復：檢查同步鎖定、回合歸屬、連線狀態、是否有勝者
     if (isProcessingMove.current) return;
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer || !isConnected) return;
     if (room.board[pos.y][pos.x]) return;
 
-    // 立即鎖定，防止連點
     isProcessingMove.current = true;
 
     const newBoard = room.board.map(row => [...row]);
     newBoard[pos.y][pos.x] = localPlayer;
-    const winnerResult: Player | 'draw' | null = checkWin(newBoard, pos) || (isBoardFull(newBoard) ? 'draw' : null);
+    
+    const winResult = checkWin(newBoard, pos);
+    const winnerResult = winResult ? winResult.winner : (isBoardFull(newBoard) ? 'draw' : null);
+    const winningLine = winResult ? winResult.line : null;
     const nextTurn: Player = localPlayer === 'black' ? 'white' : 'black';
 
     const moveData = {
@@ -195,19 +200,15 @@ const App: React.FC = () => {
       board: newBoard,
       nextTurn,
       winner: winnerResult,
+      winningLine,
       lastMove: pos
     };
 
-    // 更新本地狀態
     setRoom(prev => prev ? { ...prev, ...moveData, updatedAt: Date.now() } : null);
     
-    // 傳送給對方
     if (connRef.current) {
       connRef.current.send(moveData);
     }
-    
-    // 注意：本地鎖定會一直持續到對手回合開始，或者在本地更新後的下一個 tick。
-    // 其實在 React 重新渲染後，room.turn !== localPlayer 就會生效，但 Ref 是雙重保險。
   };
 
   const handleReset = () => {
@@ -219,6 +220,7 @@ const App: React.FC = () => {
       board: createEmptyBoard(),
       turn: 'black',
       winner: null,
+      winningLine: null,
       lastMove: null,
       updatedAt: Date.now()
     } : null);
@@ -230,7 +232,6 @@ const App: React.FC = () => {
     window.location.reload();
   };
 
-  // 計算棋盤是否應該禁用：未連線、不是我的回合、已有勝者
   const isBoardDisabled = !isConnected || (room !== null && room.turn !== localPlayer) || (room !== null && room.winner !== null);
 
   return (
@@ -276,6 +277,7 @@ const App: React.FC = () => {
               onMove={handleMove} 
               lastMove={room.lastMove} 
               winner={room.winner}
+              winningLine={room.winningLine}
               turn={room.turn}
               disabled={isBoardDisabled}
             />

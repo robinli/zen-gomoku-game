@@ -6,7 +6,12 @@ export const BOARD_SIZE = 15;
 export const createEmptyBoard = (): BoardState => 
   Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
 
-export const checkWin = (board: BoardState, pos: Position): Player | null => {
+export interface WinResult {
+  winner: Player;
+  line: Position[];
+}
+
+export const checkWin = (board: BoardState, pos: Position): WinResult | null => {
   const player = board[pos.y][pos.x];
   if (!player) return null;
 
@@ -18,14 +23,14 @@ export const checkWin = (board: BoardState, pos: Position): Player | null => {
   ];
 
   for (const [dx, dy] of directions) {
-    let count = 1;
+    let winningLine: Position[] = [{ x: pos.x, y: pos.y }];
 
     // Check one direction
     for (let i = 1; i < 5; i++) {
       const nx = pos.x + dx * i;
       const ny = pos.y + dy * i;
       if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE && board[ny][nx] === player) {
-        count++;
+        winningLine.push({ x: nx, y: ny });
       } else break;
     }
 
@@ -34,11 +39,13 @@ export const checkWin = (board: BoardState, pos: Position): Player | null => {
       const nx = pos.x - dx * i;
       const ny = pos.y - dy * i;
       if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE && board[ny][nx] === player) {
-        count++;
+        winningLine.push({ x: nx, y: ny });
       } else break;
     }
 
-    if (count >= 5) return player;
+    if (winningLine.length >= 5) {
+      return { winner: player, line: winningLine };
+    }
   }
 
   return null;

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BoardState, Position, Player } from '../types';
 import { BOARD_SIZE } from '../utils/gameLogic';
 
@@ -8,14 +8,25 @@ interface BoardProps {
   onMove: (pos: Position) => void;
   lastMove: Position | null;
   winner: Player | 'draw' | null;
+  winningLine: Position[] | null;
   turn: Player;
   disabled?: boolean;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn, disabled }) => {
+const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, turn, disabled }) => {
+  const [overlayVisible, setOverlayVisible] = useState(false);
   const cellSize = 30;
   const padding = 20;
   const boardSize = (BOARD_SIZE - 1) * cellSize + padding * 2;
+
+  // Show overlay automatically when winner is determined
+  useEffect(() => {
+    if (winner) {
+      setOverlayVisible(true);
+    } else {
+      setOverlayVisible(false);
+    }
+  }, [winner]);
 
   const gridLines = Array.from({ length: BOARD_SIZE }).map((_, i) => (
     <React.Fragment key={`grid-${i}`}>
@@ -43,15 +54,30 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn, di
     row.map((cell, x) => {
       if (!cell) return null;
       const isLast = lastMove?.x === x && lastMove?.y === y;
+      const isWinningStone = winningLine?.some(p => p.x === x && p.y === y);
+      
       return (
-        <g key={`stone-${x}-${y}`} className={`stone-shadow ${isLast ? 'animate-in zoom-in duration-300' : ''}`}>
+        <g key={`stone-${x}-${y}`} className="stone-shadow transition-all duration-300">
           <circle
             cx={padding + x * cellSize}
             cy={padding + y * cellSize}
             r={cellSize * 0.43}
-            className={cell === 'black' ? 'fill-slate-900' : 'fill-slate-50 stroke-slate-200 stroke-1'}
+            className={`transition-all duration-500 ${
+              cell === 'black' ? 'fill-slate-900' : 'fill-slate-50 stroke-slate-200 stroke-1'
+            } ${isWinningStone ? 'ring-stone' : ''}`}
           />
-          {isLast && (
+          {isWinningStone && (
+            <circle
+              cx={padding + x * cellSize}
+              cy={padding + y * cellSize}
+              r={cellSize * 0.48}
+              fill="none"
+              stroke={cell === 'black' ? '#fbbf24' : '#d97706'}
+              strokeWidth="2"
+              className="animate-pulse"
+            />
+          )}
+          {isLast && !isWinningStone && (
             <circle
               cx={padding + x * cellSize}
               cy={padding + y * cellSize}
@@ -81,13 +107,26 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn, di
           ))
         )}
 
-        {/* Interaction cells remain but pointer-events-none on parent handles global disable */}
         {interactionCells}
 
         {stones}
       </svg>
 
-      {/* Overlay for waiting or disabling */}
+      {/* Re-open Overlay Button */}
+      {winner && !overlayVisible && (
+        <button 
+          onClick={() => setOverlayVisible(true)}
+          className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur hover:bg-white text-slate-800 px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-left duration-300"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+          查看結算
+        </button>
+      )}
+
+      {/* Overlay for waiting */}
       {disabled && !winner && (
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
@@ -97,13 +136,35 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn, di
         </div>
       )}
 
-      {winner && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg backdrop-blur-[2px] z-20 animate-in fade-in duration-500">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl text-center transform scale-110 border border-white/20">
+      {/* Winner Overlay */}
+      {winner && overlayVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg backdrop-blur-[2px] z-40 animate-in fade-in duration-300">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl text-center transform scale-100 border border-white/20 max-w-[80%] relative">
+            <button 
+              onClick={() => setOverlayVisible(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+              title="查看棋盤"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-inner ${winner === 'black' ? 'bg-slate-900' : winner === 'white' ? 'bg-white border-2 border-slate-100' : 'bg-slate-200'}`}>
+              <div className={`w-10 h-10 rounded-full ${winner === 'black' ? 'bg-slate-800' : 'bg-slate-50'}`}></div>
+            </div>
+
             <h2 className="text-3xl font-serif font-bold mb-2 text-slate-900">
               {winner === 'draw' ? '和局' : (winner === 'black' ? '黑子勝出' : '白子勝出')}
             </h2>
-            <p className="text-slate-500 font-light tracking-widest uppercase text-xs">對局已結束</p>
+            <p className="text-slate-500 font-light tracking-widest uppercase text-xs mb-6">對局已結束</p>
+            
+            <button 
+              onClick={() => setOverlayVisible(false)}
+              className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-semibold transition-all"
+            >
+              回棋盤看看
+            </button>
           </div>
         </div>
       )}
