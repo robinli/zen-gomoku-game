@@ -9,9 +9,10 @@ interface BoardProps {
   lastMove: Position | null;
   winner: Player | 'draw' | null;
   turn: Player;
+  disabled?: boolean;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn }) => {
+const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn, disabled }) => {
   const cellSize = 30;
   const padding = 20;
   const boardSize = (BOARD_SIZE - 1) * cellSize + padding * 2;
@@ -32,8 +33,8 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn }) 
         width={cellSize}
         height={cellSize}
         fill="transparent"
-        className="hover:fill-black/5 transition-colors"
-        onClick={() => onMove({ x, y })}
+        className={`${disabled ? 'cursor-not-allowed' : 'hover:fill-black/5 cursor-pointer'} transition-colors`}
+        onClick={() => !disabled && onMove({ x, y })}
       />
     ))
   );
@@ -65,10 +66,10 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn }) 
   );
 
   return (
-    <div className="relative w-full max-w-[550px] aspect-square p-2 sm:p-4 bg-[#d7b899] rounded-xl shadow-2xl wood-texture border-4 border-[#8d6e63]/30">
+    <div className={`relative w-full max-w-[550px] aspect-square p-2 sm:p-4 bg-[#d7b899] rounded-xl shadow-2xl wood-texture border-4 border-[#8d6e63]/30 transition-opacity ${disabled ? 'opacity-80' : 'opacity-100'}`}>
       <svg 
         viewBox={`0 0 ${boardSize} ${boardSize}`}
-        className="w-full h-full cursor-pointer select-none"
+        className="w-full h-full select-none"
       >
         <g stroke="#5d4037" strokeWidth="1" opacity="0.6">
           {gridLines}
@@ -84,6 +85,14 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, turn }) 
 
         {stones}
       </svg>
+
+      {disabled && !winner && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg backdrop-blur-[1px] z-10">
+          <div className="bg-white/90 px-6 py-3 rounded-full shadow-lg border border-slate-100">
+            <p className="text-slate-600 font-medium text-sm animate-pulse">等待對手加入...</p>
+          </div>
+        </div>
+      )}
 
       {winner && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg backdrop-blur-[2px] z-20 transition-all">
