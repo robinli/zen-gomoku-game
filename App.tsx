@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // 使用 Ref 來處理同步鎖定，防止 React 非同步更新產生的連續落子問題
+  const isProcessingMove = useRef(false);
   const peerRef = useRef<any>(null);
   const connRef = useRef<any>(null);
 
@@ -48,6 +50,8 @@ const App: React.FC = () => {
           updatedAt: Date.now()
         };
       });
+      // 收到對方落子後，本地鎖定解除
+      isProcessingMove.current = false;
     } else if (data.type === 'RESET') {
       setRoom(prev => prev ? {
         ...prev,
@@ -57,6 +61,7 @@ const App: React.FC = () => {
         lastMove: null,
         updatedAt: Date.now()
       } : null);
+      isProcessingMove.current = false;
     } else if (data.type === 'SYNC_STATE') {
       setRoom(data.state);
       setIsConnected(true);
@@ -70,7 +75,6 @@ const App: React.FC = () => {
     setError(null);
     const id = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // 清除舊的 Peer
     if (peerRef.current) peerRef.current.destroy();
     
     peerRef.current = new Peer(id);
@@ -112,7 +116,6 @@ const App: React.FC = () => {
       } else {
         setError("建立連線伺服器時發生錯誤。");
       }
-      console.error('Peer error:', err);
     });
   };
 
@@ -120,20 +123,15 @@ const App: React.FC = () => {
   const joinRoom = useCallback((id: string) => {
     setIsConnecting(true);
     setError(null);
-    
     if (peerRef.current) peerRef.current.destroy();
-    
     peerRef.current = new Peer(); 
     
     peerRef.current.on('open', () => {
-      const conn = peerRef.current.connect(id, {
-        reliable: true
-      });
+      const conn = peerRef.current.connect(id, { reliable: true });
       connRef.current = conn;
 
       conn.on('open', () => {
         setIsConnected(true);
-        // 房主會透過 SYNC_STATE 同步狀態回來
       });
 
       conn.on('data', (data: any) => {
@@ -150,7 +148,6 @@ const App: React.FC = () => {
       conn.on('error', (err: any) => {
         setIsConnecting(false);
         setError("無法連線到該房間。");
-        console.error('Connection error:', err);
       });
 
       conn.on('close', () => {
@@ -162,31 +159,31 @@ const App: React.FC = () => {
     peerRef.current.on('error', (err: any) => {
       setIsConnecting(false);
       setError("連線伺服器失敗，房主可能已離線。");
-      console.error('Peer joining error:', err);
     });
   }, [handleData]);
 
-  // 監聽 URL Hash 變化
   useEffect(() => {
     const checkHash = () => {
       const hash = window.location.hash.replace('#', '');
       const params = new URLSearchParams(hash);
       const id = params.get('room');
-      
-      // 只有在還沒有 room 且沒有正在連線時才自動加入
       if (id && !room && !isConnecting && !peerRef.current) {
         joinRoom(id);
       }
     };
-
     checkHash();
     window.addEventListener('hashchange', checkHash);
     return () => window.removeEventListener('hashchange', checkHash);
   }, [joinRoom, room, isConnecting]);
 
   const handleMove = (pos: Position) => {
+    // 核心修復：檢查同步鎖定、回合歸屬、連線狀態、是否有勝者
+    if (isProcessingMove.current) return;
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer || !isConnected) return;
     if (room.board[pos.y][pos.x]) return;
+
+    // 立即鎖定，防止連點
+    isProcessingMove.current = true;
 
     const newBoard = room.board.map(row => [...row]);
     newBoard[pos.y][pos.x] = localPlayer;
@@ -201,17 +198,22 @@ const App: React.FC = () => {
       lastMove: pos
     };
 
+    // 更新本地狀態
     setRoom(prev => prev ? { ...prev, ...moveData, updatedAt: Date.now() } : null);
     
+    // 傳送給對方
     if (connRef.current) {
       connRef.current.send(moveData);
     }
+    
+    // 注意：本地鎖定會一直持續到對手回合開始，或者在本地更新後的下一個 tick。
+    // 其實在 React 重新渲染後，room.turn !== localPlayer 就會生效，但 Ref 是雙重保險。
   };
 
   const handleReset = () => {
     if (!room || !isConnected) return;
+    isProcessingMove.current = false;
     const resetData = { type: 'RESET' };
-    
     setRoom(prev => prev ? {
       ...prev,
       board: createEmptyBoard(),
@@ -220,16 +222,16 @@ const App: React.FC = () => {
       lastMove: null,
       updatedAt: Date.now()
     } : null);
-
-    if (connRef.current) {
-      connRef.current.send(resetData);
-    }
+    if (connRef.current) connRef.current.send(resetData);
   };
 
   const goHome = () => {
     window.location.hash = '';
-    window.location.reload(); // 徹底清除狀態
+    window.location.reload();
   };
+
+  // 計算棋盤是否應該禁用：未連線、不是我的回合、已有勝者
+  const isBoardDisabled = !isConnected || (room !== null && room.turn !== localPlayer) || (room !== null && room.winner !== null);
 
   return (
     <div className="min-h-screen bg-[#f8f5f2] p-4 flex flex-col items-center">
@@ -249,10 +251,7 @@ const App: React.FC = () => {
             <h2 className="font-bold">連線失敗</h2>
           </div>
           <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
-          <button 
-            onClick={goHome} 
-            className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg"
-          >
+          <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
             返回大廳重新開始
           </button>
         </div>
@@ -278,7 +277,7 @@ const App: React.FC = () => {
               lastMove={room.lastMove} 
               winner={room.winner}
               turn={room.turn}
-              disabled={!isConnected}
+              disabled={isBoardDisabled}
             />
           </div>
           <aside className="w-full lg:w-80">
