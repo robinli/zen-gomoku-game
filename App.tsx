@@ -71,6 +71,7 @@ const App: React.FC = () => {
       setIsConnected(true);
       setIsConnecting(false);
       setIsReconnecting(false);
+      setError(null); // 同步成功，清除所有錯誤狀態
       if (reconnectTimerRef.current) {
         window.clearInterval(reconnectTimerRef.current);
         reconnectTimerRef.current = null;
@@ -93,13 +94,19 @@ const App: React.FC = () => {
       setIsConnecting(false);
     });
 
+    // 處理信令伺服器中斷 (Peer server disconnection)
+    peerRef.current.on('disconnected', () => {
+      console.log("信令伺服器斷開，嘗試重連...");
+      peerRef.current.reconnect();
+    });
+
     peerRef.current.on('connection', (conn: any) => {
       connRef.current = conn;
       setIsConnected(true);
       setIsReconnecting(false);
+      setError(null);
       
       conn.on('open', () => {
-        // 當有新連線（或重連）進來時，Host 立即同步當前 Room 狀態
         setRoom(currentRoom => {
           if (currentRoom) {
             const guestSide = side === 'black' ? 'white' : 'black';
@@ -116,8 +123,17 @@ const App: React.FC = () => {
       conn.on('data', handleData);
       conn.on('close', () => {
         setIsConnected(false);
-        setIsReconnecting(true); // Host 進入等待重連狀態
+        setIsReconnecting(true);
       });
+    });
+
+    peerRef.current.on('error', (err: any) => {
+      console.error("Peer Error:", err);
+      // 如果遊戲已經在進行中，不要顯示致命錯誤視窗，僅在後台嘗試恢復
+      if (!room) {
+        setIsConnecting(false);
+        setError("建立房間失敗，請重新嘗試。");
+      }
     });
   };
 
@@ -129,6 +145,9 @@ const App: React.FC = () => {
     peerRef.current = new Peer(); 
     
     const connectToHost = () => {
+      // 如果連線已存在且開啟中，不重複連線
+      if (connRef.current && connRef.current.open) return;
+
       const conn = peerRef.current.connect(id, { reliable: true });
       connRef.current = conn;
 
@@ -136,6 +155,7 @@ const App: React.FC = () => {
         setIsConnected(true);
         setIsReconnecting(false);
         setIsConnecting(false);
+        setError(null);
         if (reconnectTimerRef.current) {
           window.clearInterval(reconnectTimerRef.current);
           reconnectTimerRef.current = null;
@@ -156,7 +176,7 @@ const App: React.FC = () => {
       conn.on('close', () => {
         setIsConnected(false);
         setIsReconnecting(true);
-        // 觸發重連定時器
+        // 啟動重連計時器
         if (!reconnectTimerRef.current) {
           reconnectTimerRef.current = window.setInterval(() => {
             console.log("嘗試重新連接到房主...");
@@ -168,13 +188,19 @@ const App: React.FC = () => {
 
     peerRef.current.on('open', connectToHost);
 
+    peerRef.current.on('disconnected', () => {
+      peerRef.current.reconnect();
+    });
+
     peerRef.current.on('error', (err: any) => {
-      if (!isConnected) {
+      console.error("Guest Peer Error:", err);
+      // 只有在初始加入失敗時才顯示致命錯誤
+      if (!isConnected && !room) {
         setIsConnecting(false);
         setError("無法連線到該房間，請確認網址正確或房主已開房。");
       }
     });
-  }, [handleData, isConnected]);
+  }, [handleData, isConnected, room]);
 
   useEffect(() => {
     const checkHash = () => {
@@ -192,7 +218,6 @@ const App: React.FC = () => {
 
   const handleMove = (pos: Position) => {
     if (isProcessingMove.current) return;
-    // 重連中不允許落子
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer || !isConnected) return;
     if (room.board[pos.y][pos.x]) return;
 
@@ -248,28 +273,33 @@ const App: React.FC = () => {
 
   const goHome = () => {
     if (reconnectTimerRef.current) window.clearInterval(reconnectTimerRef.current);
+    if (peerRef.current) peerRef.current.destroy();
     window.location.hash = '';
     window.location.reload();
   };
 
   const isBoardDisabled = !isConnected || (room !== null && room.turn !== localPlayer) || (room !== null && room.winner !== null);
 
+  // 決定何時顯示致命錯誤畫面
+  // 如果已經在遊戲中 (room !== null)，即使有 error 也不應該跳出，而是讓重連邏輯處理
+  const showFatalError = error && !room;
+
   return (
     <div className="min-h-screen bg-[#f8f5f2] p-4 flex flex-col items-center">
       <header className="py-8 text-center animate-in fade-in duration-1000">
-        <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋v2</h1>
+        <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
         <p className="text-slate-400 italic text-sm mt-1">
-          {isConnected ? '即時對戰中' : (isReconnecting ? '正在嘗試重連...' : '跨電腦 P2P 連線版本')}
+          {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : '跨電腦 P2P 連線版本')}
         </p>
       </header>
 
-      {error && (
+      {showFatalError && (
         <div className="mb-6 max-w-md w-full p-6 bg-white border border-red-100 shadow-xl rounded-2xl animate-in zoom-in duration-300">
           <div className="flex items-center gap-3 text-red-600 mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
-            <h2 className="font-bold">連線中斷</h2>
+            <h2 className="font-bold">連線失敗</h2>
           </div>
           <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
           <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
@@ -278,7 +308,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {isConnecting && !error && (
+      {isConnecting && !room && !error && (
         <div className="flex flex-col items-center justify-center p-12 space-y-4 animate-in fade-in">
           <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
           <p className="text-slate-400 font-serif italic">正在尋找茶室中...</p>
@@ -289,7 +319,7 @@ const App: React.FC = () => {
         <Lobby onCreate={handleCreate} />
       )}
 
-      {room && !error && (
+      {room && (
         <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
           <div className="w-full flex justify-center relative">
             <Board 
@@ -301,8 +331,8 @@ const App: React.FC = () => {
               turn={room.turn}
               disabled={isBoardDisabled}
             />
-            {/* 斷線重連提示浮層 */}
-            {isReconnecting && !room.winner && (
+            {/* 斷線重連提示浮層 - 僅在對局未結束時顯示 */}
+            {(isReconnecting || !isConnected) && !room.winner && (
               <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
                 <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
                   <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
