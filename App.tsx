@@ -281,7 +281,6 @@ const App: React.FC = () => {
   const isBoardDisabled = !isConnected || (room !== null && room.turn !== localPlayer) || (room !== null && room.winner !== null);
 
   // 決定何時顯示致命錯誤畫面
-  // 如果已經在遊戲中 (room !== null)，即使有 error 也不應該跳出，而是讓重連邏輯處理
   const showFatalError = error && !room;
 
   return (
@@ -331,8 +330,8 @@ const App: React.FC = () => {
               turn={room.turn}
               disabled={isBoardDisabled}
             />
-            {/* 斷線重連提示浮層 - 僅在對局未結束時顯示 */}
-            {(isReconnecting || !isConnected) && !room.winner && (
+            {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
+            {isReconnecting && !room.winner && (
               <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
                 <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
                   <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
