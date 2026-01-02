@@ -143,8 +143,8 @@ io.on('connection', (socket) => {
 
         const pos: Position = { x, y };
         const winResult = checkWin(newBoard, pos);
-        const winner = winResult ? winResult.winner : (isBoardFull(newBoard) ? 'draw' : null);
-        const winningLine = winResult ? winResult.line : null;
+        const winner: Player | 'draw' | null = winResult ? winResult.winner : (isBoardFull(newBoard) ? 'draw' : null);
+        const winningLine: Position[] | null = winResult ? winResult.line : null;
         const nextTurn: Player = playerSide === 'black' ? 'white' : 'black';
 
         // 更新房間狀態
