@@ -17,6 +17,8 @@ const App: React.FC = () => {
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
   const hasInitialized = useRef(false);
+  // 追蹤已嘗試加入的房間，防止無限重試
+  const attemptedRooms = useRef<Set<string>>(new Set());
 
   // 初始化 Socket 連線
   useEffect(() => {
@@ -75,6 +77,15 @@ const App: React.FC = () => {
       if (!room) {
         setError(message);
         setIsConnecting(false);
+
+        // 延遲清除 hash，讓用戶能看到錯誤訊息 3 秒
+        setTimeout(() => {
+          console.log('⏰ 清除錯誤狀態並返回大廳');
+          window.location.hash = '';
+          setError(null);
+          // 清除嘗試記錄，允許重新嘗試
+          attemptedRooms.current.clear();
+        }, 3000);
       }
     });
 
@@ -131,7 +142,15 @@ const App: React.FC = () => {
       const params = new URLSearchParams(hash);
       const roomId = params.get('room');
 
-      if (roomId && !room && !isConnecting && socketService.isConnected()) {
+      // 防止無限重試：檢查是否已嘗試過此房間
+      if (roomId
+        && !room
+        && !isConnecting
+        && socketService.isConnected()
+        && !attemptedRooms.current.has(roomId)
+      ) {
+        console.log('🔗 偵測到房間 ID，嘗試加入:', roomId);
+        attemptedRooms.current.add(roomId);
         handleJoinRoom(roomId);
       }
     };
