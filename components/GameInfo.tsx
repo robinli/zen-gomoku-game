@@ -62,7 +62,13 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
               {room.turn === 'black' ? '黑方回合' : '白方回合'}
             </p>
             <p className="text-xs text-slate-400">
-              {isReconnecting ? '連線中斷中...' : (localPlayer === room.turn ? '您的回合' : '等待對方下子...')}
+              {room.winner
+                ? '對局已結束'
+                : (isReconnecting
+                  ? '連線中斷中...'
+                  : (localPlayer === room.turn ? '您的回合' : '等待對方下子...')
+                )
+              }
             </p>
           </div>
         </div>
