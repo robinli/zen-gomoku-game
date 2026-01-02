@@ -1,0 +1,14 @@
+# Ignore server directory (deployed separately on Render)
+server/
+
+# Ignore documentation
+DEPLOYMENT.md
+DEPLOYMENT-CHECKLIST.md
+MIGRATION-REPORT.md
+SOCKET-DEBUG.md
+TESTING.md
+
+# Ignore development files
+*.log
+.env
+.env.local
