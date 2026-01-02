@@ -96,11 +96,23 @@ class SocketService {
 
         console.log('📤 發送 JOIN_ROOM 事件, roomId:', roomId);
 
-        this.socket.emit('JOIN_ROOM', { roomId });
-        this.socket.on('ROOM_JOINED', (data: { room: GameRoom; yourSide: Player }) => {
+        // 使用 once 避免重複監聽
+        const onRoomJoined = (data: { room: GameRoom; yourSide: Player }) => {
             console.log('📥 收到 ROOM_JOINED 事件:', data);
+            this.socket.off('ERROR', onError);  // 移除錯誤監聽
             callback(data);
-        });
+        };
+
+        const onError = (data: { message: string }) => {
+            console.error('❌ 加入房間失敗:', data.message);
+            this.socket.off('ROOM_JOINED', onRoomJoined);  // 移除成功監聽
+            // 通過設置全局錯誤來觸發 UI 顯示錯誤
+        };
+
+        this.socket.once('ROOM_JOINED', onRoomJoined);
+        this.socket.once('ERROR', onError);
+
+        this.socket.emit('JOIN_ROOM', { roomId });
     }
 
     // 落子

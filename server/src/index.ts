@@ -78,12 +78,20 @@ io.on('connection', (socket) => {
     // 加入房間
     socket.on('JOIN_ROOM', ({ roomId }, callback) => {
         try {
+            console.log(`🔍 嘗試加入房間: ${roomId}, Socket ID: ${socket.id}`);
+
             const room = roomManager.joinRoom(roomId, socket.id);
 
             if (!room) {
-                socket.emit('ERROR', { message: '房間不存在或已滿' });
+                const existingRoom = roomManager.getRoom(roomId);
+                const errorMsg = existingRoom
+                    ? '房間已滿，無法加入'
+                    : `房間不存在 (${roomId})，可能房主已離開`;
+
+                console.log(`❌ 加入失敗: ${errorMsg}`);
+                socket.emit('ERROR', { message: errorMsg });
                 if (callback) {
-                    callback({ success: false, error: '房間不存在或已滿' });
+                    callback({ success: false, error: errorMsg });
                 }
                 return;
             }
