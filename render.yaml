@@ -5,8 +5,9 @@ services:
     runtime: node
     region: singapore  # 選擇最接近台灣的區域（可改為 oregon, frankfurt 等）
     plan: free  # 免費方案
-    buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm start
+    rootDir: server  # 設定根目錄為 server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
