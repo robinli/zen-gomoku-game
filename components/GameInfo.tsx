@@ -21,14 +21,14 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
   };
 
   const getStatusColor = () => {
-    if (isConnected) return 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
     if (isReconnecting) return 'bg-amber-500 animate-pulse';
+    if (isConnected && Object.keys(room.players).length === 2) return 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
     return 'bg-amber-500 animate-pulse-soft';
   };
 
   const getStatusText = () => {
-    if (isConnected) return '已建立連線';
     if (isReconnecting) return '嘗試重新連接...';
+    if (isConnected && Object.keys(room.players).length === 2) return '已建立連線';
     return '等待朋友加入...';
   };
 
@@ -68,8 +68,8 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
         </div>
       </div>
 
-      {/* Share Section */}
-      {!isConnected && !isReconnecting && (
+      {/* Share Section - 只在等待對手加入時顯示 */}
+      {Object.keys(room.players).length < 2 && !isReconnecting && (
         <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white animate-in zoom-in duration-500">
           <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">邀請好友</h3>
           <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">請將此連結傳送給另一台電腦的朋友，他們點擊後即可開始對弈。</p>
@@ -77,7 +77,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
             <div className="bg-white/10 rounded-lg px-3 py-2 text-[11px] font-mono break-all border border-white/10">
               {shareLink}
             </div>
-            <button 
+            <button
               onClick={handleCopy}
               className={`mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-slate-900 hover:bg-slate-100'}`}
             >
@@ -88,7 +88,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
       )}
 
       {/* Reset */}
-      <button 
+      <button
         onClick={onReset}
         disabled={!isConnected}
         className={`w-full py-3 border border-slate-200 text-slate-400 rounded-xl text-sm font-medium transition-all ${isConnected ? 'hover:bg-slate-50 hover:text-slate-600' : 'opacity-30 cursor-not-allowed'}`}

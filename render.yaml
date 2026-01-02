@@ -1,0 +1,15 @@
+services:
+  # WebSocket Server (Socket.IO)
+  - type: web
+    name: zen-gomoku-server
+    runtime: node
+    region: singapore  # 選擇最接近台灣的區域（可改為 oregon, frankfurt 等）
+    plan: free  # 免費方案
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://zen-gomoku-game.vercel.app  # 您的 Vercel Client URL
+    healthCheckPath: /health

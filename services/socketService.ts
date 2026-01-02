@@ -1,0 +1,214 @@
+
+// 使用全域的 Socket.IO (從 CDN 載入)
+declare const io: any;
+
+import type { GameRoom, Player, Position } from '../types';
+
+class SocketService {
+    private socket: any = null;
+    private serverUrl: string;
+
+    constructor() {
+        // 從環境變數讀取 Server URL，開發環境預設為 localhost:3000
+        this.serverUrl = (import.meta.env.VITE_SOCKET_URL as string) || 'http://localhost:3000';
+        console.log('🏗️ SocketService 已創建，Server URL:', this.serverUrl);
+    }
+
+    // 連線到 Server
+    connect(): any {
+        if (typeof io === 'undefined') {
+            console.error('❌ Socket.IO 未載入！請確保 CDN 腳本已載入');
+            return null;
+        }
+
+        if (this.socket?.connected) {
+            console.log('✅ Socket 已連線，Socket ID:', this.socket.id);
+            return this.socket;
+        }
+
+        console.log('🔗 開始連線到:', this.serverUrl);
+
+        try {
+            this.socket = io(this.serverUrl, {
+                transports: ['polling', 'websocket'],
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+            });
+
+            // 立即設置事件監聽
+            this.socket.on('connect', () => {
+                console.log('🔌 Socket 連線成功！ID:', this.socket.id);
+            });
+
+            this.socket.on('disconnect', (reason: any) => {
+                console.log('🔌 Socket 已斷線:', reason);
+            });
+
+            this.socket.on('connect_error', (error: any) => {
+                console.error('❌ Socket 連線錯誤:', error.message);
+            });
+
+            return this.socket;
+        } catch (error) {
+            console.error('❌ 創建 Socket 時發生錯誤:', error);
+            return null;
+        }
+    }
+
+    // 斷線
+    disconnect(): void {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+            console.log('🔌 Socket 已主動斷線');
+        }
+    }
+
+    // 創建房間
+    createRoom(side: Player, callback: (data: { roomId: string; shareUrl: string }) => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 CREATE_ROOM 事件, side:', side);
+
+        this.socket.emit('CREATE_ROOM', { side }, (response: any) => {
+            console.log('📥 收到 CREATE_ROOM 回應:', response);
+            if (response && response.success) {
+                callback({ roomId: response.roomId, shareUrl: response.shareUrl });
+            }
+        });
+
+        this.socket.on('ROOM_CREATED', (data: { roomId: string; shareUrl: string }) => {
+            console.log('📥 收到 ROOM_CREATED 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 加入房間
+    joinRoom(roomId: string, callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 JOIN_ROOM 事件, roomId:', roomId);
+
+        this.socket.emit('JOIN_ROOM', { roomId });
+        this.socket.on('ROOM_JOINED', (data: { room: GameRoom; yourSide: Player }) => {
+            console.log('📥 收到 ROOM_JOINED 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 落子
+    makeMove(x: number, y: number): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 MAKE_MOVE 事件, 位置:', x, y);
+        this.socket.emit('MAKE_MOVE', { x, y });
+    }
+
+    // 監聽遊戲更新
+    onGameUpdate(callback: (data: any) => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        this.socket.on('GAME_UPDATE', (data: any) => {
+            console.log('📥 收到 GAME_UPDATE 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 重新開始
+    resetGame(): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 RESET_GAME 事件');
+        this.socket.emit('RESET_GAME');
+    }
+
+    // 監聽連線成功
+    onConnect(callback: () => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        this.socket.on('connect', () => {
+            console.log('📥 觸發 connect 事件回調');
+            callback();
+        });
+    }
+
+    // 監聽連線錯誤
+    onConnectError(callback: (error: Error) => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        this.socket.on('connect_error', (error: Error) => {
+            console.log('📥 觸發 connect_error 事件回調:', error);
+            callback(error);
+        });
+    }
+
+    // 監聽對手離開
+    onOpponentLeft(callback: () => void): void {
+        if (!this.socket) return;
+        this.socket.on('OPPONENT_LEFT', callback);
+    }
+
+    // 監聽錯誤
+    onError(callback: (data: { message: string }) => void): void {
+        if (!this.socket) return;
+        this.socket.on('ERROR', callback);
+    }
+
+    // 監聽房間加入（用於房主收到對手加入的通知）
+    onRoomJoined(callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
+        if (!this.socket) return;
+        this.socket.on('ROOM_JOINED', (data: { room: GameRoom; yourSide: Player }) => {
+            console.log('📥 收到 ROOM_JOINED 全局事件:', data);
+            callback(data);
+        });
+    }
+
+    // 移除所有事件監聽器
+    removeAllListeners(): void {
+        if (this.socket) {
+            this.socket.removeAllListeners();
+        }
+    }
+
+    // 檢查連線狀態
+    isConnected(): boolean {
+        const connected = this.socket?.connected ?? false;
+        console.log('🔍 檢查連線狀態:', connected, 'Socket ID:', this.socket?.id);
+        return connected;
+    }
+
+    // 取得 Socket 實例（用於調試）
+    getSocket(): any {
+        return this.socket;
+    }
+}
+
+// 單例模式
+export const socketService = new SocketService();
+
+// 暴露到 window 用於調試
+if (typeof window !== 'undefined') {
+    (window as any).socketService = socketService;
+}
