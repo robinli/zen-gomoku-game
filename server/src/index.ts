@@ -48,6 +48,70 @@ app.get('/health', (req, res) => {
     });
 });
 
+// 系統監控端點（詳細資訊）
+app.get('/metrics', (req, res) => {
+    const memUsage = process.memoryUsage();
+
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: {
+            seconds: Math.floor(process.uptime()),
+            formatted: formatUptime(process.uptime())
+        },
+        rooms: {
+            active: roomManager.getRoomCount(),
+            // 理論可支援房間數（假設每房間 2.3 KB）
+            maxEstimated: Math.floor((memUsage.heapTotal - memUsage.heapUsed) / 2300)
+        },
+        connections: {
+            active: io.engine.clientsCount || 0
+        },
+        memory: {
+            // RSS (Resident Set Size): 總記憶體使用
+            rss: formatBytes(memUsage.rss),
+            // Heap Total: 堆積記憶體總量
+            heapTotal: formatBytes(memUsage.heapTotal),
+            // Heap Used: 堆積記憶體使用量
+            heapUsed: formatBytes(memUsage.heapUsed),
+            // External: C++ 物件綁定的記憶體
+            external: formatBytes(memUsage.external),
+            // 使用率
+            heapUsagePercent: ((memUsage.heapUsed / memUsage.heapTotal) * 100).toFixed(2) + '%'
+        },
+        environment: {
+            nodeVersion: process.version,
+            platform: process.platform,
+            arch: process.arch
+        }
+    });
+});
+
+// 輔助函數：格式化位元組
+function formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
+// 輔助函數：格式化運行時間
+function formatUptime(seconds: number): string {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    parts.push(`${secs}s`);
+
+    return parts.join(' ');
+}
+
 // WebSocket 連線處理
 io.on('connection', (socket) => {
     console.log(`🔌 新連線: ${socket.id}`);
