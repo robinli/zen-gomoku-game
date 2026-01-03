@@ -20,6 +20,25 @@ const App: React.FC = () => {
   // 追蹤已嘗試加入的房間，防止無限重試
   const attemptedRooms = useRef<Set<string>>(new Set());
 
+  // 提取共用的檢查和加入房間函數
+  const checkAndJoinRoom = () => {
+    const hash = window.location.hash.replace('#', '');
+    const params = new URLSearchParams(hash);
+    const roomId = params.get('room');
+
+    // 防止無限重試：檢查是否已嘗試過此房間
+    if (roomId
+      && !room
+      && !isConnecting
+      && socketService.isConnected()
+      && !attemptedRooms.current.has(roomId)
+    ) {
+      console.log('🔗 偵測到房間 ID，嘗試加入:', roomId);
+      attemptedRooms.current.add(roomId);
+      handleJoinRoom(roomId);
+    }
+  };
+
   // 初始化 Socket 連線
   useEffect(() => {
     if (hasInitialized.current) {
@@ -37,6 +56,9 @@ const App: React.FC = () => {
       setIsConnected(true);
       setIsConnecting(false);
       setError(null);
+
+      // 🔥 方案 1：Socket 連線成功後，立即檢查 URL hash 並自動加入房間
+      checkAndJoinRoom();
     });
 
     // 監聽連線錯誤
@@ -135,33 +157,16 @@ const App: React.FC = () => {
     // 只有在真正離開應用時才斷線（例如 goHome 函數中）
   }, []);
 
-  // 檢查 URL Hash 自動加入房間
+  // 檢查 URL Hash 自動加入房間（處理 hashchange 事件）
   useEffect(() => {
-    const checkHash = () => {
-      const hash = window.location.hash.replace('#', '');
-      const params = new URLSearchParams(hash);
-      const roomId = params.get('room');
+    // 延遲檢查，確保 Socket 已連線（作為備用方案）
+    const timer = setTimeout(checkAndJoinRoom, 500);
 
-      // 防止無限重試：檢查是否已嘗試過此房間
-      if (roomId
-        && !room
-        && !isConnecting
-        && socketService.isConnected()
-        && !attemptedRooms.current.has(roomId)
-      ) {
-        console.log('🔗 偵測到房間 ID，嘗試加入:', roomId);
-        attemptedRooms.current.add(roomId);
-        handleJoinRoom(roomId);
-      }
-    };
-
-    // 延遲檢查，確保 Socket 已連線
-    const timer = setTimeout(checkHash, 500);
-
-    window.addEventListener('hashchange', checkHash);
+    // 監聽 URL hash 變化（當用戶手動更改 URL 時）
+    window.addEventListener('hashchange', checkAndJoinRoom);
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('hashchange', checkAndJoinRoom);
     };
   }, [room, isConnecting]);
 
