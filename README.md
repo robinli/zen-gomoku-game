@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="禪意五子棋" src="/assets/screenshot.png" />
+<img alt="禪意五子棋主畫面截圖" src="/assets/screenshot.png" />
 </div>
 
 # 禪意五子棋 (Zen Gomoku Game)
