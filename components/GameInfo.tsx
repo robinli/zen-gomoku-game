@@ -33,47 +33,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
   };
 
   return (
-    <div className="space-y-6">
-      {/* Connection Status */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">連線狀態</span>
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${getStatusColor()}`}></span>
-          <span className={`text-sm font-medium ${isReconnecting ? 'text-amber-600' : 'text-slate-600'}`}>
-            {getStatusText()}
-          </span>
-        </div>
-      </div>
-
-      {/* Turn Indicator */}
-      <div className={`bg-white p-6 rounded-2xl shadow-md border border-slate-100 transition-opacity ${(!isConnected && !isReconnecting) ? 'opacity-50' : 'opacity-100'}`}>
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">當前回合</h3>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${room.turn === 'black' ? 'bg-slate-900 scale-110 shadow-lg' : 'bg-slate-200'}`}>
-              <div className="w-4 h-4 rounded-full border border-white/20"></div>
-            </div>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${room.turn === 'white' ? 'bg-white scale-110 shadow-lg ring-1 ring-slate-200' : 'bg-slate-200'}`}>
-              <div className="w-4 h-4 rounded-full border border-slate-900/10 bg-white"></div>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="font-serif font-bold text-lg">
-              {room.turn === 'black' ? '黑方回合' : '白方回合'}
-            </p>
-            <p className="text-xs text-slate-400">
-              {room.winner
-                ? '對局已結束'
-                : (isReconnecting
-                  ? '連線中斷中...'
-                  : (localPlayer === room.turn ? '您的回合' : '等待對方下子...')
-                )
-              }
-            </p>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Share Section - 只在等待對手加入時顯示 */}
       {Object.keys(room.players).length < 2 && !isReconnecting && (
         <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white animate-in zoom-in duration-500">
@@ -103,7 +63,6 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
       </button>
 
       <div className="text-[10px] text-slate-400 text-center uppercase tracking-widest flex flex-col gap-1">
-        <span>房間代碼: {room.id}</span>
         <span>您的身份: {localPlayer === 'black' ? '執黑 (先行)' : '執白 (後行)'}</span>
       </div>
     </div>

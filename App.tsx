@@ -276,77 +276,135 @@ const App: React.FC = () => {
   const showFatalError = error && !room;
 
   return (
-    <div className="min-h-screen bg-[#f8f5f2] p-4 flex flex-col items-center">
-      <header className="py-8 text-center animate-in fade-in duration-1000">
-        <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
-        <p className="text-slate-400 italic text-sm mt-1">
-          {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : 'Client-Server 連線版本')}
-        </p>
-      </header>
-
-      {showFatalError && (
-        <div className="mb-6 max-w-md w-full p-6 bg-white border border-red-100 shadow-xl rounded-2xl animate-in zoom-in duration-300">
-          <div className="flex items-center gap-3 text-red-600 mb-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
-            <h2 className="font-bold">連線失敗</h2>
-          </div>
-          <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
-          <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
-            返回大廳
-          </button>
-        </div>
-      )}
-
-      {isConnecting && !room && !error && (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 animate-in fade-in">
-          <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
-          <p className="text-slate-400 font-serif italic">正在尋找遊戲房間中...</p>
-        </div>
-      )}
-
-      {!room && !isConnecting && !error && (
-        <Lobby onCreate={handleCreate} />
-      )}
-
+    <div className="min-h-screen bg-[#f8f5f2] flex flex-col">
+      {/* 固定頂部資訊條 - 方案 A */}
       {room && (
-        <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
-          <div className="w-full flex justify-center relative">
-            <Board
-              board={room.board}
-              onMove={handleMove}
-              lastMove={room.lastMove}
-              winner={room.winner}
-              winningLine={room.winningLine}
-              turn={room.turn}
-              disabled={isBoardDisabled}
-            />
-            {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
-            {isReconnecting && !room.winner && (
-              <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
-                <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
-                  <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
-                  <p className="text-amber-700 font-bold text-sm">網路不穩定，嘗試恢復連線中...</p>
-                </div>
+        <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            {/* 左側：遊戲標題 */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-white rounded-full"></div>
               </div>
-            )}
+              <div>
+                <h1 className="text-sm font-bold font-serif text-slate-900">禪意五子棋</h1>
+                <p className="text-[10px] text-slate-400">房間 {room.id}</p>
+              </div>
+            </div>
+
+            {/* 中間：當前回合指示 */}
+            <div className="flex items-center gap-2">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${room.turn === 'black' ? 'bg-slate-900 scale-110' : 'bg-slate-200'}`}>
+                <div className="w-2.5 h-2.5 rounded-full border border-white/20"></div>
+              </div>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${room.turn === 'white' ? 'bg-white scale-110 ring-1 ring-slate-300' : 'bg-slate-200'}`}>
+                <div className="w-2.5 h-2.5 rounded-full border border-slate-900/10 bg-white"></div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-700 leading-tight">
+                  {room.turn === 'black' ? '黑方' : '白方'}
+                  <span className="hidden sm:inline">回合</span>
+                </p>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  {room.winner ? '已結束' : (localPlayer === room.turn ? '您的' : '對手')}
+                </p>
+              </div>
+            </div>
+
+
+            {/* 右側：連線狀態 */}
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isReconnecting ? 'bg-amber-500 animate-pulse' :
+                (isConnected && Object.keys(room.players).length === 2) ? 'bg-green-500' :
+                  'bg-amber-500 animate-pulse'
+                }`}></span>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-600">
+                {isReconnecting ? '重連中' :
+                  (isConnected && Object.keys(room.players).length === 2) ? '已連線' :
+                    '等待中'}
+              </span>
+            </div>
           </div>
-          <aside className="w-full lg:w-80">
-            <GameInfo
-              room={room}
-              localPlayer={localPlayer}
-              onReset={handleReset}
-              isConnected={isConnected}
-              isReconnecting={isReconnecting}
-            />
-          </aside>
-        </main>
+        </div>
       )}
 
-      <footer className="mt-auto py-8 text-slate-300 text-[10px] uppercase tracking-widest text-center">
-        Client-Server Architecture • Zen Aesthetics
-      </footer>
+      {/* 非遊戲狀態的標題 */}
+      {!room && (
+        <header className="py-6 text-center animate-in fade-in duration-1000">
+          <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
+          <p className="text-slate-400 italic text-sm mt-1">
+            {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : 'Client-Server 連線版本')}
+          </p>
+        </header>
+      )}
+
+      {/* 主要內容區域 */}
+      <div className="flex-1 p-4 pb-20 flex flex-col items-center">
+
+        {showFatalError && (
+          <div className="mb-6 max-w-md w-full p-6 bg-white border border-red-100 shadow-xl rounded-2xl animate-in zoom-in duration-300">
+            <div className="flex items-center gap-3 text-red-600 mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              <h2 className="font-bold">連線失敗</h2>
+            </div>
+            <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
+            <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
+              返回大廳
+            </button>
+          </div>
+        )}
+
+        {isConnecting && !room && !error && (
+          <div className="flex flex-col items-center justify-center p-12 space-y-4 animate-in fade-in">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
+            <p className="text-slate-400 font-serif italic">正在尋找遊戲房間中...</p>
+          </div>
+        )}
+
+        {!room && !isConnecting && !error && (
+          <Lobby onCreate={handleCreate} />
+        )}
+
+        {room && (
+          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-8 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
+            <div className="w-full flex justify-center relative">
+              <Board
+                board={room.board}
+                onMove={handleMove}
+                lastMove={room.lastMove}
+                winner={room.winner}
+                winningLine={room.winningLine}
+                turn={room.turn}
+                disabled={isBoardDisabled}
+              />
+              {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
+              {isReconnecting && !room.winner && (
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
+                  <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+                    <p className="text-amber-700 font-bold text-sm">網路不穩定，嘗試恢復連線中...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <aside className="w-full lg:w-80">
+              <GameInfo
+                room={room}
+                localPlayer={localPlayer}
+                onReset={handleReset}
+                isConnected={isConnected}
+                isReconnecting={isReconnecting}
+              />
+            </aside>
+          </main>
+        )}
+
+        <footer className="mt-auto py-8 text-slate-300 text-[10px] uppercase tracking-widest text-center">
+          Client-Server Architecture • Zen Aesthetics
+        </footer>
+      </div>
     </div>
   );
 };
