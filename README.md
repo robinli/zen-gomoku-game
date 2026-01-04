@@ -60,12 +60,12 @@ PORT=3000
 CLIENT_URL=http://localhost:5173
 ```
 
-**Client 端** (`.env.local`)
+**Client 端** (`client/.env.local`)
 ```env
 VITE_SOCKET_URL=http://localhost:3000
 ```
 
-> 💡 提示：可直接複製 `.env.example` 檔案
+> 💡 提示：可直接複製 `client/.env.example` 檔案
 
 ### **3️⃣ 啟動應用**
 
@@ -77,6 +77,7 @@ npm run dev
 
 **啟動 Client** (另開一個 Terminal)
 ```bash
+cd client
 npm run dev
 ```
 
@@ -169,30 +170,50 @@ npm run dev
 
 ```
 zen-gomoku-game/
-├── client/                    # React 前端
+├── 📱 client/                    # React 前端
 │   ├── src/
-│   │   ├── components/        # UI 組件
+│   │   ├── components/           # UI 組件
 │   │   │   ├── Board.tsx
 │   │   │   ├── GameInfo.tsx
 │   │   │   └── Lobby.tsx
 │   │   ├── services/
-│   │   │   └── socketService.ts   # WebSocket 通訊層
+│   │   │   ├── geminiService.ts
+│   │   │   └── socketService.ts  # WebSocket 通訊層
 │   │   ├── utils/
-│   │   │   └── gameLogic.ts       # 遊戲邏輯
+│   │   │   └── gameLogic.ts      # 遊戲邏輯
 │   │   ├── App.tsx
+│   │   ├── index.tsx
 │   │   └── types.ts
-│   └── package.json
+│   ├── public/
+│   │   └── vite.svg
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
 │
-├── server/                    # Node.js 後端
+├── 🖥️ server/                    # Node.js 後端
 │   ├── src/
-│   │   ├── index.ts           # Express + Socket.IO
-│   │   ├── roomManager.ts     # 房間管理
-│   │   ├── gameLogic.ts       # 遊戲邏輯
+│   │   ├── index.ts              # Express + Socket.IO
+│   │   ├── roomManager.ts        # 房間管理
+│   │   ├── gameLogic.ts          # 遊戲邏輯
 │   │   └── types.ts
 │   └── package.json
 │
-└── README.md
+├── 📚 docs/                      # 專案文檔
+│   ├── architecture/             # 架構文檔
+│   ├── deployment/               # 部署指南
+│   ├── development/              # 開發文檔
+│   └── testing/                  # 測試報告
+│
+├── 🎨 assets/                    # 資源文件
+│   └── screenshot.png
+│
+├── 🛠️ scripts/                   # 工具腳本
+│   └── monitor.js
+│
+└── 📋 package.json               # Workspace root
 ```
+
 
 ---
 
@@ -218,7 +239,7 @@ git push origin main
 VITE_SOCKET_URL=https://zen-gomoku-server.onrender.com
 ```
 
-📖 **詳細步驟**請參考：[DEPLOYMENT.md](./DEPLOYMENT.md)
+📖 **詳細步驟**請參考：[DEPLOYMENT.md](./docs/deployment/DEPLOYMENT.md)
 
 ---
 
