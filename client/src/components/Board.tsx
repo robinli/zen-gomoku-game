@@ -35,7 +35,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
     </React.Fragment>
   ));
 
-  const interactionCells = Array.from({ length: BOARD_SIZE }).flatMap((_, y) => 
+  const interactionCells = Array.from({ length: BOARD_SIZE }).flatMap((_, y) =>
     Array.from({ length: BOARD_SIZE }).map((_, x) => (
       <rect
         key={`cell-${x}-${y}`}
@@ -50,21 +50,20 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
     ))
   );
 
-  const stones = board.flatMap((row, y) => 
+  const stones = board.flatMap((row, y) =>
     row.map((cell, x) => {
       if (!cell) return null;
       const isLast = lastMove?.x === x && lastMove?.y === y;
       const isWinningStone = winningLine?.some(p => p.x === x && p.y === y);
-      
+
       return (
         <g key={`stone-${x}-${y}`} className="stone-shadow transition-all duration-300">
           <circle
             cx={padding + x * cellSize}
             cy={padding + y * cellSize}
             r={cellSize * 0.43}
-            className={`transition-all duration-500 ${
-              cell === 'black' ? 'fill-slate-900' : 'fill-slate-50 stroke-slate-200 stroke-1'
-            }`}
+            className={`transition-all duration-500 ${cell === 'black' ? 'fill-slate-900' : 'fill-slate-50 stroke-slate-200 stroke-1'
+              }`}
           />
           {/* 高亮顯示獲勝連線 */}
           {isWinningStone && (
@@ -94,7 +93,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
 
   return (
     <div className={`relative w-full max-w-[550px] aspect-square p-2 sm:p-4 bg-[#d7b899] rounded-xl shadow-2xl wood-texture border-4 border-[#8d6e63]/30 transition-all duration-500 ${disabled && !winner ? 'brightness-95 opacity-90' : 'opacity-100'}`}>
-      <svg 
+      <svg
         viewBox={`0 0 ${boardSize} ${boardSize}`}
         className={`w-full h-full select-none ${disabled ? 'pointer-events-none' : ''}`}
       >
@@ -102,7 +101,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
           {gridLines}
         </g>
 
-        {[3, 7, 11].flatMap(x => 
+        {[3, 7, 11].flatMap(x =>
           [3, 7, 11].map(y => (
             <circle key={`star-${x}-${y}`} cx={padding + x * cellSize} cy={padding + y * cellSize} r="3" fill="#5d4037" />
           ))
@@ -115,7 +114,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
 
       {/* 重新開啟視窗按鈕 (僅在視窗關閉且已有勝負時顯示) */}
       {winner && !overlayVisible && (
-        <button 
+        <button
           onClick={() => setOverlayVisible(true)}
           className="absolute top-4 left-4 z-30 bg-white/90 backdrop-blur hover:bg-white text-slate-800 px-4 py-2 rounded-full shadow-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 animate-in slide-in-from-left duration-300 border border-slate-200"
         >
@@ -132,7 +131,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-            <p className="text-slate-500 font-medium text-[10px] uppercase tracking-wider">對手回合中</p>
+            <p className="text-slate-500 font-medium text-xs uppercase tracking-wider">對手回合中</p>
           </div>
         </div>
       )}
@@ -142,7 +141,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg backdrop-blur-[2px] z-40 animate-in fade-in duration-300">
           <div className="bg-white p-8 rounded-3xl shadow-2xl text-center transform scale-100 border border-white/20 max-w-[85%] relative animate-in zoom-in duration-300">
             {/* 關閉按鈕 */}
-            <button 
+            <button
               onClick={() => setOverlayVisible(false)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
               title="查看棋盤"
@@ -160,8 +159,8 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
               {winner === 'draw' ? '和局' : (winner === 'black' ? '黑子勝出' : '白子勝出')}
             </h2>
             <p className="text-slate-500 font-light tracking-widest uppercase text-xs mb-6">對局已結束</p>
-            
-            <button 
+
+            <button
               onClick={() => setOverlayVisible(false)}
               className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-semibold transition-all border border-slate-200/50"
             >

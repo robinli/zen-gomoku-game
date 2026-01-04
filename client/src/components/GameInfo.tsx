@@ -6,11 +6,12 @@ interface GameInfoProps {
   room: GameRoom;
   localPlayer: Player | null;
   onReset: () => void;
+  onGoHome: () => void;
   isConnected: boolean;
   isReconnecting?: boolean;
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConnected, isReconnecting }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, isConnected, isReconnecting }) => {
   const [copied, setCopied] = useState(false);
   const shareLink = window.location.href;
 
@@ -40,7 +41,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
           <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">邀請好友</h3>
           <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">請將此連結傳送給另一台電腦的朋友，他們點擊後即可開始對弈。</p>
           <div className="flex flex-col gap-2">
-            <div className="bg-white/10 rounded-lg px-3 py-2 text-[11px] font-mono break-all border border-white/10">
+            <div className="bg-white/10 rounded-lg px-3 py-2 text-xs font-mono break-all border border-white/10">
               {shareLink}
             </div>
             <button
@@ -62,7 +63,18 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, isConne
         重新開始對局
       </button>
 
-      <div className="text-[10px] text-slate-400 text-center uppercase tracking-widest flex flex-col gap-1">
+      {/* 返回大厅 */}
+      <button
+        onClick={onGoHome}
+        className="w-full py-3 border-2 border-slate-300 text-slate-700 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50 hover:border-slate-400 flex items-center justify-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        返回大廳
+      </button>
+
+      <div className="text-xs text-slate-400 text-center uppercase tracking-widest flex flex-col gap-1">
         <span>您的身份: {localPlayer === 'black' ? '執黑 (先行)' : '執白 (後行)'}</span>
       </div>
     </div>

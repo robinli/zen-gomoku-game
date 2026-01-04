@@ -15,7 +15,7 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
         <div className="w-16 h-16 bg-slate-900 rounded-full mx-auto flex items-center justify-center shadow-lg">
           <div className="w-8 h-8 border-4 border-white rounded-full"></div>
         </div>
-        <h2 className="text-2xl font-serif font-bold mt-4 text-slate-900">禪意五子棋</h2>
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold mt-4 text-slate-900">禪意五子棋</h2>
         <p className="text-slate-500 px-4">建立遊戲房間，選擇您的棋子顏色，並邀請好友進行對弈。</p>
       </div>
 
@@ -24,13 +24,11 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
         <div className="flex justify-center gap-6">
           <button
             onClick={() => setSelectedSide('black')}
-            className={`group relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 ${
-              selectedSide === 'black' ? 'bg-slate-900 text-white shadow-xl scale-105' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-            }`}
+            className={`group relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 ${selectedSide === 'black' ? 'bg-slate-900 text-white shadow-xl scale-105' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+              }`}
           >
-            <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors ${
-              selectedSide === 'black' ? 'border-white/30 bg-slate-800' : 'border-slate-200 bg-slate-200'
-            }`}>
+            <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors ${selectedSide === 'black' ? 'border-white/30 bg-slate-800' : 'border-slate-200 bg-slate-200'
+              }`}>
               <div className="w-6 h-6 rounded-full bg-slate-950 shadow-inner"></div>
             </div>
             <span className="text-sm font-bold">執黑 (先行)</span>
@@ -39,13 +37,11 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
 
           <button
             onClick={() => setSelectedSide('white')}
-            className={`group relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 ${
-              selectedSide === 'white' ? 'bg-slate-900 text-white shadow-xl scale-105' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-            }`}
+            className={`group relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 ${selectedSide === 'white' ? 'bg-slate-900 text-white shadow-xl scale-105' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+              }`}
           >
-            <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors ${
-              selectedSide === 'white' ? 'border-white/30 bg-slate-800' : 'border-slate-200 bg-white'
-            }`}>
+            <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors ${selectedSide === 'white' ? 'border-white/30 bg-slate-800' : 'border-slate-200 bg-white'
+              }`}>
               <div className="w-6 h-6 rounded-full bg-white shadow-md"></div>
             </div>
             <span className="text-sm font-bold">執白 (後行)</span>
@@ -54,9 +50,9 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
         </div>
       </div>
 
-      <button 
+      <button
         onClick={() => onCreate(selectedSide)}
-        className="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transform transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
+        className="w-full py-4 bg-slate-900 text-white rounded-xl text-base sm:text-lg font-semibold hover:bg-slate-800 transform transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
       >
         <span>創建遊戲房間</span>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 group-hover:translate-x-1 transition-transform">
@@ -70,7 +66,7 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
       </div>
 
       <div className="text-sm text-slate-500 italic">
-        <p>若您已有好友分享的連結，<br/>直接點擊該連結即可加入遊戲。</p>
+        <p>若您已有好友分享的連結，<br />直接點擊該連結即可加入遊戲。</p>
       </div>
     </div>
   );

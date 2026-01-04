@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
@@ -260,11 +261,30 @@ const App: React.FC = () => {
     socketService.resetGame();
   };
 
-  // 返回大廳
+  // 返回大廳（直接执行）
   const goHome = () => {
     socketService.disconnect();
     window.location.hash = '';
     window.location.reload();
+  };
+
+  // 智能判断是否需要确认
+  const handleGoHome = () => {
+    if (!room) {
+      goHome();
+      return;
+    }
+
+    // 游戏未开始（等待对手）或已结束，直接返回
+    const gameNotStarted = Object.keys(room.players).length < 2;
+    const gameEnded = room.winner !== null;
+
+    if (gameNotStarted || gameEnded) {
+      goHome();
+    } else {
+      // 游戏进行中，显示确认对话框
+      setShowConfirm(true);
+    }
   };
 
   const isBoardDisabled =
@@ -287,8 +307,8 @@ const App: React.FC = () => {
                 <div className="w-4 h-4 border-2 border-white rounded-full"></div>
               </div>
               <div>
-                <h1 className="text-sm font-bold font-serif text-slate-900">禪意五子棋</h1>
-                <p className="text-[10px] text-slate-400">房間 {room.id}</p>
+                <h1 className="text-sm sm:text-base font-bold font-serif text-slate-900">禪意五子棋</h1>
+                <p className="text-xs text-slate-400">房間 {room.id}</p>
               </div>
             </div>
 
@@ -301,11 +321,11 @@ const App: React.FC = () => {
                 <div className="w-2.5 h-2.5 rounded-full border border-slate-900/10 bg-white"></div>
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-700 leading-tight">
+                <p className="text-xs sm:text-sm font-bold text-slate-700 leading-tight">
                   {room.turn === 'black' ? '黑方' : '白方'}
                   <span className="hidden sm:inline">回合</span>
                 </p>
-                <p className="text-[10px] text-slate-400 leading-tight">
+                <p className="text-xs text-slate-400 leading-tight">
                   {room.winner ? '已結束' : (localPlayer === room.turn ? '您的' : '對手')}
                 </p>
               </div>
@@ -318,7 +338,7 @@ const App: React.FC = () => {
                 (isConnected && Object.keys(room.players).length === 2) ? 'bg-green-500' :
                   'bg-amber-500 animate-pulse'
                 }`}></span>
-              <span className="text-[10px] sm:text-xs font-medium text-slate-600">
+              <span className="text-xs sm:text-sm font-medium text-slate-600">
                 {isReconnecting ? '重連中' :
                   (isConnected && Object.keys(room.players).length === 2) ? '已連線' :
                     '等待中'}
@@ -331,7 +351,7 @@ const App: React.FC = () => {
       {/* 非遊戲狀態的標題 */}
       {!room && (
         <header className="py-6 text-center animate-in fade-in duration-1000">
-          <h1 className="text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
           <p className="text-slate-400 italic text-sm mt-1">
             {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : 'Client-Server 連線版本')}
           </p>
@@ -394,6 +414,7 @@ const App: React.FC = () => {
                 room={room}
                 localPlayer={localPlayer}
                 onReset={handleReset}
+                onGoHome={handleGoHome}
                 isConnected={isConnected}
                 isReconnecting={isReconnecting}
               />
@@ -401,10 +422,46 @@ const App: React.FC = () => {
           </main>
         )}
 
-        <footer className="mt-auto py-8 text-slate-300 text-[10px] uppercase tracking-widest text-center">
+        <footer className="mt-auto py-8 text-slate-300 text-xs uppercase tracking-widest text-center">
           Client-Server Architecture • Zen Aesthetics
         </footer>
       </div>
+
+      {/* 确认对话框 */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-in zoom-in duration-300">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-amber-600">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">确认离开游戏？</h3>
+            </div>
+            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+              游戏正在进行中，离开后对局将中断，对手将收到您离线的通知。
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 py-2.5 border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  goHome();
+                }}
+                className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors shadow-lg"
+              >
+                确认离开
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
