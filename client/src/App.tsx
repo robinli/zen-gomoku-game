@@ -437,10 +437,10 @@ const App: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-slate-900">确认离开游戏？</h3>
+              <h3 className="text-lg font-bold text-slate-900">確認離開遊戲？</h3>
             </div>
             <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-              游戏正在进行中，离开后对局将中断，对手将收到您离线的通知。
+              遊戲正在進行中，離開後對局將中斷，對手將收到您離線的通知。
             </p>
             <div className="flex gap-3">
               <button
@@ -456,7 +456,7 @@ const App: React.FC = () => {
                 }}
                 className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors shadow-lg"
               >
-                确认离开
+                確認離開
               </button>
             </div>
           </div>
