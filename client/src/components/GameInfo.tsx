@@ -13,12 +13,46 @@ interface GameInfoProps {
 
 const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, isConnected, isReconnecting }) => {
   const [copied, setCopied] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const shareLink = window.location.href;
 
+  // 檢查是否支援 Web Share API
+  const canShare = typeof navigator !== 'undefined' && navigator.share !== undefined;
+
+  // Web Share API 分享
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: '禪意五子棋 - 邀請對局',
+        text: '我創建了一個五子棋房間，快來跟我對弈吧！',
+        url: shareLink
+      });
+      setShareStatus('success');
+      setTimeout(() => setShareStatus('idle'), 2000);
+      console.log('✅ 分享成功');
+    } catch (error: any) {
+      // 用戶取消分享不算錯誤
+      if (error.name !== 'AbortError') {
+        console.error('❌ 分享失敗:', error);
+        setShareStatus('error');
+        setTimeout(() => setShareStatus('idle'), 2000);
+        // 降級到複製連結
+        handleCopy();
+      }
+    }
+  };
+
+  // 複製到剪貼簿
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(shareLink)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        // 如果 clipboard API 也不支援，使用 prompt
+        prompt('請複製此連結:', shareLink);
+      });
   };
 
   const getStatusColor = () => {
@@ -39,18 +73,80 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       {Object.keys(room.players).length < 2 && !isReconnecting && (
         <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white animate-in zoom-in duration-500">
           <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">邀請好友</h3>
-          <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">請將此連結傳送給另一台電腦的朋友，他們點擊後即可開始對弈。</p>
+          <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">
+            {canShare
+              ? '點擊下方按鈕分享連結給朋友，開始對弈。'
+              : '請將此連結傳送給朋友，他們點擊後即可開始對弈。'}
+          </p>
           <div className="flex flex-col gap-2">
             <div className="bg-white/10 rounded-lg px-3 py-2 text-xs font-mono break-all border border-white/10">
               {shareLink}
             </div>
+
+            {/* Web Share API 按鈕（移動端優先） */}
+            {canShare && (
+              <button
+                onClick={handleShare}
+                className={`mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${shareStatus === 'success'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-white text-slate-900 hover:bg-slate-100 active:scale-95'
+                  }`}
+              >
+                {shareStatus === 'success' ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    分享成功
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                    </svg>
+                    分享邀請連結
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* 複製按鈕（備用方案或桌面端） */}
             <button
               onClick={handleCopy}
-              className={`mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-slate-900 hover:bg-slate-100'}`}
+              className={`${canShare ? '' : 'mt-2'} w-full py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${copied
+                  ? 'bg-green-500 text-white'
+                  : canShare
+                    ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
+                    : 'bg-white text-slate-900 hover:bg-slate-100'
+                }`}
             >
-              {copied ? '✓ 已複製連結' : '複製分享連結'}
+              {copied ? (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  已複製連結
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                  </svg>
+                  {canShare ? '或複製連結' : '複製分享連結'}
+                </>
+              )}
             </button>
           </div>
+
+          {/* 提示訊息 */}
+          {canShare && (
+            <div className="mt-3 flex items-start gap-2 text-xs text-white/60">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 flex-shrink-0 mt-0.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+              </svg>
+              <span className="leading-relaxed">使用「分享」按鈕可保持連線不中斷</span>
+            </div>
+          )}
         </div>
       )}
 
