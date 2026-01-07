@@ -24,6 +24,8 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
     try {
       // 只傳 URL，讓社交平台自動抓取 Open Graph 標籤
       await navigator.share({
+        title: '禪意五子棋',
+        text: '快來跟我下五子棋！',
         url: shareLink
       });
       setShareStatus('success');
