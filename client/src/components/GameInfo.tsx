@@ -22,9 +22,8 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
   // Web Share API 分享
   const handleShare = async () => {
     try {
+      // 只傳 URL，讓社交平台自動抓取 Open Graph 標籤
       await navigator.share({
-        title: '禪意五子棋 - 邀請對局',
-        text: '我創建了一個五子棋房間，快來跟我對弈吧！',
         url: shareLink
       });
       setShareStatus('success');
@@ -88,8 +87,8 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
               <button
                 onClick={handleShare}
                 className={`mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${shareStatus === 'success'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-white text-slate-900 hover:bg-slate-100 active:scale-95'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-white text-slate-900 hover:bg-slate-100 active:scale-95'
                   }`}
               >
                 {shareStatus === 'success' ? (
@@ -114,10 +113,10 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
             <button
               onClick={handleCopy}
               className={`${canShare ? '' : 'mt-2'} w-full py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${copied
-                  ? 'bg-green-500 text-white'
-                  : canShare
-                    ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
-                    : 'bg-white text-slate-900 hover:bg-slate-100'
+                ? 'bg-green-500 text-white'
+                : canShare
+                  ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
+                  : 'bg-white text-slate-900 hover:bg-slate-100'
                 }`}
             >
               {copied ? (
