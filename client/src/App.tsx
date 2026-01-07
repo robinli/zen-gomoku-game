@@ -58,8 +58,41 @@ const App: React.FC = () => {
       setIsConnecting(false);
       setError(null);
 
-      // 🔥 方案 1：Socket 連線成功後，立即檢查 URL hash 並自動加入房間
-      checkAndJoinRoom();
+      // 🔥 檢查是否有未完成的房間（寬限期重連）
+      const savedRoomId = localStorage.getItem('currentRoomId');
+      const savedSide = localStorage.getItem('currentRoomSide') as Player;
+
+      if (savedRoomId && savedSide && !room) {
+        console.log('🔄 偵測到未完成的房間，嘗試重連:', savedRoomId);
+
+        // 嘗試重連
+        socketService.reconnectRoom(savedRoomId, (response) => {
+          if (response.success && response.roomId) {
+            console.log('✅ 房間重連成功');
+            // 恢復房間狀態
+            setRoom({
+              id: response.roomId,
+              board: Array(15).fill(null).map(() => Array(15).fill(null)),
+              turn: 'black',
+              winner: null,
+              winningLine: null,
+              lastMove: null,
+              players: { [savedSide]: 'me' },
+              updatedAt: Date.now(),
+            });
+            setLocalPlayer(savedSide);
+            window.location.hash = `room=${response.roomId}`;
+          } else {
+            console.log('❌ 房間重連失敗，可能已過期');
+            // 清除 localStorage
+            localStorage.removeItem('currentRoomId');
+            localStorage.removeItem('currentRoomSide');
+          }
+        });
+      } else {
+        // 沒有儲存的房間，檢查 URL hash 並自動加入房間
+        checkAndJoinRoom();
+      }
     });
 
     // 監聽連線錯誤
@@ -186,6 +219,10 @@ const App: React.FC = () => {
     socketService.createRoom(side, ({ roomId, shareUrl }) => {
       window.location.hash = `room=${roomId}`;
 
+      // ✅ 儲存房間資訊到 localStorage（用於寬限期重連）
+      localStorage.setItem('currentRoomId', roomId);
+      localStorage.setItem('currentRoomSide', side);
+
       const newRoom: GameRoom = {
         id: roomId,
         board: Array(15).fill(null).map(() => Array(15).fill(null)),
@@ -263,6 +300,10 @@ const App: React.FC = () => {
 
   // 返回大廳（直接执行）
   const goHome = () => {
+    // ✅ 清除儲存的房間資訊
+    localStorage.removeItem('currentRoomId');
+    localStorage.removeItem('currentRoomSide');
+
     socketService.disconnect();
     window.location.hash = '';
     window.location.reload();

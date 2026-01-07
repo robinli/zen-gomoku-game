@@ -139,6 +139,44 @@ io.on('connection', (socket) => {
         }
     });
 
+    // 房主重新連線到房間
+    socket.on('RECONNECT_ROOM', ({ roomId }, callback) => {
+        try {
+            console.log(`🔄 嘗試重新連線到房間: ${roomId}, Socket ID: ${socket.id}`);
+
+            const success = roomManager.reconnectHost(roomId, socket.id);
+
+            if (success) {
+                const room = roomManager.getRoom(roomId);
+                if (room) {
+                    const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+                    const shareUrl = `${baseUrl}/#room=${room.id}`;
+
+                    socket.emit('ROOM_RECONNECTED', { roomId: room.id, shareUrl });
+
+                    if (callback) {
+                        callback({ success: true, roomId: room.id, shareUrl });
+                    }
+                    console.log(`✅ 房主重新連線成功: ${roomId}`);
+                } else {
+                    throw new Error('房間不存在');
+                }
+            } else {
+                console.log(`❌ 重新連線失敗: 房間不存在或已過期 (${roomId})`);
+                socket.emit('ERROR', { message: '房間不存在或已過期' });
+                if (callback) {
+                    callback({ success: false, error: '房間不存在或已過期' });
+                }
+            }
+        } catch (error) {
+            console.error('重新連線失敗:', error);
+            socket.emit('ERROR', { message: '重新連線失敗' });
+            if (callback) {
+                callback({ success: false, error: '重新連線失敗' });
+            }
+        }
+    });
+
     // 加入房間
     socket.on('JOIN_ROOM', ({ roomId }, callback) => {
         try {

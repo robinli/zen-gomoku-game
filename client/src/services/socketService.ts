@@ -87,6 +87,30 @@ class SocketService {
         });
     }
 
+    // 重新連線到房間
+    reconnectRoom(roomId: string, callback: (data: { success: boolean; roomId?: string; shareUrl?: string; error?: string }) => void): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            callback({ success: false, error: 'Socket 未初始化' });
+            return;
+        }
+
+        console.log('📤 發送 RECONNECT_ROOM 事件, roomId:', roomId);
+
+        this.socket.emit('RECONNECT_ROOM', { roomId }, (response: any) => {
+            console.log('📥 收到 RECONNECT_ROOM 回應:', response);
+            if (response) {
+                callback(response);
+            }
+        });
+
+        // 監聽重連成功事件
+        this.socket.once('ROOM_RECONNECTED', (data: { roomId: string; shareUrl: string }) => {
+            console.log('📥 收到 ROOM_RECONNECTED 事件:', data);
+            callback({ success: true, ...data });
+        });
+    }
+
     // 加入房間
     joinRoom(roomId: string, callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
         if (!this.socket) {
