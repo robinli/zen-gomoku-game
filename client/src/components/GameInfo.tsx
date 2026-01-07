@@ -80,10 +80,6 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
               : '請將此連結傳送給朋友，他們點擊後即可開始對弈。'}
           </p>
           <div className="flex flex-col gap-2">
-            <div className="bg-white/10 rounded-lg px-3 py-2 text-xs font-mono break-all border border-white/10">
-              {shareLink}
-            </div>
-
             {/* Web Share API 按鈕（移動端優先） */}
             {canShare && (
               <button
@@ -137,6 +133,10 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
                 </>
               )}
             </button>
+            {/* 分享連結 */}
+            <div className="bg-white/10 rounded-lg px-3 py-2 text-xs font-mono break-all border border-white/10">
+              {shareLink}
+            </div>
           </div>
 
           {/* 提示訊息 */}

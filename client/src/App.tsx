@@ -393,9 +393,9 @@ const App: React.FC = () => {
       {showFatalError && (
         <header className="py-6 text-center animate-in fade-in duration-1000">
           <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">禪意五子棋</h1>
-          {/* <p className="text-slate-400 italic text-sm mt-1">
+          {<p className="text-slate-400 italic text-sm mt-1">
             {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : 'Client-Server 連線版本')}
-          </p> */}
+          </p>}
         </header>
       )}
 
