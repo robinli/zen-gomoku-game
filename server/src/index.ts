@@ -117,18 +117,27 @@ io.on('connection', (socket) => {
     console.log(`🔌 新連線: ${socket.id}`);
 
     // 創建房間
-    socket.on('CREATE_ROOM', ({ side }, callback) => {
+    socket.on('CREATE_ROOM', ({ side, settings }, callback) => {
         try {
-            const room = roomManager.createRoom(socket.id, side);
+            const room = roomManager.createRoom(socket.id, side, settings);
 
             // 產生分享 URL
             const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
             const shareUrl = `${baseUrl}/#room=${room.id}`;
 
-            socket.emit('ROOM_CREATED', { roomId: room.id, shareUrl });
+            socket.emit('ROOM_CREATED', {
+                roomId: room.id,
+                shareUrl,
+                settings: room.settings  // 返回設定
+            });
 
             if (callback) {
-                callback({ success: true, roomId: room.id, shareUrl });
+                callback({
+                    success: true,
+                    roomId: room.id,
+                    shareUrl,
+                    settings: room.settings  // 返回設定
+                });
             }
         } catch (error) {
             console.error('創建房間失敗:', error);
@@ -266,6 +275,17 @@ io.on('connection', (socket) => {
             lastMove: pos
         });
 
+        // ✅ 記錄到歷史（用於悔棋）
+        const updatedRoom = roomManager.getRoom(room.id);
+        if (updatedRoom) {
+            updatedRoom.history.push({
+                step: updatedRoom.history.length + 1,
+                player: playerSide,
+                position: pos,
+                timestamp: Date.now(),
+            });
+        }
+
         // 廣播給雙方
         const updateData = {
             board: newBoard,
@@ -316,6 +336,90 @@ io.on('connection', (socket) => {
         }
 
         console.log(`🔄 重新開始: 房間 ${room.id}`);
+    });
+
+    // 請求悔棋
+    socket.on('REQUEST_UNDO', () => {
+        const room = roomManager.getRoomBySocketId(socket.id);
+        if (!room) {
+            socket.emit('ERROR', { message: '您不在任何房間中' });
+            return;
+        }
+
+        // 確定玩家身份
+        const playerSide: Player = room.hostSocketId === socket.id
+            ? room.hostSide
+            : (room.hostSide === 'black' ? 'white' : 'black');
+
+        // 檢查是否可以悔棋
+        const { canUndo, reason } = roomManager.canUndo(room.id, playerSide);
+        if (!canUndo) {
+            socket.emit('ERROR', { message: reason || '無法悔棋' });
+            return;
+        }
+
+        // 通知對方玩家
+        const opponentSocketId = room.hostSocketId === socket.id
+            ? room.guestSocketId
+            : room.hostSocketId;
+
+        if (!opponentSocketId) {
+            socket.emit('ERROR', { message: '對方玩家不在線' });
+            return;
+        }
+
+        console.log(`🤔 ${playerSide} 請求悔棋: ${room.id}`);
+        io.to(opponentSocketId).emit('UNDO_REQUESTED', { requestedBy: playerSide });
+    });
+
+    // 回應悔棋請求
+    socket.on('RESPOND_UNDO', ({ accept }) => {
+        const room = roomManager.getRoomBySocketId(socket.id);
+        if (!room) {
+            socket.emit('ERROR', { message: '您不在任何房間中' });
+            return;
+        }
+
+        // 確定對方玩家（請求方）
+        const opponentSocketId = room.hostSocketId === socket.id
+            ? room.guestSocketId
+            : room.hostSocketId;
+
+        if (!opponentSocketId) {
+            return;
+        }
+
+        if (accept) {
+            // 確定請求方的身份
+            const requesterSide: Player = room.hostSocketId === opponentSocketId
+                ? room.hostSide
+                : (room.hostSide === 'black' ? 'white' : 'black');
+
+            // 執行悔棋
+            const updatedRoom = roomManager.undoLastMove(room.id, requesterSide);
+            if (updatedRoom) {
+                // 通知雙方悔棋成功
+                const undoData = {
+                    board: updatedRoom.board,
+                    turn: updatedRoom.turn,
+                    lastMove: updatedRoom.lastMove,
+                    undoCount: updatedRoom.undoCount,
+                };
+
+                io.to(room.hostSocketId).emit('UNDO_ACCEPTED', undoData);
+                if (room.guestSocketId) {
+                    io.to(room.guestSocketId).emit('UNDO_ACCEPTED', undoData);
+                }
+
+                console.log(`✅ 悔棋成功: ${room.id} (${requesterSide})`);
+            } else {
+                io.to(opponentSocketId).emit('ERROR', { message: '悔棋失敗' });
+            }
+        } else {
+            // 拒絕悔棋
+            io.to(opponentSocketId).emit('UNDO_REJECTED');
+            console.log(`❌ 悔棋被拒絕: ${room.id}`);
+        }
     });
 
     // 斷線處理

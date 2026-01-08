@@ -1,0 +1,48 @@
+/* 統一的對話框按鈕樣式 */
+
+.dialog-btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: white;
+    color: #1e293b;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.dialog-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-btn:active {
+    transform: translateY(0);
+}
+
+.dialog-btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dialog-btn-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+    .dialog-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+}

@@ -1,9 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameRoom, Player, Position } from './types';
+import { GameRoom, Player, Position, UndoRequest } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
+import RoomSettings, { GameSettings } from './components/RoomSettings';
+import UndoRequestDialog from './components/UndoRequestDialog';
+import MessageDialog from './components/MessageDialog';
+import ConfirmDialog from './components/ConfirmDialog';
 import { socketService } from './services/socketService';
 
 const App: React.FC = () => {
@@ -14,6 +18,24 @@ const App: React.FC = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // 房間設定
+  const [roomSettings, setRoomSettings] = useState<GameSettings>({
+    undoLimit: 3,  // 預設 3 次
+  });
+
+  // 悔棋請求
+  const [undoRequest, setUndoRequest] = useState<UndoRequest | null>(null);
+
+  // 等待悔棋回應
+  const [isWaitingUndo, setIsWaitingUndo] = useState(false);
+
+  // 訊息對話框
+  const [messageDialog, setMessageDialog] = useState<{
+    title: string;
+    message: string;
+    icon: 'success' | 'error' | 'info';
+  } | null>(null);
 
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
@@ -79,6 +101,9 @@ const App: React.FC = () => {
               lastMove: null,
               players: { [savedSide]: 'me' },
               updatedAt: Date.now(),
+              settings: { undoLimit: 3 },  // 預設值
+              undoCount: { black: 0, white: 0 },
+              history: [],
             });
             setLocalPlayer(savedSide);
             window.location.hash = `room=${response.roomId}`;
@@ -107,6 +132,20 @@ const App: React.FC = () => {
     socketService.onGameUpdate((data) => {
       setRoom(prev => {
         if (!prev) return prev;
+
+        // 如果有新的落子，添加到歷史記錄
+        const newHistory = [...prev.history];
+        if (data.lastMove && data.lastMove !== prev.lastMove) {
+          // 確定是哪個玩家下的棋
+          const player = prev.turn; // 上一個回合的玩家
+          newHistory.push({
+            step: newHistory.length + 1,
+            player: player,
+            position: data.lastMove,
+            timestamp: Date.now(),
+          });
+        }
+
         return {
           ...prev,
           board: data.board,
@@ -114,6 +153,7 @@ const App: React.FC = () => {
           winner: data.winner,
           winningLine: data.winningLine,
           lastMove: data.lastMove,
+          history: newHistory,
           updatedAt: Date.now()
         };
       });
@@ -145,6 +185,51 @@ const App: React.FC = () => {
       }
     });
 
+    // ========== 悔棋事件監聽器 ==========
+
+    // 監聽悔棋請求
+    socketService.onUndoRequested(({ requestedBy }) => {
+      console.log('🤔 收到悔棋請求:', requestedBy);
+      setUndoRequest({
+        requestedBy,
+        requestedAt: Date.now(),
+      });
+    });
+
+    // 監聽悔棋成功
+    socketService.onUndoAccepted((data) => {
+      console.log('✅ 悔棋成功:', data);
+      setRoom(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          board: data.board,
+          turn: data.turn,
+          lastMove: data.lastMove,
+          undoCount: data.undoCount,
+          winner: null,
+          winningLine: null,
+          updatedAt: Date.now(),
+        };
+      });
+      setUndoRequest(null);
+      setIsWaitingUndo(false);  // 清除等待狀態
+      // 顯示成功提示（可選）
+      // alert('悔棋成功');
+    });
+
+    // 監聽悔棋被拒絕
+    socketService.onUndoRejected(() => {
+      console.log('❌ 悔棋被拒絕');
+      setUndoRequest(null);
+      setIsWaitingUndo(false);  // 清除等待狀態
+      setMessageDialog({
+        title: '悔棋被拒絕',
+        message: '對方拒絕了您的悔棋請求',
+        icon: 'error'
+      });
+    });
+
     // 監聽房間加入事件（當第二個玩家加入時，房主也會收到這個事件）
     socketService.onRoomJoined(({ room: serverRoom, yourSide }) => {
       console.log('🎉 對手已加入房間！更新房間狀態', serverRoom);
@@ -173,7 +258,10 @@ const App: React.FC = () => {
             winningLine: serverRoom.winningLine,
             lastMove: serverRoom.lastMove,
             players,
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
+            settings: serverRoom.settings || { undoLimit: 3 },
+            undoCount: serverRoom.undoCount || { black: 0, white: 0 },
+            history: serverRoom.history || [],
           };
         } else {
           // 房主收到對手加入的通知，更新 players
@@ -216,7 +304,7 @@ const App: React.FC = () => {
     setIsConnecting(true);
     setError(null);
 
-    socketService.createRoom(side, ({ roomId, shareUrl }) => {
+    socketService.createRoom(side, roomSettings, ({ roomId, shareUrl, settings }) => {
       window.location.hash = `room=${roomId}`;
 
       // ✅ 儲存房間資訊到 localStorage（用於寬限期重連）
@@ -232,6 +320,12 @@ const App: React.FC = () => {
         lastMove: null,
         players: { [side]: 'me' },
         updatedAt: Date.now(),
+        settings: settings || roomSettings,  // 使用 Server 返回的設定
+        undoCount: {                         // 初始化悔棋次數
+          black: 0,
+          white: 0,
+        },
+        history: [],                         // 初始化歷史記錄
       };
 
       setRoom(newRoom);
@@ -240,6 +334,7 @@ const App: React.FC = () => {
 
       console.log('✅ 房間已創建:', roomId);
       console.log('📋 分享連結:', shareUrl);
+      console.log('⚙️ 遊戲設定:', settings);
     });
   };
 
@@ -290,6 +385,52 @@ const App: React.FC = () => {
 
     // 發送給 Server
     socketService.makeMove(pos.x, pos.y);
+  };
+
+  // ========== 悔棋處理函數 ==========
+
+  // 請求悔棋
+  const handleRequestUndo = () => {
+    if (!room || !localPlayer) return;
+
+    // 檢查是否允許悔棋
+    if (room.settings.undoLimit === 0) {
+      alert('此房間不允許悔棋');
+      return;
+    }
+
+    // 檢查次數
+    if (room.settings.undoLimit !== null) {
+      const used = room.undoCount[localPlayer];
+      if (used >= room.settings.undoLimit) {
+        alert(`悔棋次數已用完（${used}/${room.settings.undoLimit}）`);
+        return;
+      }
+    }
+
+    // 檢查是否有歷史記錄
+    if (!room.history || room.history.length === 0) {
+      alert('沒有可以悔棋的步驟');
+      return;
+    }
+
+    // 檢查最後一步是否是自己下的
+    const lastMove = room.history[room.history.length - 1];
+    if (lastMove.player !== localPlayer) {
+      alert('只能悔自己剛下的棋');
+      return;
+    }
+
+    console.log('📤 請求悔棋');
+    setIsWaitingUndo(true);  // 設置等待狀態
+    socketService.requestUndo();
+  };
+
+  // 回應悔棋請求
+  const handleRespondUndo = (accept: boolean) => {
+    console.log('📤 回應悔棋請求:', accept ? '同意' : '拒絕');
+    socketService.respondUndo(accept);
+    setUndoRequest(null);
   };
 
   // 重新開始
@@ -425,7 +566,11 @@ const App: React.FC = () => {
         )}
 
         {!room && !isConnecting && !error && (
-          <Lobby onCreate={handleCreate} />
+          <Lobby
+            onCreate={handleCreate}
+            settings={roomSettings}
+            onSettingsChange={setRoomSettings}
+          />
         )}
 
         {room && (
@@ -459,6 +604,43 @@ const App: React.FC = () => {
                 isConnected={isConnected}
                 isReconnecting={isReconnecting}
               />
+
+              {/* 悔棋按鈕 */}
+              {localPlayer && Object.keys(room.players).length === 2 && !room.winner && (
+                <div className="mt-4">
+                  <button
+                    onClick={handleRequestUndo}
+                    disabled={!isConnected || isWaitingUndo || room.settings.undoLimit === 0}
+                    className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 border-2 ${isWaitingUndo
+                      ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-wait'
+                      : isConnected && room.settings.undoLimit !== 0
+                        ? 'border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:scale-95'
+                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                      }`}
+                  >
+                    {isWaitingUndo ? (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 animate-spin">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        <span>等待對方回應...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                        </svg>
+                        <span>請求悔棋</span>
+                        {room.settings.undoLimit !== null && room.settings.undoLimit > 0 && (
+                          <span className="text-xs opacity-75">
+                            ({room.undoCount[localPlayer]}/{room.settings.undoLimit})
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </aside>
           </main>
         )}
@@ -468,40 +650,38 @@ const App: React.FC = () => {
         </footer>
       </div>
 
-      {/* 确认对话框 */}
+      {/* 確認對話框 */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-in zoom-in duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-amber-600">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900">確認離開遊戲？</h3>
-            </div>
-            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-              遊戲正在進行中，離開後對局將中斷，對手將收到您離線的通知。
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2.5 border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  goHome();
-                }}
-                className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors shadow-lg"
-              >
-                確認離開
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="確認離開遊戲？"
+          message="遊戲正在進行中，離開後對局將中斷，對手將收到您離線的通知。"
+          confirmText="確認離開"
+          cancelText="取消"
+          onConfirm={() => {
+            setShowConfirm(false);
+            goHome();
+          }}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
+      {/* 悔棋請求對話框 */}
+      {undoRequest && (
+        <UndoRequestDialog
+          requestedBy={undoRequest.requestedBy}
+          onAccept={() => handleRespondUndo(true)}
+          onReject={() => handleRespondUndo(false)}
+        />
+      )}
+
+      {/* 訊息對話框 */}
+      {messageDialog && (
+        <MessageDialog
+          title={messageDialog.title}
+          message={messageDialog.message}
+          icon={messageDialog.icon}
+          onClose={() => setMessageDialog(null)}
+        />
       )}
     </div>
   );

@@ -1,12 +1,15 @@
 
 import React, { useState } from 'react';
 import { Player } from '../types';
+import RoomSettings, { GameSettings } from './RoomSettings';
 
 interface LobbyProps {
   onCreate: (side: Player) => void;
+  settings: GameSettings;
+  onSettingsChange: (settings: GameSettings) => void;
 }
 
-const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
+const Lobby: React.FC<LobbyProps> = ({ onCreate, settings, onSettingsChange }) => {
   const [selectedSide, setSelectedSide] = useState<Player>('black');
 
   return (
@@ -49,6 +52,9 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate }) => {
           </button>
         </div>
       </div>
+
+      {/* 遊戲設定 */}
+      <RoomSettings settings={settings} onChange={onSettingsChange} />
 
       <button
         onClick={() => onCreate(selectedSide)}

@@ -8,6 +8,19 @@ export interface Position {
 
 export type BoardState = (Player | null)[][];
 
+// 遊戲設定
+export interface GameSettings {
+    undoLimit: number | null;  // null = 無限制, 0 = 不允許, 1-N = 次數
+}
+
+// 歷史記錄（用於悔棋）
+export interface MoveHistory {
+    step: number;
+    player: Player;
+    position: Position;
+    timestamp: number;
+}
+
 export interface GameRoom {
     id: string;
     board: BoardState;
@@ -20,6 +33,12 @@ export interface GameRoom {
     hostSide: Player;
     createdAt: number;
     updatedAt: number;
+    settings: GameSettings;     // 遊戲設定
+    undoCount: {                // 悔棋次數統計
+        black: number;
+        white: number;
+    };
+    history: MoveHistory[];     // 歷史記錄
 }
 
 export interface SocketMeta {
@@ -31,7 +50,7 @@ export interface SocketMeta {
 
 // WebSocket 事件定義
 export interface ServerToClientEvents {
-    ROOM_CREATED: (data: { roomId: string; shareUrl: string }) => void;
+    ROOM_CREATED: (data: { roomId: string; shareUrl: string; settings: GameSettings }) => void;
     ROOM_RECONNECTED: (data: { roomId: string; shareUrl: string }) => void;
     ROOM_JOINED: (data: { room: GameRoom; yourSide: Player }) => void;
     GAME_UPDATE: (data: {
@@ -43,12 +62,26 @@ export interface ServerToClientEvents {
     }) => void;
     OPPONENT_LEFT: () => void;
     ERROR: (data: { message: string }) => void;
+
+    // 悔棋相關事件
+    UNDO_REQUESTED: (data: { requestedBy: Player }) => void;
+    UNDO_ACCEPTED: (data: {
+        board: BoardState;
+        turn: Player;
+        lastMove: Position | null;
+        undoCount: { black: number; white: number };
+    }) => void;
+    UNDO_REJECTED: () => void;
 }
 
 export interface ClientToServerEvents {
-    CREATE_ROOM: (data: { side: Player }, callback?: (response: any) => void) => void;
+    CREATE_ROOM: (data: { side: Player; settings?: GameSettings }, callback?: (response: any) => void) => void;
     RECONNECT_ROOM: (data: { roomId: string }, callback?: (response: any) => void) => void;
     JOIN_ROOM: (data: { roomId: string }, callback?: (response: any) => void) => void;
     MAKE_MOVE: (data: { x: number; y: number }) => void;
     RESET_GAME: () => void;
+
+    // 悔棋相關事件
+    REQUEST_UNDO: () => void;
+    RESPOND_UNDO: (data: { accept: boolean }) => void;
 }

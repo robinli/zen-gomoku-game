@@ -1,0 +1,165 @@
+.undo-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.undo-dialog {
+    background: #faf8f5;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    padding: 2rem;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.undo-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.undo-dialog-icon {
+    width: 2rem;
+    height: 2rem;
+    color: #64748b;
+}
+
+.undo-dialog-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.undo-dialog-content {
+    margin-bottom: 2rem;
+}
+
+.undo-dialog-message {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.125rem;
+    color: #334155;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.undo-dialog-message strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.undo-dialog-description {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #64748b;
+    text-align: center;
+}
+
+.undo-dialog-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.undo-dialog-btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.undo-dialog-btn-reject {
+    background: white;
+    color: #64748b;
+    border-color: #cbd5e1;
+}
+
+.undo-dialog-btn-reject:hover {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.undo-dialog-btn-accept {
+    background: white;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+.undo-dialog-btn-accept:hover {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.undo-dialog-btn:active {
+    transform: translateY(0);
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+    .undo-dialog {
+        padding: 1.5rem;
+    }
+
+    .undo-dialog-title {
+        font-size: 1.25rem;
+    }
+
+    .undo-dialog-message {
+        font-size: 1rem;
+    }
+
+    .undo-dialog-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+}

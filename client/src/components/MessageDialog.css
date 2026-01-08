@@ -1,0 +1,144 @@
+/* 與 UndoRequestDialog 風格一致 */
+
+.message-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.message-dialog {
+    background: #faf8f5;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    padding: 2rem;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.message-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.message-dialog-icon {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+}
+
+.message-dialog-icon-error {
+    color: #ef4444;
+    /* 紅色 */
+}
+
+.message-dialog-icon-success {
+    color: #22c55e;
+    /* 綠色 */
+}
+
+.message-dialog-icon-info {
+    color: #64748b;
+    /* 灰色 */
+}
+
+.message-dialog-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.message-dialog-content {
+    margin-bottom: 2rem;
+}
+
+.message-dialog-message {
+    margin: 0;
+    font-size: 1.125rem;
+    color: #334155;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.message-dialog-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.message-dialog-btn {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: white;
+    color: #1e293b;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.message-dialog-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message-dialog-btn:active {
+    transform: translateY(0);
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+    .message-dialog {
+        padding: 1.5rem;
+    }
+
+    .message-dialog-title {
+        font-size: 1.25rem;
+    }
+
+    .message-dialog-message {
+        font-size: 1rem;
+    }
+
+    .message-dialog-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}

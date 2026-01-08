@@ -1,0 +1,113 @@
+/* 統一的對話框基礎樣式 */
+
+.base-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.base-dialog {
+    background: #faf8f5;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    padding: 2rem;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.base-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.base-dialog-icon {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+}
+
+.base-dialog-icon-question {
+    color: #64748b;
+    /* 灰色 - 問號 */
+}
+
+.base-dialog-icon-error {
+    color: #ef4444;
+    /* 紅色 - 錯誤 */
+}
+
+.base-dialog-icon-success {
+    color: #22c55e;
+    /* 綠色 - 成功 */
+}
+
+.base-dialog-icon-warning {
+    color: #f59e0b;
+    /* 黃色 - 警告 */
+}
+
+.base-dialog-icon-info {
+    color: #3b82f6;
+    /* 藍色 - 資訊 */
+}
+
+.base-dialog-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.base-dialog-content {
+    margin-bottom: 2rem;
+}
+
+.base-dialog-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+    .base-dialog {
+        padding: 1.5rem;
+    }
+
+    .base-dialog-title {
+        font-size: 1.25rem;
+    }
+}

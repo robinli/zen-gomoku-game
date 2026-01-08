@@ -2,7 +2,7 @@
 // 使用全域的 Socket.IO (從 CDN 載入)
 declare const io: any;
 
-import type { GameRoom, Player, Position } from '../types';
+import type { GameRoom, Player, Position, GameSettings, BoardState } from '../types';
 
 class SocketService {
     private socket: any = null;
@@ -66,22 +66,30 @@ class SocketService {
     }
 
     // 創建房間
-    createRoom(side: Player, callback: (data: { roomId: string; shareUrl: string }) => void): void {
+    createRoom(
+        side: Player,
+        settings: GameSettings,
+        callback: (data: { roomId: string; shareUrl: string; settings: GameSettings }) => void
+    ): void {
         if (!this.socket) {
             console.error('❌ Socket 未初始化');
             return;
         }
 
-        console.log('📤 發送 CREATE_ROOM 事件, side:', side);
+        console.log('📤 發送 CREATE_ROOM 事件, side:', side, 'settings:', settings);
 
-        this.socket.emit('CREATE_ROOM', { side }, (response: any) => {
+        this.socket.emit('CREATE_ROOM', { side, settings }, (response: any) => {
             console.log('📥 收到 CREATE_ROOM 回應:', response);
             if (response && response.success) {
-                callback({ roomId: response.roomId, shareUrl: response.shareUrl });
+                callback({
+                    roomId: response.roomId,
+                    shareUrl: response.shareUrl,
+                    settings: response.settings
+                });
             }
         });
 
-        this.socket.on('ROOM_CREATED', (data: { roomId: string; shareUrl: string }) => {
+        this.socket.on('ROOM_CREATED', (data: { roomId: string; shareUrl: string; settings: GameSettings }) => {
             console.log('📥 收到 ROOM_CREATED 事件:', data);
             callback(data);
         });
@@ -238,6 +246,80 @@ class SocketService {
     // 取得 Socket 實例（用於調試）
     getSocket(): any {
         return this.socket;
+    }
+
+    // ========== 悔棋相關方法 ==========
+
+    // 請求悔棋
+    requestUndo(): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 REQUEST_UNDO 事件');
+        this.socket.emit('REQUEST_UNDO');
+    }
+
+    // 回應悔棋請求
+    respondUndo(accept: boolean): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 RESPOND_UNDO 事件, accept:', accept);
+        this.socket.emit('RESPOND_UNDO', { accept });
+    }
+
+    // 監聽悔棋請求
+    onUndoRequested(callback: (data: { requestedBy: Player }) => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('UNDO_REQUESTED', (data: { requestedBy: Player }) => {
+            console.log('📥 收到 UNDO_REQUESTED 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 監聽悔棋成功
+    onUndoAccepted(callback: (data: {
+        board: BoardState;
+        turn: Player;
+        lastMove: Position | null;
+        undoCount: { black: number; white: number };
+    }) => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('UNDO_ACCEPTED', (data: {
+            board: BoardState;
+            turn: Player;
+            lastMove: Position | null;
+            undoCount: { black: number; white: number };
+        }) => {
+            console.log('📥 收到 UNDO_ACCEPTED 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 監聽悔棋被拒絕
+    onUndoRejected(callback: () => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('UNDO_REJECTED', () => {
+            console.log('📥 收到 UNDO_REJECTED 事件');
+            callback();
+        });
+    }
+
+    // 移除悔棋事件監聽器
+    offUndoEvents(): void {
+        if (!this.socket) return;
+
+        this.socket.off('UNDO_REQUESTED');
+        this.socket.off('UNDO_ACCEPTED');
+        this.socket.off('UNDO_REJECTED');
+        console.log('🔇 已移除悔棋事件監聽器');
     }
 }
 

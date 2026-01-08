@@ -1,0 +1,89 @@
+.room-settings {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.05);
+  /* 淺灰背景 */
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.settings-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  /* 深色文字 */
+}
+
+.setting-group {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #334155;
+  /* 深灰色 */
+}
+
+.setting-description {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  /* 中灰色 */
+}
+
+/* 下拉選單樣式 */
+.undo-select {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #475569;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  /* 移除預設樣式 */
+
+  /* 自訂下拉箭頭 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+}
+
+.undo-select:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.undo-select:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* 下拉選單選項樣式 */
+.undo-select option {
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  color: #475569;
+  background: #ffffff;
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+  .room-settings {
+    padding: 1rem;
+  }
+
+  .undo-select {
+    padding: 0.75rem 2.25rem 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+}

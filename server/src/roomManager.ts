@@ -1,5 +1,5 @@
 
-import { GameRoom, Player } from './types.js';
+import { GameRoom, Player, GameSettings } from './types.js';
 import { createEmptyBoard } from './gameLogic.js';
 
 // 擴展 GameRoom 類型以支援斷線寬限期
@@ -18,8 +18,13 @@ class RoomManager {
     }
 
     // 創建房間
-    createRoom(hostSocketId: string, hostSide: Player): GameRoom {
+    createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings): GameRoom {
         const roomId = this.generateRoomId();
+
+        // 預設設定：允許悔棋 3 次
+        const defaultSettings: GameSettings = {
+            undoLimit: 3,
+        };
 
         const room: ExtendedGameRoom = {
             id: roomId,
@@ -33,10 +38,21 @@ class RoomManager {
             hostSide,
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            settings: settings || defaultSettings,  // 使用傳入的設定或預設值
+            undoCount: {                            // 初始化悔棋次數
+                black: 0,
+                white: 0,
+            },
+            history: [],                            // 初始化歷史記錄
         };
 
         this.rooms.set(roomId, room);
-        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostSocketId}, 執${hostSide})`);
+        const undoLimitText = room.settings.undoLimit === null
+            ? '無限制'
+            : room.settings.undoLimit === 0
+                ? '不允許'
+                : `${room.settings.undoLimit}次`;
+        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostSocketId}, 執${hostSide}, 悔棋: ${undoLimitText})`);
         return room;
     }
 
@@ -167,6 +183,86 @@ class RoomManager {
     // 取得房間總數（用於監控）
     getRoomCount(): number {
         return this.rooms.size;
+    }
+
+    // 檢查是否可以悔棋
+    canUndo(roomId: string, player: Player): { canUndo: boolean; reason?: string } {
+        const room = this.rooms.get(roomId);
+        if (!room) {
+            return { canUndo: false, reason: '房間不存在' };
+        }
+
+        // 檢查設定是否允許悔棋
+        if (room.settings.undoLimit === 0) {
+            return { canUndo: false, reason: '此房間不允許悔棋' };
+        }
+
+        // 檢查是否有歷史記錄
+        if (room.history.length === 0) {
+            return { canUndo: false, reason: '沒有可以悔棋的步驟' };
+        }
+
+        // 檢查最後一步是否是該玩家下的
+        const lastMove = room.history[room.history.length - 1];
+        if (lastMove.player !== player) {
+            return { canUndo: false, reason: '只能悔自己剛下的棋' };
+        }
+
+        // 檢查悔棋次數
+        if (room.settings.undoLimit !== null) {
+            const used = room.undoCount[player];
+            if (used >= room.settings.undoLimit) {
+                return { canUndo: false, reason: `悔棋次數已用完（${used}/${room.settings.undoLimit}）` };
+            }
+        }
+
+        // 檢查遊戲是否已結束
+        if (room.winner) {
+            return { canUndo: false, reason: '遊戲已結束，無法悔棋' };
+        }
+
+        return { canUndo: true };
+    }
+
+    // 撤銷最後一步
+    undoLastMove(roomId: string, player: Player): ExtendedGameRoom | null {
+        const room = this.rooms.get(roomId);
+        if (!room) return null;
+
+        // 檢查是否可以悔棋
+        const { canUndo, reason } = this.canUndo(roomId, player);
+        if (!canUndo) {
+            console.log(`❌ 無法悔棋: ${reason}`);
+            return null;
+        }
+
+        // 移除最後一步
+        const lastMove = room.history.pop();
+        if (!lastMove) return null;
+
+        // 恢復棋盤
+        room.board[lastMove.position.y][lastMove.position.x] = null;
+
+        // 切換回合（輪到請求方重新下）
+        room.turn = player;
+
+        // 更新最後一步
+        room.lastMove = room.history.length > 0
+            ? room.history[room.history.length - 1].position
+            : null;
+
+        // 清除勝利狀態
+        room.winner = null;
+        room.winningLine = null;
+
+        // 增加悔棋次數
+        room.undoCount[player]++;
+
+        // 更新時間戳
+        room.updatedAt = Date.now();
+
+        console.log(`♻️ 悔棋成功: ${roomId} (${player}, 已使用 ${room.undoCount[player]} 次)`);
+        return room;
     }
 }
 
