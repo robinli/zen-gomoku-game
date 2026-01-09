@@ -1,10 +1,10 @@
 <div align="center">
-<img alt="英穗子五子棋主畫面截圖" src="/assets/screenshot.png" />
+<img alt="靜弈五子棋主畫面截圖" src="/assets/screenshot.png" />
 </div>
 
-# 英穗子五子棋 (Clear Mind Gomoku)
+# 靜弈五子棋 (Clear Mind Gomoku)
 
-一款基於 **React + Socket.IO** 開發的跨裝置線上對戰五子棋，採用 **Client-Server 架構**，提供流暢且具有英穗子的寧靜對弈體驗。
+一款基於 **React + Socket.IO** 開發的跨裝置線上對戰五子棋，採用 **Client-Server 架構**，提供流暢且具有靜弈的寧靜對弈體驗。
 
 **Demo 👉** https://zen-gomoku-game.vercel.app
 

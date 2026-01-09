@@ -18,7 +18,7 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate, settings, onSettingsChange }) =
         <div className="w-16 h-16 bg-slate-900 rounded-full mx-auto flex items-center justify-center shadow-lg">
           <div className="w-8 h-8 border-4 border-white rounded-full"></div>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-serif font-bold mt-4 text-slate-900">英穗子五子棋</h2>
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold mt-4 text-slate-900">靜弈五子棋</h2>
         <p className="text-slate-500 px-4">建立遊戲房間，選擇您的棋子顏色，並邀請好友進行對弈。</p>
       </div>
 
