@@ -1,10 +1,10 @@
 <div align="center">
-<img alt="禪意五子棋主畫面截圖" src="/assets/screenshot.png" />
+<img alt="英穗子五子棋主畫面截圖" src="/assets/screenshot.png" />
 </div>
 
-# 禪意五子棋 (Zen Gomoku Game)
+# 英穗子五子棋 (Clear Mind Gomoku)
 
-一款基於 **React + Socket.IO** 開發的跨裝置線上對戰五子棋，採用 **Client-Server 架構**，提供流暢且具有禪意的對弈體驗。
+一款基於 **React + Socket.IO** 開發的跨裝置線上對戰五子棋，採用 **Client-Server 架構**，提供流暢且具有英穗子的寧靜對弈體驗。
 
 **Demo 👉** https://zen-gomoku-game.vercel.app
 
@@ -129,7 +129,7 @@ npm run dev
 - 高效的五連珠勝負判定演算法
 - SVG 渲染，支援高解析度螢幕
 
-### **5. 視覺設計 (Zen Aesthetic)**
+### **5. 視覺設計 (Clear Mind Aesthetic)**
 - 木紋質感棋盤
 - 黑白棋子微互動動畫
 - 響應式設計（手機 + 桌面）
