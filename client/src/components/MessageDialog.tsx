@@ -28,7 +28,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({
         >
             <p style={{
                 margin: 0,
-                fontSize: '1.125rem',
+                fontSize: '1rem',
                 color: '#334155',
                 textAlign: 'center',
                 lineHeight: 1.6

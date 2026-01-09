@@ -48,7 +48,7 @@ const UndoRequestDialog: React.FC<UndoRequestDialogProps> = ({
         >
             <p style={{
                 margin: '0 0 0.75rem 0',
-                fontSize: '1.125rem',
+                fontSize: '1rem',
                 color: '#334155',
                 textAlign: 'center'
             }}>
@@ -56,7 +56,7 @@ const UndoRequestDialog: React.FC<UndoRequestDialogProps> = ({
             </p>
             <p style={{
                 margin: 0,
-                fontSize: '0.95rem',
+                fontSize: '1rem',
                 color: '#64748b',
                 textAlign: 'center'
             }}>

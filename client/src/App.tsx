@@ -395,7 +395,11 @@ const App: React.FC = () => {
 
     // 檢查是否允許悔棋
     if (room.settings.undoLimit === 0) {
-      alert('此房間不允許悔棋');
+      setMessageDialog({
+        title: '無法悔棋',
+        message: '此房間不允許悔棋',
+        icon: 'info'
+      });
       return;
     }
 
@@ -403,21 +407,33 @@ const App: React.FC = () => {
     if (room.settings.undoLimit !== null) {
       const used = room.undoCount[localPlayer];
       if (used >= room.settings.undoLimit) {
-        alert(`悔棋次數已用完（${used}/${room.settings.undoLimit}）`);
+        setMessageDialog({
+          title: '無法悔棋',
+          message: `悔棋次數已用完（${used}/${room.settings.undoLimit}）`,
+          icon: 'info'
+        });
         return;
       }
     }
 
     // 檢查是否有歷史記錄
     if (!room.history || room.history.length === 0) {
-      alert('沒有可以悔棋的步驟');
+      setMessageDialog({
+        title: '無法悔棋',
+        message: '沒有可以悔棋的步驟',
+        icon: 'info'
+      });
       return;
     }
 
     // 檢查最後一步是否是自己下的
     const lastMove = room.history[room.history.length - 1];
     if (lastMove.player !== localPlayer) {
-      alert('只能悔自己剛下的棋');
+      setMessageDialog({
+        title: '無法悔棋',
+        message: '只能悔自己剛下的棋',
+        icon: 'info'
+      });
       return;
     }
 
