@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { roomManager } from './roomManager.js';
-import { checkWin, isBoardFull } from './gameLogic.js';
+import { checkWin, isBoardFull, checkThreats } from './gameLogic.js';
 import type {
     ServerToClientEvents,
     ClientToServerEvents,
@@ -306,8 +306,15 @@ io.on('connection', (socket) => {
             });
         }
 
-        // 廣播給雙方
-        const updateData = {
+        // 🎯 檢測威脅（活三、活四）- 只在遊戲未結束時檢測
+        let threatLine: Position[] | null = null;
+        if (!winner) {
+            const threats = checkThreats(newBoard, pos);
+            threatLine = threats.length > 0 ? threats : null;
+        }
+
+        // 基礎更新資料（不含威脅）
+        const baseUpdateData = {
             board: newBoard,
             turn: nextTurn,
             winner,
@@ -315,12 +322,26 @@ io.on('connection', (socket) => {
             lastMove: pos
         };
 
-        io.to(room.hostSocketId).emit('GAME_UPDATE', updateData);
-        if (room.guestSocketId) {
-            io.to(room.guestSocketId).emit('GAME_UPDATE', updateData);
+        // 對手的更新資料（包含威脅提示）
+        const opponentUpdateData = {
+            ...baseUpdateData,
+            threatLine  // 只有對手看到威脅
+        };
+
+        // 確定對手的 Socket ID
+        const opponentSocketId = room.hostSocketId === socket.id
+            ? room.guestSocketId
+            : room.hostSocketId;
+
+        // 發送給下棋方（不含威脅）
+        io.to(socket.id).emit('GAME_UPDATE', baseUpdateData);
+
+        // 發送給對手方（包含威脅）
+        if (opponentSocketId) {
+            io.to(opponentSocketId).emit('GAME_UPDATE', opponentUpdateData);
         }
 
-        console.log(`🎯 落子: 房間 ${room.id}, 玩家 ${playerSide}, 位置 (${x}, ${y})`);
+        console.log(`🎯 落子: 房間 ${room.id}, 玩家 ${playerSide}, 位置 (${x}, ${y})${threatLine ? `, 威脅: ${threatLine.length} 個棋子` : ''}`);
     });
 
     // 重新開始

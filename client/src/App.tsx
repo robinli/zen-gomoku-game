@@ -109,6 +109,7 @@ const App: React.FC = () => {
               turn: 'black',
               winner: null,
               winningLine: null,
+              threatLine: null,
               lastMove: null,
               players: { [savedSide]: 'me' },
               updatedAt: Date.now(),
@@ -163,11 +164,27 @@ const App: React.FC = () => {
           turn: data.turn,
           winner: data.winner,
           winningLine: data.winningLine,
+          threatLine: (data as any).threatLine || null,  // 接收威脅資訊
           lastMove: data.lastMove,
           history: newHistory,
           updatedAt: Date.now()
         };
       });
+
+      // 🎯 如果有威脅提示，3 秒後自動清除
+      if ((data as any).threatLine && (data as any).threatLine.length > 0) {
+        setTimeout(() => {
+          setRoom(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              threatLine: null,
+              updatedAt: Date.now()
+            };
+          });
+        }, 3000);
+      }
+
       isProcessingMove.current = false;
       setIsReconnecting(false);
     });
@@ -299,6 +316,7 @@ const App: React.FC = () => {
             turn: serverRoom.turn,
             winner: serverRoom.winner,
             winningLine: serverRoom.winningLine,
+            threatLine: null,
             lastMove: serverRoom.lastMove,
             players,
             updatedAt: Date.now(),
@@ -360,6 +378,7 @@ const App: React.FC = () => {
         turn: 'black',
         winner: null,
         winningLine: null,
+        threatLine: null,
         lastMove: null,
         players: { [side]: 'me' },
         updatedAt: Date.now(),
@@ -659,6 +678,7 @@ const App: React.FC = () => {
                 lastMove={room.lastMove}
                 winner={room.winner}
                 winningLine={room.winningLine}
+                threatLine={room.threatLine}
                 turn={room.turn}
                 disabled={isBoardDisabled}
               />

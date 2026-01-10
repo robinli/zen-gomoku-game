@@ -9,11 +9,12 @@ interface BoardProps {
   lastMove: Position | null;
   winner: Player | 'draw' | null;
   winningLine: Position[] | null;
+  threatLine: Position[] | null;  // 威脅棋子位置
   turn: Player;
   disabled?: boolean;
 }
 
-const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, turn, disabled }) => {
+const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, threatLine, turn, disabled }) => {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const cellSize = 30;
   const padding = 20;
@@ -55,6 +56,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
       if (!cell) return null;
       const isLast = lastMove?.x === x && lastMove?.y === y;
       const isWinningStone = winningLine?.some(p => p.x === x && p.y === y);
+      const isThreatStone = threatLine?.some(p => p.x === x && p.y === y);
 
       return (
         <g key={`stone-${x}-${y}`} className="stone-shadow transition-all duration-300">
@@ -77,7 +79,19 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
               className="animate-pulse"
             />
           )}
-          {isLast && !isWinningStone && (
+          {/* 高亮顯示威脅棋子（活三、活四） */}
+          {isThreatStone && !isWinningStone && (
+            <circle
+              cx={padding + x * cellSize}
+              cy={padding + y * cellSize}
+              r={cellSize * 0.48}
+              fill="none"
+              stroke={cell === 'black' ? '#fbbf24' : '#f59e0b'}
+              strokeWidth="2.5"
+              className="animate-pulse"
+            />
+          )}
+          {isLast && !isWinningStone && !isThreatStone && (
             <circle
               cx={padding + x * cellSize}
               cy={padding + y * cellSize}

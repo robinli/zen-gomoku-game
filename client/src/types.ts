@@ -27,6 +27,7 @@ export interface GameRoom {
   turn: Player;
   winner: Player | 'draw' | null;
   winningLine: Position[] | null;
+  threatLine: Position[] | null;  // 威脅棋子位置（活三、活四）
   lastMove: Position | null;
   players: {
     black?: string;

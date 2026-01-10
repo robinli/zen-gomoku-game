@@ -54,3 +54,125 @@ export const checkWin = (board: BoardState, pos: Position): WinResult | null => 
 export const isBoardFull = (board: BoardState): boolean => {
     return board.every(row => row.every(cell => cell !== null));
 };
+
+/**
+ * 檢測活三、活四威脅
+ * 活三：_OOO_ (兩端都是空位的三連珠)
+ * 活四：_OOOO_ (兩端都是空位的四連珠)
+ * 其他形式：_OO_O_, _O_OO_ 等
+ */
+export const checkThreats = (board: BoardState, pos: Position): Position[] => {
+    const player = board[pos.y][pos.x];
+    if (!player) return [];
+
+    const threats: Position[] = [];
+    const directions = [
+        [1, 0],  // Horizontal
+        [0, 1],  // Vertical
+        [1, 1],  // Diagonal (down-right)
+        [1, -1], // Diagonal (up-right)
+    ];
+
+    for (const [dx, dy] of directions) {
+        // 收集這個方向上的所有相關位置
+        const line: { pos: Position; value: Player | null }[] = [];
+
+        // 向兩個方向延伸最多 5 格（足以檢測活四）
+        for (let i = -5; i <= 5; i++) {
+            const nx = pos.x + dx * i;
+            const ny = pos.y + dy * i;
+            if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+                line.push({ pos: { x: nx, y: ny }, value: board[ny][nx] });
+            }
+        }
+
+        // 檢測活三和活四的各種形式
+        for (let i = 0; i < line.length; i++) {
+            // 檢測活四：_OOOO_
+            if (i + 5 < line.length) {
+                const segment = line.slice(i, i + 6);
+                if (
+                    segment[0].value === null &&
+                    segment[1].value === player &&
+                    segment[2].value === player &&
+                    segment[3].value === player &&
+                    segment[4].value === player &&
+                    segment[5].value === null
+                ) {
+                    // 找到活四，加入威脅列表
+                    for (let j = 1; j <= 4; j++) {
+                        const threatPos = segment[j].pos;
+                        if (!threats.some(p => p.x === threatPos.x && p.y === threatPos.y)) {
+                            threats.push(threatPos);
+                        }
+                    }
+                }
+            }
+
+            // 檢測活三：_OOO_
+            if (i + 4 < line.length) {
+                const segment = line.slice(i, i + 5);
+                if (
+                    segment[0].value === null &&
+                    segment[1].value === player &&
+                    segment[2].value === player &&
+                    segment[3].value === player &&
+                    segment[4].value === null
+                ) {
+                    // 找到活三，加入威脅列表
+                    for (let j = 1; j <= 3; j++) {
+                        const threatPos = segment[j].pos;
+                        if (!threats.some(p => p.x === threatPos.x && p.y === threatPos.y)) {
+                            threats.push(threatPos);
+                        }
+                    }
+                }
+            }
+
+            // 檢測其他形式：_OO_O_ 或 _O_OO_
+            if (i + 4 < line.length) {
+                const segment = line.slice(i, i + 5);
+                // _OO_O_
+                if (
+                    segment[0].value === null &&
+                    segment[1].value === player &&
+                    segment[2].value === player &&
+                    segment[3].value === null &&
+                    segment[4].value === player &&
+                    i + 5 < line.length &&
+                    line[i + 5].value === null
+                ) {
+                    for (let j = 1; j <= 4; j++) {
+                        if (segment[j].value === player) {
+                            const threatPos = segment[j].pos;
+                            if (!threats.some(p => p.x === threatPos.x && p.y === threatPos.y)) {
+                                threats.push(threatPos);
+                            }
+                        }
+                    }
+                }
+                // _O_OO_
+                if (
+                    segment[0].value === null &&
+                    segment[1].value === player &&
+                    segment[2].value === null &&
+                    segment[3].value === player &&
+                    segment[4].value === player &&
+                    i + 5 < line.length &&
+                    line[i + 5].value === null
+                ) {
+                    for (let j = 1; j <= 4; j++) {
+                        if (segment[j].value === player) {
+                            const threatPos = segment[j].pos;
+                            if (!threats.some(p => p.x === threatPos.x && p.y === threatPos.y)) {
+                                threats.push(threatPos);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return threats;
+};
