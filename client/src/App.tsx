@@ -617,46 +617,11 @@ const App: React.FC = () => {
                 localPlayer={localPlayer}
                 onReset={handleReset}
                 onGoHome={handleGoHome}
+                onRequestUndo={handleRequestUndo}
                 isConnected={isConnected}
                 isReconnecting={isReconnecting}
+                isWaitingUndo={isWaitingUndo}
               />
-
-              {/* 悔棋按鈕 */}
-              {localPlayer && Object.keys(room.players).length === 2 && !room.winner && (
-                <div className="mt-4">
-                  <button
-                    onClick={handleRequestUndo}
-                    disabled={!isConnected || isWaitingUndo || room.settings.undoLimit === 0}
-                    className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 border-2 ${isWaitingUndo
-                      ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-wait'
-                      : isConnected && room.settings.undoLimit !== 0
-                        ? 'border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:scale-95'
-                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                      }`}
-                  >
-                    {isWaitingUndo ? (
-                      <>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 animate-spin">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                        <span>等待對方回應...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                        </svg>
-                        <span>請求悔棋</span>
-                        {room.settings.undoLimit !== null && room.settings.undoLimit > 0 && (
-                          <span className="text-xs opacity-75">
-                            ({room.undoCount[localPlayer]}/{room.settings.undoLimit})
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </aside>
           </main>
         )}
