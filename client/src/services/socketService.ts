@@ -321,6 +321,70 @@ class SocketService {
         this.socket.off('UNDO_REJECTED');
         console.log('🔇 已移除悔棋事件監聽器');
     }
+
+    // ========== 重置請求相關方法 ==========
+
+    // 請求重新開始
+    requestReset(): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 REQUEST_RESET 事件');
+        this.socket.emit('REQUEST_RESET');
+    }
+
+    // 回應重置請求
+    respondReset(accept: boolean): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 RESPOND_RESET 事件, accept:', accept);
+        this.socket.emit('RESPOND_RESET', { accept });
+    }
+
+    // 監聽重置請求
+    onResetRequested(callback: (data: { requestedBy: Player }) => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('RESET_REQUESTED', (data: { requestedBy: Player }) => {
+            console.log('📥 收到 RESET_REQUESTED 事件:', data);
+            callback(data);
+        });
+    }
+
+    // 監聽重置成功
+    onResetAccepted(callback: () => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('RESET_ACCEPTED', () => {
+            console.log('📥 收到 RESET_ACCEPTED 事件');
+            callback();
+        });
+    }
+
+    // 監聽重置被拒絕
+    onResetRejected(callback: () => void): void {
+        if (!this.socket) return;
+
+        this.socket.on('RESET_REJECTED', () => {
+            console.log('📥 收到 RESET_REJECTED 事件');
+            callback();
+        });
+    }
+
+    // 移除重置事件監聽器
+    offResetEvents(): void {
+        if (!this.socket) return;
+
+        this.socket.off('RESET_REQUESTED');
+        this.socket.off('RESET_ACCEPTED');
+        this.socket.off('RESET_REJECTED');
+        console.log('🔇 已移除重置事件監聽器');
+    }
 }
 
 // 單例模式

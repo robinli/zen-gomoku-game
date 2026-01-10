@@ -1,11 +1,13 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
-import { GameRoom, Player, Position, UndoRequest } from './types';
+import { GameRoom, Player, Position, UndoRequest, ResetRequest } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
 import RoomSettings, { GameSettings } from './components/RoomSettings';
 import UndoRequestDialog from './components/UndoRequestDialog';
+import ResetRequestDialog from './components/ResetRequestDialog';
 import MessageDialog from './components/MessageDialog';
 import ConfirmDialog from './components/ConfirmDialog';
 import { socketService } from './services/socketService';
@@ -29,6 +31,12 @@ const App: React.FC = () => {
 
   // 等待悔棋回應
   const [isWaitingUndo, setIsWaitingUndo] = useState(false);
+
+  // 重置請求
+  const [resetRequest, setResetRequest] = useState<ResetRequest | null>(null);
+
+  // 等待重置回應
+  const [isWaitingReset, setIsWaitingReset] = useState(false);
 
   // 訊息對話框
   const [messageDialog, setMessageDialog] = useState<{
@@ -226,6 +234,37 @@ const App: React.FC = () => {
       setMessageDialog({
         title: '悔棋被拒絕',
         message: '對方拒絕了您的悔棋請求',
+        icon: 'error'
+      });
+    });
+
+    // ========== 重置請求事件監聽器 ==========
+
+    // 監聽重置請求
+    socketService.onResetRequested(({ requestedBy }) => {
+      console.log('🔄 收到重置請求:', requestedBy);
+      setResetRequest({
+        requestedBy,
+        requestedAt: Date.now(),
+      });
+    });
+
+    // 監聽重置成功
+    socketService.onResetAccepted(() => {
+      console.log('✅ 重置成功');
+      setResetRequest(null);
+      setIsWaitingReset(false);  // 清除等待狀態
+      // 棋盤會通過 GAME_UPDATE 事件自動更新
+    });
+
+    // 監聽重置被拒絕
+    socketService.onResetRejected(() => {
+      console.log('❌ 重置被拒絕');
+      setResetRequest(null);
+      setIsWaitingReset(false);  // 清除等待狀態
+      setMessageDialog({
+        title: '重新開始被拒絕',
+        message: '對方拒絕了您的重新開始請求',
         icon: 'error'
       });
     });
@@ -449,10 +488,22 @@ const App: React.FC = () => {
     setUndoRequest(null);
   };
 
-  // 重新開始
+  // ========== 重置處理函數 ==========
+
+  // 請求重新開始
   const handleReset = () => {
-    if (!room) return;
-    socketService.resetGame();
+    if (!room || !localPlayer) return;
+
+    console.log('📤 請求重新開始');
+    setIsWaitingReset(true);  // 設置等待狀態
+    socketService.requestReset();
+  };
+
+  // 回應重置請求
+  const handleRespondReset = (accept: boolean) => {
+    console.log('📤 回應重置請求:', accept ? '同意' : '拒絕');
+    socketService.respondReset(accept);
+    setResetRequest(null);
   };
 
   // 返回大廳（直接执行）
@@ -621,6 +672,7 @@ const App: React.FC = () => {
                 isConnected={isConnected}
                 isReconnecting={isReconnecting}
                 isWaitingUndo={isWaitingUndo}
+                isWaitingReset={isWaitingReset}
               />
             </aside>
           </main>
@@ -652,6 +704,15 @@ const App: React.FC = () => {
           requestedBy={undoRequest.requestedBy}
           onAccept={() => handleRespondUndo(true)}
           onReject={() => handleRespondUndo(false)}
+        />
+      )}
+
+      {/* 重置請求對話框 */}
+      {resetRequest && (
+        <ResetRequestDialog
+          requestedBy={resetRequest.requestedBy}
+          onAccept={() => handleRespondReset(true)}
+          onReject={() => handleRespondReset(false)}
         />
       )}
 

@@ -47,6 +47,12 @@ export interface UndoRequest {
   requestedAt: number;
 }
 
+// 重置請求
+export interface ResetRequest {
+  requestedBy: Player;
+  requestedAt: number;
+}
+
 export enum GameMode {
   LOBBY = 'LOBBY',
   PLAYING = 'PLAYING',

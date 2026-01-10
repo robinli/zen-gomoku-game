@@ -63,6 +63,7 @@ export interface ServerToClientEvents {
     OPPONENT_LEFT: () => void;
     ERROR: (data: { message: string }) => void;
 
+
     // 悔棋相關事件
     UNDO_REQUESTED: (data: { requestedBy: Player }) => void;
     UNDO_ACCEPTED: (data: {
@@ -72,6 +73,11 @@ export interface ServerToClientEvents {
         undoCount: { black: number; white: number };
     }) => void;
     UNDO_REJECTED: () => void;
+
+    // 重置請求相關事件
+    RESET_REQUESTED: (data: { requestedBy: Player }) => void;
+    RESET_ACCEPTED: () => void;
+    RESET_REJECTED: () => void;
 }
 
 export interface ClientToServerEvents {
@@ -84,4 +90,8 @@ export interface ClientToServerEvents {
     // 悔棋相關事件
     REQUEST_UNDO: () => void;
     RESPOND_UNDO: (data: { accept: boolean }) => void;
+
+    // 重置請求相關事件
+    REQUEST_RESET: () => void;
+    RESPOND_RESET: (data: { accept: boolean }) => void;
 }

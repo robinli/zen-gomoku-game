@@ -372,6 +372,97 @@ io.on('connection', (socket) => {
         io.to(opponentSocketId).emit('UNDO_REQUESTED', { requestedBy: playerSide });
     });
 
+    // 請求重新開始
+    socket.on('REQUEST_RESET', () => {
+        const room = roomManager.getRoomBySocketId(socket.id);
+        if (!room) {
+            socket.emit('ERROR', { message: '您不在任何房間中' });
+            return;
+        }
+
+        // 確定玩家身份
+        const playerSide: Player = room.hostSocketId === socket.id
+            ? room.hostSide
+            : (room.hostSide === 'black' ? 'white' : 'black');
+
+        // 通知對方玩家
+        const opponentSocketId = room.hostSocketId === socket.id
+            ? room.guestSocketId
+            : room.hostSocketId;
+
+        if (!opponentSocketId) {
+            socket.emit('ERROR', { message: '對方玩家不在線' });
+            return;
+        }
+
+        console.log(`🔄 ${playerSide} 請求重新開始: ${room.id}`);
+        io.to(opponentSocketId).emit('RESET_REQUESTED', { requestedBy: playerSide });
+    });
+
+    // 回應重置請求
+    socket.on('RESPOND_RESET', ({ accept }) => {
+        const room = roomManager.getRoomBySocketId(socket.id);
+        if (!room) {
+            socket.emit('ERROR', { message: '您不在任何房間中' });
+            return;
+        }
+
+        // 確定對方玩家（請求方）
+        const opponentSocketId = room.hostSocketId === socket.id
+            ? room.guestSocketId
+            : room.hostSocketId;
+
+        if (!opponentSocketId) {
+            return;
+        }
+
+        if (accept) {
+            // 重置棋盤
+            const emptyBoard = Array(15).fill(null).map(() => Array(15).fill(null));
+
+            roomManager.updateRoom(room.id, {
+                board: emptyBoard,
+                turn: 'black',
+                winner: null,
+                winningLine: null,
+                lastMove: null
+            });
+
+            // 清空歷史記錄和悔棋次數
+            const updatedRoom = roomManager.getRoom(room.id);
+            if (updatedRoom) {
+                updatedRoom.history = [];
+                updatedRoom.undoCount = { black: 0, white: 0 };
+            }
+
+            const updateData = {
+                board: emptyBoard,
+                turn: 'black' as Player,
+                winner: null,
+                winningLine: null,
+                lastMove: null
+            };
+
+            // 通知雙方重置成功
+            io.to(room.hostSocketId).emit('RESET_ACCEPTED');
+            if (room.guestSocketId) {
+                io.to(room.guestSocketId).emit('RESET_ACCEPTED');
+            }
+
+            // 同時發送遊戲更新
+            io.to(room.hostSocketId).emit('GAME_UPDATE', updateData);
+            if (room.guestSocketId) {
+                io.to(room.guestSocketId).emit('GAME_UPDATE', updateData);
+            }
+
+            console.log(`✅ 重新開始成功: ${room.id}`);
+        } else {
+            // 拒絕重置
+            io.to(opponentSocketId).emit('RESET_REJECTED');
+            console.log(`❌ 重新開始被拒絕: ${room.id}`);
+        }
+    });
+
     // 回應悔棋請求
     socket.on('RESPOND_UNDO', ({ accept }) => {
         const room = roomManager.getRoomBySocketId(socket.id);
