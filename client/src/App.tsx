@@ -561,7 +561,7 @@ const App: React.FC = () => {
     setReplayHistory([...room.history]); // 建立快照
     setIsReplaying(true);
     setReplayStep(0);
-    setIsAutoPlaying(false);
+    setIsAutoPlaying(true); // 自動開始播放
   };
 
   // 退出回放
@@ -778,9 +778,9 @@ const App: React.FC = () => {
                 board={isReplaying ? getReplayBoard(replayStep) : room.board}
                 onMove={handleMove}
                 lastMove={isReplaying && replayStep >= 0 && replayHistory[replayStep] ? replayHistory[replayStep].position : room.lastMove}
-                winner={room.winner}
-                winningLine={room.winningLine}
-                threatLine={room.threatLine}
+                winner={isReplaying ? null : room.winner}
+                winningLine={isReplaying ? null : room.winningLine}
+                threatLine={isReplaying ? null : room.threatLine}
                 turn={room.turn}
                 disabled={isBoardDisabled || isReplaying}
               />

@@ -145,7 +145,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-            <p className="text-slate-500 font-medium text-xs uppercase tracking-wider">對手回合中</p>
+            <p className="text-slate-500 font-medium text-xs uppercase tracking-wider">對手思考中</p>
           </div>
         </div>
       )}
