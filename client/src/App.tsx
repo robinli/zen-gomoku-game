@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState } from './types';
+import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
@@ -54,6 +54,8 @@ const App: React.FC = () => {
   const [replayStep, setReplayStep] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const autoPlayTimer = useRef<number | null>(null);
+  // 儲存回放用的歷史記錄（快照），避免房間重置後資料遺失
+  const [replayHistory, setReplayHistory] = useState<MoveHistory[]>([]);
 
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
@@ -152,9 +154,13 @@ const App: React.FC = () => {
       setRoom(prev => {
         if (!prev) return prev;
 
-        // 如果有新的落子，添加到歷史記錄
-        const newHistory = [...prev.history];
-        if (data.lastMove && data.lastMove !== prev.lastMove) {
+        // 檢查是否為重置狀態（棋盤全空）
+        const isReset = data.board.every((row: (Player | null)[]) => row.every((cell: Player | null) => cell === null));
+
+        // 如果是重置狀態，清空歷史記錄；否則使用現有記錄
+        const newHistory = isReset ? [] : [...prev.history];
+
+        if (!isReset && data.lastMove && data.lastMove !== prev.lastMove) {
           // 確定是哪個玩家下的棋
           const player = prev.turn; // 上一個回合的玩家
           newHistory.push({
@@ -540,11 +546,10 @@ const App: React.FC = () => {
 
   // 根據步驟重建棋盤狀態
   const getReplayBoard = (step: number): BoardState => {
-    if (!room) return Array(15).fill(null).map(() => Array(15).fill(null));
-
     const board: BoardState = Array(15).fill(null).map(() => Array(15).fill(null));
-    for (let i = 0; i <= step && i < room.history.length; i++) {
-      const move = room.history[i];
+    // 使用 replayHistory 而不是 room.history
+    for (let i = 0; i <= step && i < replayHistory.length; i++) {
+      const move = replayHistory[i];
       board[move.position.y][move.position.x] = move.player;
     }
     return board;
@@ -553,6 +558,7 @@ const App: React.FC = () => {
   // 開始回放
   const handleStartReplay = () => {
     if (!room || !room.history || room.history.length === 0) return;
+    setReplayHistory([...room.history]); // 建立快照
     setIsReplaying(true);
     setReplayStep(0);
     setIsAutoPlaying(false);
@@ -563,6 +569,7 @@ const App: React.FC = () => {
     setIsReplaying(false);
     setReplayStep(0);
     setIsAutoPlaying(false);
+    setReplayHistory([]); // 清除快照
     if (autoPlayTimer.current) {
       clearInterval(autoPlayTimer.current);
       autoPlayTimer.current = null;
@@ -578,7 +585,7 @@ const App: React.FC = () => {
 
   // 下一步
   const handleReplayNext = () => {
-    if (room && replayStep < room.history.length - 1) {
+    if (replayStep < replayHistory.length - 1) {
       setReplayStep(prev => prev + 1);
     }
   };
@@ -596,10 +603,10 @@ const App: React.FC = () => {
 
   // 自動播放效果
   useEffect(() => {
-    if (isAutoPlaying && room) {
+    if (isAutoPlaying) {
       autoPlayTimer.current = setInterval(() => {
         setReplayStep(prev => {
-          if (prev >= room.history.length - 1) {
+          if (prev >= replayHistory.length - 1) {
             setIsAutoPlaying(false);
             return prev;
           }
@@ -614,12 +621,12 @@ const App: React.FC = () => {
         }
       };
     }
-  }, [isAutoPlaying, room]);
+  }, [isAutoPlaying, replayHistory]); // 依賴 replayHistory
 
   // 快進到最後
   const handleReplayFastForward = () => {
-    if (room && room.history) {
-      setReplayStep(room.history.length - 1);
+    if (replayHistory.length > 0) {
+      setReplayStep(replayHistory.length - 1);
     }
   };
 
@@ -770,7 +777,7 @@ const App: React.FC = () => {
               <Board
                 board={isReplaying ? getReplayBoard(replayStep) : room.board}
                 onMove={handleMove}
-                lastMove={isReplaying && replayStep >= 0 && room.history[replayStep] ? room.history[replayStep].position : room.lastMove}
+                lastMove={isReplaying && replayStep >= 0 && replayHistory[replayStep] ? replayHistory[replayStep].position : room.lastMove}
                 winner={room.winner}
                 winningLine={room.winningLine}
                 threatLine={room.threatLine}
@@ -789,10 +796,10 @@ const App: React.FC = () => {
             </div>
             <aside className="w-full lg:w-80">
               {/* 回放控制面板 - 在回放模式下顯示 */}
-              {isReplaying && room.history && room.history.length > 0 && (
+              {isReplaying && (
                 <ReplayControls
                   currentStep={replayStep}
-                  totalSteps={room.history.length}
+                  totalSteps={replayHistory.length}
                   isAutoPlaying={isAutoPlaying}
                   onPrevious={handleReplayPrevious}
                   onNext={handleReplayNext}
