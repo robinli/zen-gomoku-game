@@ -8,13 +8,14 @@ interface GameInfoProps {
   onReset: () => void;
   onGoHome: () => void;
   onRequestUndo: () => void;
+  onStartReplay?: () => void;
   isConnected: boolean;
   isReconnecting?: boolean;
   isWaitingUndo?: boolean;
   isWaitingReset?: boolean;
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, isConnected, isReconnecting, isWaitingUndo, isWaitingReset }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset }) => {
   const [copied, setCopied] = useState(false);
   const [shareStatus, setShareStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const shareLink = window.location.href;
@@ -192,20 +193,36 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
         </button>
       )}
 
-      {/* Reset */}
-      <button
-        onClick={onReset}
-        disabled={!isConnected || isWaitingReset || !hasMoves}
-        className={`w-full py-3 border-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${!isConnected || isWaitingReset || !hasMoves
+      {/* 回放按鈕 - 遊戲結束時顯示 */}
+      {room.winner && onStartReplay && (
+        <button
+          onClick={onStartReplay}
+          className="w-full py-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl text-sm font-semibold transition-all hover:from-slate-800 hover:to-slate-950 active:scale-95 flex items-center justify-center gap-2 shadow-lg"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+          </svg>
+          回放對局
+        </button>
+      )}
+
+      {/* Reset - 遊戲未結束時顯示 */}
+      {!room.winner && (
+        <button
+          onClick={onReset}
+          disabled={!isConnected || isWaitingReset || !hasMoves}
+          className={`w-full py-3 border-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${!isConnected || isWaitingReset || !hasMoves
             ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
             : 'border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 active:scale-95'
-          }`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 ${isWaitingReset ? 'animate-spin' : ''}`}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-        </svg>
-        {isWaitingReset ? '等待對方回應...' : '重新開始對局'}
-      </button>
+            }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 ${isWaitingReset ? 'animate-spin' : ''}`}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          {isWaitingReset ? '等待對方回應...' : '重新開始對局'}
+        </button>
+      )}
+
 
       {/* 返回大厅 */}
       <button

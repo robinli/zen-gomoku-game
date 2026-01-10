@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameRoom, Player, Position, UndoRequest, ResetRequest } from './types';
+import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
@@ -10,6 +10,7 @@ import UndoRequestDialog from './components/UndoRequestDialog';
 import ResetRequestDialog from './components/ResetRequestDialog';
 import MessageDialog from './components/MessageDialog';
 import ConfirmDialog from './components/ConfirmDialog';
+import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
 
 const App: React.FC = () => {
@@ -47,6 +48,12 @@ const App: React.FC = () => {
 
   // 對手離開對話框
   const [showOpponentLeftDialog, setShowOpponentLeftDialog] = useState(false);
+
+  // 回放模式狀態
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [replayStep, setReplayStep] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const autoPlayTimer = useRef<number | null>(null);
 
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
@@ -529,6 +536,94 @@ const App: React.FC = () => {
     setResetRequest(null);
   };
 
+  // ========== 回放控制函數 ==========
+
+  // 根據步驟重建棋盤狀態
+  const getReplayBoard = (step: number): BoardState => {
+    if (!room) return Array(15).fill(null).map(() => Array(15).fill(null));
+
+    const board: BoardState = Array(15).fill(null).map(() => Array(15).fill(null));
+    for (let i = 0; i <= step && i < room.history.length; i++) {
+      const move = room.history[i];
+      board[move.position.y][move.position.x] = move.player;
+    }
+    return board;
+  };
+
+  // 開始回放
+  const handleStartReplay = () => {
+    if (!room || !room.history || room.history.length === 0) return;
+    setIsReplaying(true);
+    setReplayStep(0);
+    setIsAutoPlaying(false);
+  };
+
+  // 退出回放
+  const handleExitReplay = () => {
+    setIsReplaying(false);
+    setReplayStep(0);
+    setIsAutoPlaying(false);
+    if (autoPlayTimer.current) {
+      clearInterval(autoPlayTimer.current);
+      autoPlayTimer.current = null;
+    }
+  };
+
+  // 上一步
+  const handleReplayPrevious = () => {
+    if (replayStep > 0) {
+      setReplayStep(prev => prev - 1);
+    }
+  };
+
+  // 下一步
+  const handleReplayNext = () => {
+    if (room && replayStep < room.history.length - 1) {
+      setReplayStep(prev => prev + 1);
+    }
+  };
+
+  // 重新開始回放
+  const handleReplayRestart = () => {
+    setReplayStep(0);
+    setIsAutoPlaying(false);
+  };
+
+  // 切換自動播放
+  const handleToggleAutoPlay = () => {
+    setIsAutoPlaying(prev => !prev);
+  };
+
+  // 自動播放效果
+  useEffect(() => {
+    if (isAutoPlaying && room) {
+      autoPlayTimer.current = setInterval(() => {
+        setReplayStep(prev => {
+          if (prev >= room.history.length - 1) {
+            setIsAutoPlaying(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000); // 每秒一步
+
+      return () => {
+        if (autoPlayTimer.current) {
+          clearInterval(autoPlayTimer.current);
+          autoPlayTimer.current = null;
+        }
+      };
+    }
+  }, [isAutoPlaying, room]);
+
+  // 快進到最後
+  const handleReplayFastForward = () => {
+    if (room && room.history) {
+      setReplayStep(room.history.length - 1);
+    }
+  };
+
+
   // 返回大廳（直接执行）
   const goHome = () => {
     // ✅ 清除儲存的房間資訊
@@ -673,14 +768,14 @@ const App: React.FC = () => {
           <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-8 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
             <div className="w-full flex justify-center relative">
               <Board
-                board={room.board}
+                board={isReplaying ? getReplayBoard(replayStep) : room.board}
                 onMove={handleMove}
-                lastMove={room.lastMove}
+                lastMove={isReplaying && replayStep >= 0 && room.history[replayStep] ? room.history[replayStep].position : room.lastMove}
                 winner={room.winner}
                 winningLine={room.winningLine}
                 threatLine={room.threatLine}
                 turn={room.turn}
-                disabled={isBoardDisabled}
+                disabled={isBoardDisabled || isReplaying}
               />
               {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
               {isReconnecting && !room.winner && (
@@ -693,17 +788,36 @@ const App: React.FC = () => {
               )}
             </div>
             <aside className="w-full lg:w-80">
-              <GameInfo
-                room={room}
-                localPlayer={localPlayer}
-                onReset={handleReset}
-                onGoHome={handleGoHome}
-                onRequestUndo={handleRequestUndo}
-                isConnected={isConnected}
-                isReconnecting={isReconnecting}
-                isWaitingUndo={isWaitingUndo}
-                isWaitingReset={isWaitingReset}
-              />
+              {/* 回放控制面板 - 在回放模式下顯示 */}
+              {isReplaying && room.history && room.history.length > 0 && (
+                <ReplayControls
+                  currentStep={replayStep}
+                  totalSteps={room.history.length}
+                  isAutoPlaying={isAutoPlaying}
+                  onPrevious={handleReplayPrevious}
+                  onNext={handleReplayNext}
+                  onToggleAutoPlay={handleToggleAutoPlay}
+                  onRestart={handleReplayRestart}
+                  onExit={handleExitReplay}
+                  onFastForward={handleReplayFastForward}
+                />
+              )}
+
+              {/* 遊戲資訊面板 - 非回放模式下顯示 */}
+              {!isReplaying && (
+                <GameInfo
+                  room={room}
+                  localPlayer={localPlayer}
+                  onReset={handleReset}
+                  onGoHome={handleGoHome}
+                  onRequestUndo={handleRequestUndo}
+                  onStartReplay={handleStartReplay}
+                  isConnected={isConnected}
+                  isReconnecting={isReconnecting}
+                  isWaitingUndo={isWaitingUndo}
+                  isWaitingReset={isWaitingReset}
+                />
+              )}
             </aside>
           </main>
         )}
