@@ -708,8 +708,8 @@ const App: React.FC = () => {
           </main>
         )}
 
-        <footer className="mt-auto py-8 text-slate-300 text-xs uppercase tracking-widest text-center">
-          Client-Server Architecture • Clear Mind Aesthetics
+        <footer className="mt-auto py-8 text-slate-300 text-xs tracking-widest text-center">
+          靜弈 • 以棋會友
         </footer>
       </div>
 
