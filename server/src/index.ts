@@ -191,10 +191,30 @@ io.on('connection', (socket) => {
         try {
             console.log(`🔍 嘗試加入房間: ${roomId}, Socket ID: ${socket.id}`);
 
+            const existingRoom = roomManager.getRoom(roomId);
+
+            // 檢查是否是訪客重新連線
+            if (existingRoom && existingRoom.guestDisconnectedAt) {
+                console.log(`🔄 檢測到訪客重新連線: ${roomId}`);
+                const success = roomManager.reconnectGuest(roomId, socket.id);
+
+                if (success) {
+                    const guestSide: Player = existingRoom.hostSide === 'black' ? 'white' : 'black';
+                    socket.emit('ROOM_JOINED', { room: existingRoom, yourSide: guestSide });
+
+                    if (callback) {
+                        callback({ success: true, room: existingRoom, yourSide: guestSide });
+                    }
+
+                    console.log(`✅ 訪客重新連線成功: ${roomId}`);
+                    return;
+                }
+            }
+
+            // 正常加入房間流程
             const room = roomManager.joinRoom(roomId, socket.id);
 
             if (!room) {
-                const existingRoom = roomManager.getRoom(roomId);
                 const errorMsg = existingRoom
                     ? '房間已滿，無法加入'
                     : `房間不存在 (${roomId})，可能房主已離開`;
@@ -513,18 +533,71 @@ io.on('connection', (socket) => {
         }
     });
 
+    // 主動離開房間
+    socket.on('LEAVE_ROOM', () => {
+        console.log(`👋 玩家主動離開: ${socket.id}`);
+
+        const room = roomManager.getRoomBySocketId(socket.id);
+        if (!room) return;
+
+        const wasHost = room.hostSocketId === socket.id;
+        const opponentSocketId = wasHost ? room.guestSocketId : room.hostSocketId;
+
+        // 立即通知對方玩家
+        if (opponentSocketId) {
+            io.to(opponentSocketId).emit('OPPONENT_LEFT');
+            console.log(`📤 立即通知對方玩家離開: ${opponentSocketId}`);
+        }
+
+        // 立即移除玩家（不使用寬限期）
+        if (wasHost) {
+            // 房主離開，刪除房間
+            roomManager.getRoom(room.id); // 確保房間存在
+            if (room.gracePeriodTimers?.host) {
+                clearTimeout(room.gracePeriodTimers.host);
+            }
+            if (room.deletionTimer) {
+                clearTimeout(room.deletionTimer);
+            }
+            roomManager.getRoomCount(); // 觸發內部清理
+            console.log(`🗑️ 房主主動離開，刪除房間: ${room.id}`);
+        } else {
+            // 訪客離開，清空訪客位置
+            if (room.gracePeriodTimers?.guest) {
+                clearTimeout(room.gracePeriodTimers.guest);
+            }
+            const roomData = roomManager.getRoom(room.id);
+            if (roomData) {
+                roomData.guestSocketId = null;
+                roomData.guestDisconnectedAt = undefined;
+                roomData.updatedAt = Date.now();
+            }
+            console.log(`👋 訪客主動離開: ${room.id}`);
+        }
+    });
+
     // 斷線處理
     socket.on('disconnect', () => {
         console.log(`🔌 斷線: ${socket.id}`);
 
-        const result = roomManager.removePlayer(socket.id);
-        if (result) {
-            const { room, wasHost } = result;
+        const result = roomManager.removePlayer(socket.id, (opponentSocketId) => {
+            // 寬限期結束，通知對方玩家
+            io.to(opponentSocketId).emit('OPPONENT_LEFT');
+            console.log(`📤 寬限期結束，通知對方玩家離開: ${opponentSocketId}`);
+        });
 
-            // 通知對方玩家
-            const opponentSocketId = wasHost ? room.guestSocketId : room.hostSocketId;
-            if (opponentSocketId) {
-                io.to(opponentSocketId).emit('OPPONENT_LEFT');
+        if (result) {
+            const { room, wasHost, shouldNotify } = result;
+
+            // 只有在 shouldNotify 為 true 時才立即通知對方
+            if (shouldNotify) {
+                const opponentSocketId = wasHost ? room.guestSocketId : room.hostSocketId;
+                if (opponentSocketId) {
+                    io.to(opponentSocketId).emit('OPPONENT_LEFT');
+                    console.log(`📤 通知對方玩家離開: ${opponentSocketId}`);
+                }
+            } else {
+                console.log(`⏳ 進入寬限期，暫不通知對方`);
             }
         }
     });

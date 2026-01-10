@@ -1,11 +1,17 @@
 
+
 import { GameRoom, Player, GameSettings } from './types.js';
 import { createEmptyBoard } from './gameLogic.js';
 
 // 擴展 GameRoom 類型以支援斷線寬限期
 interface ExtendedGameRoom extends GameRoom {
     hostDisconnectedAt?: number;      // 房主斷線時間戳
-    deletionTimer?: NodeJS.Timeout;   // 刪除計時器
+    guestDisconnectedAt?: number;     // 訪客斷線時間戳
+    deletionTimer?: NodeJS.Timeout;   // 刪除計時器（房間無人時）
+    gracePeriodTimers?: {             // 寬限期計時器（遊戲進行中）
+        host?: NodeJS.Timeout;
+        guest?: NodeJS.Timeout;
+    };
 }
 
 class RoomManager {
@@ -118,6 +124,13 @@ class RoomManager {
             console.log(`⏰ 取消房間刪除計時器: ${roomId}`);
         }
 
+        // 取消寬限期計時器
+        if (room.gracePeriodTimers?.host) {
+            clearTimeout(room.gracePeriodTimers.host);
+            room.gracePeriodTimers.host = undefined;
+            console.log(`⏰ 取消房主寬限期計時器: ${roomId}`);
+        }
+
         // 更新房主 Socket ID
         room.hostSocketId = newSocketId;
         room.hostDisconnectedAt = undefined;
@@ -126,41 +139,111 @@ class RoomManager {
         return true;
     }
 
+    // 訪客重新連線
+    reconnectGuest(roomId: string, newSocketId: string): boolean {
+        const room = this.rooms.get(roomId);
+        if (!room) return false;
+
+        // 取消寬限期計時器
+        if (room.gracePeriodTimers?.guest) {
+            clearTimeout(room.gracePeriodTimers.guest);
+            room.gracePeriodTimers.guest = undefined;
+            console.log(`⏰ 取消訪客寬限期計時器: ${roomId}`);
+        }
+
+        // 更新訪客 Socket ID
+        room.guestSocketId = newSocketId;
+        room.guestDisconnectedAt = undefined;
+        room.updatedAt = Date.now();
+        console.log(`🔄 訪客重新連線: ${roomId} (新 Socket ID: ${newSocketId})`);
+        return true;
+    }
+
     // 移除玩家（處理斷線）
-    removePlayer(socketId: string): { room: ExtendedGameRoom; wasHost: boolean } | null {
+    removePlayer(
+        socketId: string,
+        onGracePeriodEnd?: (opponentSocketId: string) => void
+    ): { room: ExtendedGameRoom; wasHost: boolean; shouldNotify: boolean } | null {
         const room = this.getRoomBySocketId(socketId);
         if (!room) return null;
 
         const wasHost = room.hostSocketId === socketId;
+        const hasGuest = room.guestSocketId !== null;
+
+        // 初始化 gracePeriodTimers
+        if (!room.gracePeriodTimers) {
+            room.gracePeriodTimers = {};
+        }
 
         if (wasHost) {
-            // 檢查是否有訪客
-            const hasGuest = room.guestSocketId !== null;
-
             if (hasGuest) {
-                // 有訪客：立即刪除房間（遊戲已開始）
-                if (room.deletionTimer) {
-                    clearTimeout(room.deletionTimer);
+                // 遊戲進行中：房主斷線，設置寬限期
+                room.hostDisconnectedAt = Date.now();
+
+                // 清除舊的計時器（如果存在）
+                if (room.gracePeriodTimers.host) {
+                    clearTimeout(room.gracePeriodTimers.host);
                 }
-                this.rooms.delete(room.id);
-                console.log(`🗑️ 房間已刪除 (房主離開，有訪客): ${room.id}`);
+
+                // 設置新的寬限期計時器
+                room.gracePeriodTimers.host = setTimeout(() => {
+                    // 寬限期結束，真正移除房主並通知對方
+                    console.log(`⏰ 房主寬限期結束，移除房間: ${room.id}`);
+                    const opponentSocketId = room.guestSocketId;
+                    this.rooms.delete(room.id);
+
+                    // 通知對方玩家
+                    if (opponentSocketId && onGracePeriodEnd) {
+                        onGracePeriodEnd(opponentSocketId);
+                    }
+                }, this.GRACE_PERIOD);
+
+                console.log(`⏰ 房主斷線，設置 ${this.GRACE_PERIOD / 1000} 秒寬限期: ${room.id}`);
+                return { room, wasHost, shouldNotify: false }; // 不立即通知
             } else {
-                // 無訪客：設置寬限期（可能只是切換 APP）
+                // 無訪客：設置房間刪除計時器
                 room.hostDisconnectedAt = Date.now();
                 room.deletionTimer = setTimeout(() => {
                     this.rooms.delete(room.id);
                     console.log(`🗑️ 房間已刪除 (寬限期結束): ${room.id}`);
                 }, this.GRACE_PERIOD);
-                console.log(`⏰ 房主斷線，設置 ${this.GRACE_PERIOD / 1000} 秒寬限期: ${room.id}`);
+                console.log(`⏰ 房主斷線（無訪客），設置 ${this.GRACE_PERIOD / 1000} 秒寬限期: ${room.id}`);
+                return { room, wasHost, shouldNotify: false };
             }
         } else {
-            // 訪客離開，清空訪客位置
-            room.guestSocketId = null;
-            room.updatedAt = Date.now();
-            console.log(`👋 訪客離開房間: ${room.id}`);
-        }
+            // 訪客斷線
+            if (hasGuest) {
+                // 遊戲進行中：訪客斷線，設置寬限期
+                room.guestDisconnectedAt = Date.now();
 
-        return { room, wasHost };
+                // 清除舊的計時器（如果存在）
+                if (room.gracePeriodTimers.guest) {
+                    clearTimeout(room.gracePeriodTimers.guest);
+                }
+
+                // 設置新的寬限期計時器
+                room.gracePeriodTimers.guest = setTimeout(() => {
+                    // 寬限期結束，真正移除訪客並通知對方
+                    console.log(`⏰ 訪客寬限期結束，清空訪客位置: ${room.id}`);
+                    const opponentSocketId = room.hostSocketId;
+                    room.guestSocketId = null;
+                    room.guestDisconnectedAt = undefined;
+                    room.updatedAt = Date.now();
+
+                    // 通知對方玩家
+                    if (opponentSocketId && onGracePeriodEnd) {
+                        onGracePeriodEnd(opponentSocketId);
+                    }
+                }, this.GRACE_PERIOD);
+
+                console.log(`⏰ 訪客斷線，設置 ${this.GRACE_PERIOD / 1000} 秒寬限期: ${room.id}`);
+                return { room, wasHost, shouldNotify: false }; // 不立即通知
+            } else {
+                // 訪客已經不在房間中（不應該發生）
+                console.log(`⚠️ 訪客不在房間中: ${room.id}`);
+                return null;
+            }
+        }
     }
 
     // 清理閒置房間（15 分鐘無活動）

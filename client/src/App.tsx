@@ -45,6 +45,9 @@ const App: React.FC = () => {
     icon: 'success' | 'error' | 'info';
   } | null>(null);
 
+  // 對手離開對話框
+  const [showOpponentLeftDialog, setShowOpponentLeftDialog] = useState(false);
+
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
   const hasInitialized = useRef(false);
@@ -171,8 +174,9 @@ const App: React.FC = () => {
 
     // 監聽對手離開
     socketService.onOpponentLeft(() => {
+      console.log('👋 對手已離開房間');
       setIsConnected(false);
-      setError('對手已離開房間');
+      setShowOpponentLeftDialog(true);
     });
 
     // 監聽錯誤
@@ -512,6 +516,11 @@ const App: React.FC = () => {
     localStorage.removeItem('currentRoomId');
     localStorage.removeItem('currentRoomSide');
 
+    // 主動離開房間，通知 Server
+    if (room) {
+      socketService.leaveRoom();
+    }
+
     socketService.disconnect();
     window.location.hash = '';
     window.location.reload();
@@ -527,8 +536,9 @@ const App: React.FC = () => {
     // 游戏未开始（等待对手）或已结束，直接返回
     const gameNotStarted = Object.keys(room.players).length < 2;
     const gameEnded = room.winner !== null;
+    const connectionLost = !isConnected;  // 連線已斷開（對手離開）
 
-    if (gameNotStarted || gameEnded) {
+    if (gameNotStarted || gameEnded || connectionLost) {
       goHome();
     } else {
       // 游戏进行中，显示确认对话框
@@ -713,6 +723,21 @@ const App: React.FC = () => {
           requestedBy={resetRequest.requestedBy}
           onAccept={() => handleRespondReset(true)}
           onReject={() => handleRespondReset(false)}
+        />
+      )}
+
+      {/* 對手離開對話框 */}
+      {showOpponentLeftDialog && (
+        <ConfirmDialog
+          title="對手已離開"
+          message="對方玩家已離開房間，對局已結束"
+          confirmText="關閉"
+          cancelText="返回大廳"
+          onConfirm={() => setShowOpponentLeftDialog(false)}
+          onCancel={() => {
+            setShowOpponentLeftDialog(false);
+            goHome();
+          }}
         />
       )}
 

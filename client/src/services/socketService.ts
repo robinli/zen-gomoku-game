@@ -182,6 +182,17 @@ class SocketService {
         this.socket.emit('RESET_GAME');
     }
 
+    // 主動離開房間
+    leaveRoom(): void {
+        if (!this.socket) {
+            console.error('❌ Socket 未初始化');
+            return;
+        }
+
+        console.log('📤 發送 LEAVE_ROOM 事件');
+        this.socket.emit('LEAVE_ROOM');
+    }
+
     // 監聽連線成功
     onConnect(callback: () => void): void {
         if (!this.socket) {

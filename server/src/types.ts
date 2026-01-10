@@ -94,4 +94,7 @@ export interface ClientToServerEvents {
     // 重置請求相關事件
     REQUEST_RESET: () => void;
     RESPOND_RESET: (data: { accept: boolean }) => void;
+
+    // 主動離開房間
+    LEAVE_ROOM: () => void;
 }
