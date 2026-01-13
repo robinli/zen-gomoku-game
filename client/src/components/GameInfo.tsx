@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { GameRoom, Player } from '../types';
+import { GameRoom, Player, RoomStats } from '../types';
 
 interface GameInfoProps {
   room: GameRoom;
@@ -13,9 +13,10 @@ interface GameInfoProps {
   isReconnecting?: boolean;
   isWaitingUndo?: boolean;
   isWaitingReset?: boolean;
+  roomStats: RoomStats;
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset, roomStats }) => {
   const [copied, setCopied] = useState(false);
   const [shareStatus, setShareStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const shareLink = window.location.href;
@@ -221,8 +222,43 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
         {isWaitingReset ? '等待對方回應...' : (room.winner ? '再來一局' : '重新開始對局')}
       </button>
 
+      {/* 房間統計 - 只在雙方都已加入時顯示 */}
+      {Object.keys(room.players).length === 2 && (
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+            {/* 黑方 */}
+            <div className="flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full border border-white/20"></div>
+              </div>
+              <span className={`${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+                黑方{localPlayer === 'black' ? '(您)' : ''}
+              </span>
+            </div>
 
-      {/* 返回大厅 */}
+            {/* 比分 */}
+            <span className="font-bold text-slate-700 mx-1">
+              {roomStats.black.wins}
+            </span>
+            <span className="text-slate-400 font-medium">vs</span>
+            <span className="font-bold text-slate-700 mx-1">
+              {roomStats.white.wins}
+            </span>
+
+            {/* 白方 */}
+            <div className="flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-white ring-1 ring-slate-300 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full border border-slate-900/10 bg-white"></div>
+              </div>
+              <span className={`${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+                白方{localPlayer === 'white' ? '(您)' : ''}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 返回大廳 */}
       <button
         onClick={onGoHome}
         className="w-full py-3 border-2 border-slate-300 text-slate-700 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50 hover:border-slate-400 flex items-center justify-center gap-2"

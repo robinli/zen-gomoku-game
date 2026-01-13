@@ -54,6 +54,20 @@ export interface ResetRequest {
   requestedAt: number;
 }
 
+// 房間內勝負統計（每次進入房間重置）
+export interface RoomStats {
+  black: {
+    wins: number;
+    losses: number;
+    draws: number;
+  };
+  white: {
+    wins: number;
+    losses: number;
+    draws: number;
+  };
+}
+
 export enum GameMode {
   LOBBY = 'LOBBY',
   PLAYING = 'PLAYING',

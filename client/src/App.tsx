@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory } from './types';
+import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory, RoomStats } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
@@ -21,6 +21,12 @@ const App: React.FC = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // 房間內勝負統計（每次進入房間重置）
+  const [roomStats, setRoomStats] = useState<RoomStats>({
+    black: { wins: 0, losses: 0, draws: 0 },
+    white: { wins: 0, losses: 0, draws: 0 }
+  });
 
   // 房間設定
   const [roomSettings, setRoomSettings] = useState<GameSettings>({
@@ -62,6 +68,13 @@ const App: React.FC = () => {
   const hasInitialized = useRef(false);
   // 追蹤已嘗試加入的房間，防止無限重試
   const attemptedRooms = useRef<Set<string>>(new Set());
+  // 追蹤上一次的勝者，避免重複更新統計
+  const lastWinnerRef = useRef<Player | 'draw' | null>(null);
+  // 使用 ref 存儲統計的實際值，避免 StrictMode 重複更新
+  const roomStatsRef = useRef<RoomStats>({
+    black: { wins: 0, losses: 0, draws: 0 },
+    white: { wins: 0, losses: 0, draws: 0 }
+  });
 
   // 提取共用的檢查和加入房間函數
   const checkAndJoinRoom = () => {
@@ -169,6 +182,45 @@ const App: React.FC = () => {
             position: data.lastMove,
             timestamp: Date.now(),
           });
+        }
+
+        // 🎯 檢測遊戲結束並更新統計
+        if (data.winner && data.winner !== lastWinnerRef.current) {
+          // 遊戲剛結束且勝者與上次不同
+          console.log('🎯 檢測到遊戲結束 - 準備更新統計:', {
+            winner: data.winner,
+            lastWinner: lastWinnerRef.current,
+            timestamp: Date.now()
+          });
+
+          lastWinnerRef.current = data.winner;
+
+          // 直接在 ref 中更新統計
+          if (data.winner === 'draw') {
+            // 平局
+            roomStatsRef.current.black.draws++;
+            roomStatsRef.current.white.draws++;
+          } else {
+            // 有勝者
+            const winner = data.winner as Player;
+            const loser: Player = winner === 'black' ? 'white' : 'black';
+            roomStatsRef.current[winner].wins++;
+            roomStatsRef.current[loser].losses++;
+          }
+
+          console.log('📊 更新後的統計 (ref):', roomStatsRef.current);
+
+          // 同步到 state（創建新對象以觸發重新渲染）
+          setRoomStats({
+            black: { ...roomStatsRef.current.black },
+            white: { ...roomStatsRef.current.white }
+          });
+        }
+
+        // 如果是重置，清除勝者記錄
+        if (isReset) {
+          console.log('🔄 重置遊戲 - 清除勝者記錄');
+          lastWinnerRef.current = null;
         }
 
         return {
@@ -407,6 +459,16 @@ const App: React.FC = () => {
       setLocalPlayer(side);
       setIsConnecting(false);
 
+      // 📊 重置房間統計
+      roomStatsRef.current = {
+        black: { wins: 0, losses: 0, draws: 0 },
+        white: { wins: 0, losses: 0, draws: 0 }
+      };
+      setRoomStats({
+        black: { wins: 0, losses: 0, draws: 0 },
+        white: { wins: 0, losses: 0, draws: 0 }
+      });
+
       console.log('✅ 房間已創建:', roomId);
       console.log('📋 分享連結:', shareUrl);
       console.log('⚙️ 遊戲設定:', settings);
@@ -430,6 +492,16 @@ const App: React.FC = () => {
       setIsConnected(true);
       setIsConnecting(false);
       setError(null);
+
+      // 📊 重置房間統計
+      roomStatsRef.current = {
+        black: { wins: 0, losses: 0, draws: 0 },
+        white: { wins: 0, losses: 0, draws: 0 }
+      };
+      setRoomStats({
+        black: { wins: 0, losses: 0, draws: 0 },
+        white: { wins: 0, losses: 0, draws: 0 }
+      });
 
       console.log('✅ 已加入房間:', roomId, '| 您執:', yourSide);
     });
@@ -823,6 +895,7 @@ const App: React.FC = () => {
                   isReconnecting={isReconnecting}
                   isWaitingUndo={isWaitingUndo}
                   isWaitingReset={isWaitingReset}
+                  roomStats={roomStats}
                 />
               )}
             </aside>
