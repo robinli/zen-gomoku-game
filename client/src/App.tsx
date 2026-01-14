@@ -14,6 +14,7 @@ import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { GAME_RULES, REPLAY_CONFIG, UI_CONFIG, STORAGE_KEYS, BOARD_CONFIG } from './config/constants';
+import { useRoomStats } from './hooks/useRoomStats';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -25,11 +26,8 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // 房間內勝負統計（每次進入房間重置）
-  const [roomStats, setRoomStats] = useState<RoomStats>({
-    black: { wins: 0, losses: 0, draws: 0 },
-    white: { wins: 0, losses: 0, draws: 0 }
-  });
+  // 使用 useRoomStats Hook 管理房間統計
+  const { roomStats, updateStats, resetStats, clearWinnerRef } = useRoomStats();
 
   // 房間設定
   const [roomSettings, setRoomSettings] = useState<GameSettings>({
@@ -71,13 +69,6 @@ const App: React.FC = () => {
   const hasInitialized = useRef(false);
   // 追蹤已嘗試加入的房間，防止無限重試
   const attemptedRooms = useRef<Set<string>>(new Set());
-  // 追蹤上一次的勝者，避免重複更新統計
-  const lastWinnerRef = useRef<Player | 'draw' | null>(null);
-  // 使用 ref 存儲統計的實際值，避免 StrictMode 重複更新
-  const roomStatsRef = useRef<RoomStats>({
-    black: { wins: 0, losses: 0, draws: 0 },
-    white: { wins: 0, losses: 0, draws: 0 }
-  });
 
   // 提取共用的檢查和加入房間函數
   const checkAndJoinRoom = () => {
@@ -188,42 +179,14 @@ const App: React.FC = () => {
         }
 
         // 🎯 檢測遊戲結束並更新統計
-        if (data.winner && data.winner !== lastWinnerRef.current) {
-          // 遊戲剛結束且勝者與上次不同
-          console.log(t('message.game_end_update'), {
-            winner: data.winner,
-            lastWinner: lastWinnerRef.current,
-            timestamp: Date.now()
-          });
-
-          lastWinnerRef.current = data.winner;
-
-          // 直接在 ref 中更新統計
-          if (data.winner === 'draw') {
-            // 平局
-            roomStatsRef.current.black.draws++;
-            roomStatsRef.current.white.draws++;
-          } else {
-            // 有勝者
-            const winner = data.winner as Player;
-            const loser: Player = winner === 'black' ? 'white' : 'black';
-            roomStatsRef.current[winner].wins++;
-            roomStatsRef.current[loser].losses++;
-          }
-
-          console.log('📊 更新後的統計 (ref):', roomStatsRef.current);
-
-          // 同步到 state（創建新對象以觸發重新渲染）
-          setRoomStats({
-            black: { ...roomStatsRef.current.black },
-            white: { ...roomStatsRef.current.white }
-          });
+        if (data.winner) {
+          updateStats(data.winner);
         }
 
         // 如果是重置，清除勝者記錄
         if (isReset) {
           console.log(t('message.reset_clear_winner'));
-          lastWinnerRef.current = null;
+          clearWinnerRef();
         }
 
         return {
@@ -463,14 +426,7 @@ const App: React.FC = () => {
       setIsConnecting(false);
 
       // 📊 重置房間統計
-      roomStatsRef.current = {
-        black: { wins: 0, losses: 0, draws: 0 },
-        white: { wins: 0, losses: 0, draws: 0 }
-      };
-      setRoomStats({
-        black: { wins: 0, losses: 0, draws: 0 },
-        white: { wins: 0, losses: 0, draws: 0 }
-      });
+      resetStats();
 
       console.log(t('message.create_room_log', { roomId }));
       console.log(t('app.share_link', { url: shareUrl }));
@@ -497,14 +453,7 @@ const App: React.FC = () => {
       setError(null);
 
       // 📊 重置房間統計
-      roomStatsRef.current = {
-        black: { wins: 0, losses: 0, draws: 0 },
-        white: { wins: 0, losses: 0, draws: 0 }
-      };
-      setRoomStats({
-        black: { wins: 0, losses: 0, draws: 0 },
-        white: { wins: 0, losses: 0, draws: 0 }
-      });
+      resetStats();
 
       console.log(t('message.join_room_log', { roomId, side: yourSide }));
     });
