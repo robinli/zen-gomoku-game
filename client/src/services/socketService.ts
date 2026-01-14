@@ -1,11 +1,9 @@
 
-// 使用全域的 Socket.IO (從 CDN 載入)
-declare const io: any;
-
+import { io, Socket } from 'socket.io-client';
 import type { GameRoom, Player, Position, GameSettings, BoardState } from '../types';
 
 class SocketService {
-    private socket: any = null;
+    private socket: Socket | null = null;
     private serverUrl: string;
 
     constructor() {
@@ -15,12 +13,7 @@ class SocketService {
     }
 
     // 連線到 Server
-    connect(): any {
-        if (typeof io === 'undefined') {
-            console.error('❌ Socket.IO 未載入！請確保 CDN 腳本已載入');
-            return null;
-        }
-
+    connect(): Socket | null {
         if (this.socket?.connected) {
             console.log('✅ Socket 已連線，Socket ID:', this.socket.id);
             return this.socket;
@@ -38,14 +31,14 @@ class SocketService {
 
             // 立即設置事件監聽
             this.socket.on('connect', () => {
-                console.log('🔌 Socket 連線成功！ID:', this.socket.id);
+                console.log('🔌 Socket 連線成功！ID:', this.socket?.id);
             });
 
-            this.socket.on('disconnect', (reason: any) => {
+            this.socket.on('disconnect', (reason: string) => {
                 console.log('🔌 Socket 已斷線:', reason);
             });
 
-            this.socket.on('connect_error', (error: any) => {
+            this.socket.on('connect_error', (error: Error) => {
                 console.error('❌ Socket 連線錯誤:', error.message);
             });
 
@@ -131,13 +124,13 @@ class SocketService {
         // 使用 once 避免重複監聽
         const onRoomJoined = (data: { room: GameRoom; yourSide: Player }) => {
             console.log('📥 收到 ROOM_JOINED 事件:', data);
-            this.socket.off('ERROR', onError);  // 移除錯誤監聽
+            this.socket?.off('ERROR', onError);  // 移除錯誤監聽
             callback(data);
         };
 
         const onError = (data: { message: string }) => {
             console.error('❌ 加入房間失敗:', data.message);
-            this.socket.off('ROOM_JOINED', onRoomJoined);  // 移除成功監聽
+            this.socket?.off('ROOM_JOINED', onRoomJoined);  // 移除成功監聽
             // 通過設置全局錯誤來觸發 UI 顯示錯誤
         };
 
@@ -255,7 +248,7 @@ class SocketService {
     }
 
     // 取得 Socket 實例（用於調試）
-    getSocket(): any {
+    getSocket(): Socket | null {
         return this.socket;
     }
 

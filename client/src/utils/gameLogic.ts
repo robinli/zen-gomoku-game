@@ -1,9 +1,10 @@
 
 import { BoardState, Player, Position } from '../types';
+import { BOARD_CONFIG } from '../config/constants';
 
-export const BOARD_SIZE = 15;
+export const BOARD_SIZE = BOARD_CONFIG.SIZE;
 
-export const createEmptyBoard = (): BoardState => 
+export const createEmptyBoard = (): BoardState =>
   Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
 
 export interface WinResult {

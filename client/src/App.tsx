@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory, RoomStats } from './types';
@@ -14,6 +13,7 @@ import ConfirmDialog from './components/ConfirmDialog';
 import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { GAME_RULES, REPLAY_CONFIG, UI_CONFIG, STORAGE_KEYS, BOARD_CONFIG } from './config/constants';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -33,7 +33,7 @@ const App: React.FC = () => {
 
   // 房間設定
   const [roomSettings, setRoomSettings] = useState<GameSettings>({
-    undoLimit: 3,  // 預設 3 次
+    undoLimit: GAME_RULES.DEFAULT_UNDO_LIMIT,  // 使用配置常數
   });
 
   // 悔棋請求
@@ -117,8 +117,8 @@ const App: React.FC = () => {
       setError(null);
 
       // 🔥 檢查是否有未完成的房間（寬限期重連）
-      const savedRoomId = localStorage.getItem('currentRoomId');
-      const savedSide = localStorage.getItem('currentRoomSide') as Player;
+      const savedRoomId = localStorage.getItem(STORAGE_KEYS.CURRENT_ROOM_ID);
+      const savedSide = localStorage.getItem(STORAGE_KEYS.CURRENT_ROOM_SIDE) as Player;
 
       if (savedRoomId && savedSide && !room) {
         console.log(t('message.detect_unfinished', { roomId: savedRoomId }));
@@ -130,7 +130,7 @@ const App: React.FC = () => {
             // 恢復房間狀態
             setRoom({
               id: response.roomId,
-              board: Array(15).fill(null).map(() => Array(15).fill(null)),
+              board: Array(BOARD_CONFIG.SIZE).fill(null).map(() => Array(BOARD_CONFIG.SIZE).fill(null)),
               turn: 'black',
               winner: null,
               winningLine: null,
@@ -138,7 +138,7 @@ const App: React.FC = () => {
               lastMove: null,
               players: { [savedSide]: 'me' },
               updatedAt: Date.now(),
-              settings: { undoLimit: 3 },  // 預設值
+              settings: { undoLimit: GAME_RULES.DEFAULT_UNDO_LIMIT },  // 使用配置常數
               undoCount: { black: 0, white: 0 },
               history: [],
             });
@@ -147,8 +147,8 @@ const App: React.FC = () => {
           } else {
             console.log(t('message.room_reconnect_failed'));
             // 清除 localStorage
-            localStorage.removeItem('currentRoomId');
-            localStorage.removeItem('currentRoomSide');
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM_ID);
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM_SIDE);
           }
         });
       } else {
@@ -239,7 +239,7 @@ const App: React.FC = () => {
         };
       });
 
-      // 🎯 如果有威脅提示，3 秒後自動清除
+      // 🎯 如果有威脅提示，自動清除
       if ((data as any).threatLine && (data as any).threatLine.length > 0) {
         setTimeout(() => {
           setRoom(prev => {
@@ -250,7 +250,7 @@ const App: React.FC = () => {
               updatedAt: Date.now()
             };
           });
-        }, 3000);
+        }, UI_CONFIG.THREAT_DISPLAY_DURATION_MS);
       }
 
       isProcessingMove.current = false;
@@ -271,14 +271,14 @@ const App: React.FC = () => {
         setError(message);
         setIsConnecting(false);
 
-        // 延遲清除 hash，讓用戶能看到錯誤訊息 3 秒
+        // 延遲清除 hash，讓用戶能看到錯誤訊息
         setTimeout(() => {
           console.log(t('message.time_clearing'));
           window.location.hash = '';
           setError(null);
           // 清除嘗試記錄，允許重新嘗試
           attemptedRooms.current.clear();
-        }, 3000);
+        }, UI_CONFIG.ERROR_MESSAGE_DURATION_MS);
       }
     });
 
@@ -437,12 +437,12 @@ const App: React.FC = () => {
       window.location.hash = `room=${roomId}`;
 
       // ✅ 儲存房間資訊到 localStorage（用於寬限期重連）
-      localStorage.setItem('currentRoomId', roomId);
-      localStorage.setItem('currentRoomSide', side);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_ROOM_ID, roomId);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_ROOM_SIDE, side);
 
       const newRoom: GameRoom = {
         id: roomId,
-        board: Array(15).fill(null).map(() => Array(15).fill(null)),
+        board: Array(BOARD_CONFIG.SIZE).fill(null).map(() => Array(BOARD_CONFIG.SIZE).fill(null)),
         turn: 'black',
         winner: null,
         winningLine: null,
@@ -687,7 +687,7 @@ const App: React.FC = () => {
           }
           return prev + 1;
         });
-      }, 1000); // 每秒一步
+      }, REPLAY_CONFIG.AUTO_PLAY_INTERVAL_MS); // 自動播放間隔
 
       return () => {
         if (autoPlayTimer.current) {
@@ -709,8 +709,8 @@ const App: React.FC = () => {
   // 返回大廳（直接执行）
   const goHome = () => {
     // ✅ 清除儲存的房間資訊
-    localStorage.removeItem('currentRoomId');
-    localStorage.removeItem('currentRoomSide');
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM_ID);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM_SIDE);
 
     // 主動離開房間，通知 Server
     if (room) {

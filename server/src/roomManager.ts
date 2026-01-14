@@ -1,7 +1,7 @@
 
-
 import { GameRoom, Player, GameSettings } from './types.js';
 import { createEmptyBoard } from './gameLogic.js';
+import { ROOM_CONFIG, GAME_RULES } from './config/constants.js';
 
 // 擴展 GameRoom 類型以支援斷線寬限期
 interface ExtendedGameRoom extends GameRoom {
@@ -16,7 +16,7 @@ interface ExtendedGameRoom extends GameRoom {
 
 class RoomManager {
     private rooms: Map<string, ExtendedGameRoom> = new Map();
-    private readonly GRACE_PERIOD = 30 * 1000; // 30 秒寬限期
+    private readonly GRACE_PERIOD = ROOM_CONFIG.GRACE_PERIOD_MS; // 使用配置常數
 
     // 產生 6 位大寫房間 ID
     private generateRoomId(): string {
@@ -27,9 +27,9 @@ class RoomManager {
     createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings): GameRoom {
         const roomId = this.generateRoomId();
 
-        // 預設設定：允許悔棋 3 次
+        // 預設設定：使用配置常數
         const defaultSettings: GameSettings = {
-            undoLimit: 3,
+            undoLimit: GAME_RULES.DEFAULT_UNDO_LIMIT,
         };
 
         const room: ExtendedGameRoom = {
@@ -246,10 +246,10 @@ class RoomManager {
         }
     }
 
-    // 清理閒置房間（15 分鐘無活動）
+    // 清理閒置房間
     cleanupIdleRooms(): void {
         const now = Date.now();
-        const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 分鐘
+        const IDLE_TIMEOUT = ROOM_CONFIG.IDLE_ROOM_TIMEOUT_MS;  // 使用配置常數
 
         for (const [roomId, room] of this.rooms.entries()) {
             if (now - room.updatedAt > IDLE_TIMEOUT) {
