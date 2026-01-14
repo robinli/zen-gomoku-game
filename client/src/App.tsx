@@ -15,6 +15,7 @@ import { socketService } from './services/socketService';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { GAME_RULES, REPLAY_CONFIG, UI_CONFIG, STORAGE_KEYS, BOARD_CONFIG } from './config/constants';
 import { useRoomStats } from './hooks/useRoomStats';
+import { useReplay } from './hooks/useReplay';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -28,6 +29,9 @@ const App: React.FC = () => {
 
   // 使用 useRoomStats Hook 管理房間統計
   const { roomStats, updateStats, resetStats, clearWinnerRef } = useRoomStats();
+
+  // 使用 useReplay Hook 管理回放功能
+  const replay = useReplay();
 
   // 房間設定
   const [roomSettings, setRoomSettings] = useState<GameSettings>({
