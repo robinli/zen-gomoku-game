@@ -846,7 +846,7 @@ const App: React.FC = () => {
         )}
 
         {room && (
-          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-6 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
+          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-2 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
             <div className="w-full flex justify-center relative">
               <Board
                 board={isReplaying ? getReplayBoard(replayStep) : room.board}
