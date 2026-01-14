@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Player } from '../types';
 import BaseDialog from './BaseDialog';
 import DialogButton from './DialogButton';
@@ -14,12 +15,13 @@ const ResetRequestDialog: React.FC<ResetRequestDialogProps> = ({
     onAccept,
     onReject,
 }) => {
-    const playerName = requestedBy === 'black' ? '黑方' : '白方';
+    const { t } = useTranslation();
+    const playerName = requestedBy === 'black' ? t('app.black') : t('app.white');
     const playerIcon = requestedBy === 'black' ? '⚫' : '⚪';
 
     return (
         <BaseDialog
-            title="重新開始請求"
+            title={t('dialog.reset_request_title')}
             icon="question"
             actions={
                 <>
@@ -31,7 +33,7 @@ const ResetRequestDialog: React.FC<ResetRequestDialogProps> = ({
                             </svg>
                         }
                     >
-                        拒絕
+                        {t('dialog.reject')}
                     </DialogButton>
                     <DialogButton
                         onClick={onAccept}
@@ -41,7 +43,7 @@ const ResetRequestDialog: React.FC<ResetRequestDialogProps> = ({
                             </svg>
                         }
                     >
-                        同意
+                        {t('dialog.agree')}
                     </DialogButton>
                 </>
             }
@@ -52,7 +54,7 @@ const ResetRequestDialog: React.FC<ResetRequestDialogProps> = ({
                 color: '#334155',
                 textAlign: 'center'
             }}>
-                {playerIcon} <strong style={{ color: '#1e293b', fontWeight: 600 }}>{playerName}</strong> 請求重新開始對局
+                {playerIcon} <strong style={{ color: '#1e293b', fontWeight: 600 }}>{t('dialog.reset_request_content', { player: playerName })}</strong>
             </p>
             <p style={{
                 margin: 0,
@@ -60,7 +62,7 @@ const ResetRequestDialog: React.FC<ResetRequestDialogProps> = ({
                 color: '#64748b',
                 textAlign: 'center'
             }}>
-                是否同意清空棋盤，重新開始？
+                {t('dialog.reset_request_sub')}
             </p>
         </BaseDialog>
     );

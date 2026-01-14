@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GameRoom, Player, RoomStats } from '../types';
 
 interface GameInfoProps {
@@ -17,6 +18,7 @@ interface GameInfoProps {
 }
 
 const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset, roomStats }) => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [shareStatus, setShareStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const shareLink = window.location.href;
@@ -32,17 +34,17 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
     try {
       // 只傳 URL，讓社交平台自動抓取 Open Graph 標籤
       await navigator.share({
-        title: '靜弈五子棋',
-        text: '快來跟我下五子棋！',
+        title: t('message.share_title'),
+        text: t('message.share_text'),
         url: shareLink
       });
       setShareStatus('success');
       setTimeout(() => setShareStatus('idle'), 2000);
-      console.log('✅ 分享成功');
+      console.log(t('game_info.share_success'));
     } catch (error: any) {
       // 用戶取消分享不算錯誤
       if (error.name !== 'AbortError') {
-        console.error('❌ 分享失敗:', error);
+        console.error(t('message.share_error'), error);
         setShareStatus('error');
         setTimeout(() => setShareStatus('idle'), 2000);
         // 降級到複製連結
@@ -60,7 +62,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       })
       .catch(() => {
         // 如果 clipboard API 也不支援，使用 prompt
-        prompt('請複製此連結:', shareLink);
+        prompt(t('message.copy_prompt'), shareLink);
       });
   };
 
@@ -71,9 +73,9 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
   };
 
   const getStatusText = () => {
-    if (isReconnecting) return '嘗試重新連接...';
-    if (isConnected && Object.keys(room.players).length === 2) return '已建立連線';
-    return '等待朋友加入...';
+    if (isReconnecting) return t('app.reconnecting');
+    if (isConnected && Object.keys(room.players).length === 2) return t('app.connected');
+    return t('app.waiting');
   };
 
   return (
@@ -81,11 +83,11 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       {/* Share Section - 只在等待對手加入時顯示 */}
       {Object.keys(room.players).length < 2 && !isReconnecting && (
         <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white animate-in zoom-in duration-500">
-          <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">邀請好友</h3>
+          <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">{t('game_info.invite_friend')}</h3>
           <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">
             {canShare
-              ? '點擊下方按鈕分享連結給朋友，開始對弈。'
-              : '請將此連結傳送給朋友，他們點擊後即可開始對弈。'}
+              ? t('game_info.invite_text_share')
+              : t('game_info.invite_text_copy')}
           </p>
           <div className="flex flex-col gap-2">
             {/* Web Share API 按鈕（移動端優先） */}
@@ -102,14 +104,14 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    分享成功
+                    {t('game_info.share_success')}
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                     </svg>
-                    分享邀請連結
+                    {t('game_info.share_link')}
                   </>
                 )}
               </button>
@@ -130,14 +132,14 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
-                  已複製連結
+                  {t('game_info.copied')}
                 </>
               ) : (
                 <>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
                   </svg>
-                  {canShare ? '或複製連結' : '複製分享連結'}
+                  {canShare ? t('game_info.or_copy') : t('game_info.copy_link')}
                 </>
               )}
             </button>
@@ -153,7 +155,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 flex-shrink-0 mt-0.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
-              <span className="leading-relaxed">使用「分享」按鈕可保持連線不中斷</span>
+              <span className="leading-relaxed">{t('game_info.share_hint')}</span>
             </div>
           )}
         </div>
@@ -176,14 +178,14 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 animate-spin">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
-              <span>等待對方回應...</span>
+              <span>{t('game_info.waiting_response')}</span>
             </>
           ) : (
             <>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
-              <span>請求悔棋</span>
+              <span>{t('game_info.request_undo')}</span>
               {room.settings.undoLimit !== null && room.settings.undoLimit > 0 && (
                 <span className="text-xs opacity-75">
                   ({room.undoCount[localPlayer]}/{room.settings.undoLimit})
@@ -203,7 +205,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
           </svg>
-          回放對局
+          {t('game_info.replay_game')}
         </button>
       )}
 
@@ -219,7 +221,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 ${isWaitingReset ? 'animate-spin' : ''}`}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
-        {isWaitingReset ? '等待對方回應...' : (room.winner ? '再來一局' : '重新開始對局')}
+        {isWaitingReset ? t('game_info.waiting_response') : (room.winner ? t('game_info.play_again') : t('game_info.restart_game'))}
       </button>
 
       {/* 房間統計 - 只在雙方都已加入時顯示 */}
@@ -232,7 +234,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
                 <div className="w-1.5 h-1.5 rounded-full border border-white/20"></div>
               </div>
               <span className={`${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
-                黑方{localPlayer === 'black' ? '(您)' : ''}
+                {t('game_info.black_player')}{localPlayer === 'black' ? t('game_info.you') : ''}
               </span>
             </div>
 
@@ -240,7 +242,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
             <span className="font-bold text-slate-700 mx-1">
               {roomStats.black.wins}
             </span>
-            <span className="text-slate-400 font-medium">vs</span>
+            <span className="text-slate-400 font-medium">{t('game_info.vs')}</span>
             <span className="font-bold text-slate-700 mx-1">
               {roomStats.white.wins}
             </span>
@@ -251,7 +253,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
                 <div className="w-1.5 h-1.5 rounded-full border border-slate-900/10 bg-white"></div>
               </div>
               <span className={`${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
-                白方{localPlayer === 'white' ? '(您)' : ''}
+                {t('game_info.white_player')}{localPlayer === 'white' ? t('game_info.you') : ''}
               </span>
             </div>
           </div>
@@ -266,11 +268,11 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        返回大廳
+        {t('game_info.back_to_lobby')}
       </button>
 
       <div className="text-xs text-slate-400 text-center uppercase tracking-widest flex flex-col gap-1">
-        <span>您的身份: {localPlayer === 'black' ? '執黑 (先行)' : '執白 (後行)'}</span>
+        <span>{t('game_info.identity', { identity: localPlayer === 'black' ? t('game_info.identity_black') : t('game_info.identity_white') })}</span>
       </div>
     </div>
   );

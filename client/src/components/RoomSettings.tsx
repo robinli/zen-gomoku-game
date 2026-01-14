@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './RoomSettings.css';
 
 export interface GameSettings {
@@ -11,12 +12,13 @@ interface RoomSettingsProps {
 }
 
 const RoomSettings: React.FC<RoomSettingsProps> = ({ settings, onChange }) => {
+    const { t } = useTranslation();
     const undoOptions = [
-        { value: 0, label: '不允許悔棋' },
-        { value: 1, label: '1 次' },
-        { value: 3, label: '3 次（推薦）' },
-        { value: 5, label: '5 次' },
-        { value: null, label: '無限制' },
+        { value: 0, label: t('lobby.undo_options.not_allowed') },
+        { value: 1, label: t('lobby.undo_options.times', { count: 1 }) },
+        { value: 3, label: t('lobby.undo_options.times_recommended', { count: 3 }) },
+        { value: 5, label: t('lobby.undo_options.times', { count: 5 }) },
+        { value: null, label: t('lobby.undo_options.unlimited') },
     ];
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -26,11 +28,11 @@ const RoomSettings: React.FC<RoomSettingsProps> = ({ settings, onChange }) => {
 
     return (
         <div className="room-settings">
-            <h3 className="settings-title">遊戲設定</h3>
+            <h3 className="settings-title">{t('app.game_settings').split(':')[0]}</h3>
 
             <div className="setting-group">
-                <label className="setting-label" htmlFor="undo-select">悔棋規則</label>
-                <p className="setting-description">每方可悔棋次數（需對方同意）</p>
+                <label className="setting-label" htmlFor="undo-select">{t('lobby.undo_rules')}</label>
+                <p className="setting-description">{t('lobby.undo_limit_desc')}</p>
 
                 <select
                     id="undo-select"

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import BaseDialog, { DialogIcon } from './BaseDialog';
 import DialogButton from './DialogButton';
 
@@ -15,6 +16,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({
     icon = 'info',
     onClose,
 }) => {
+    const { t } = useTranslation();
     return (
         <BaseDialog
             title={title}
@@ -22,7 +24,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({
             onOverlayClick={onClose}
             actions={
                 <DialogButton onClick={onClose}>
-                    確定
+                    {t('dialog.confirm')}
                 </DialogButton>
             }
         >

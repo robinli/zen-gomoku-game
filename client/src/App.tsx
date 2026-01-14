@@ -1,6 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory, RoomStats } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
@@ -12,8 +13,10 @@ import MessageDialog from './components/MessageDialog';
 import ConfirmDialog from './components/ConfirmDialog';
 import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [localPlayer, setLocalPlayer] = useState<Player | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -89,7 +92,7 @@ const App: React.FC = () => {
       && socketService.isConnected()
       && !attemptedRooms.current.has(roomId)
     ) {
-      console.log('🔗 偵測到房間 ID，嘗試加入:', roomId);
+      console.log(t('message.detect_room_id', { roomId }));
       attemptedRooms.current.add(roomId);
       handleJoinRoom(roomId);
     }
@@ -98,17 +101,17 @@ const App: React.FC = () => {
   // 初始化 Socket 連線
   useEffect(() => {
     if (hasInitialized.current) {
-      console.log('⏭️ Socket 已初始化，跳過');
+      console.log(t('message.socket_init_skip'));
       return;
     }
     hasInitialized.current = true;
 
-    console.log('🚀 正在初始化 Socket 連線...');
+    console.log(t('message.socket_init_start'));
     socketService.connect();
 
     // 監聽連線成功事件
     socketService.onConnect(() => {
-      console.log('✅ Socket 連線成功');
+      console.log(t('message.socket_connected'));
       setIsConnected(true);
       setIsConnecting(false);
       setError(null);
@@ -118,12 +121,12 @@ const App: React.FC = () => {
       const savedSide = localStorage.getItem('currentRoomSide') as Player;
 
       if (savedRoomId && savedSide && !room) {
-        console.log('🔄 偵測到未完成的房間，嘗試重連:', savedRoomId);
+        console.log(t('message.detect_unfinished', { roomId: savedRoomId }));
 
         // 嘗試重連
         socketService.reconnectRoom(savedRoomId, (response) => {
           if (response.success && response.roomId) {
-            console.log('✅ 房間重連成功');
+            console.log(t('message.room_reconnected'));
             // 恢復房間狀態
             setRoom({
               id: response.roomId,
@@ -142,7 +145,7 @@ const App: React.FC = () => {
             setLocalPlayer(savedSide);
             window.location.hash = `room=${response.roomId}`;
           } else {
-            console.log('❌ 房間重連失敗，可能已過期');
+            console.log(t('message.room_reconnect_failed'));
             // 清除 localStorage
             localStorage.removeItem('currentRoomId');
             localStorage.removeItem('currentRoomSide');
@@ -156,10 +159,10 @@ const App: React.FC = () => {
 
     // 監聽連線錯誤
     socketService.onConnectError((error) => {
-      console.error('❌ Socket 連線錯誤:', error);
+      console.error(t('message.socket_error'), error);
       setIsConnected(false);
       setIsConnecting(false);
-      setError('無法連線到伺服器，請檢查網路連線');
+      setError(t('app.connection_failed'));
     });
 
     // 監聽遊戲更新
@@ -187,7 +190,7 @@ const App: React.FC = () => {
         // 🎯 檢測遊戲結束並更新統計
         if (data.winner && data.winner !== lastWinnerRef.current) {
           // 遊戲剛結束且勝者與上次不同
-          console.log('🎯 檢測到遊戲結束 - 準備更新統計:', {
+          console.log(t('message.game_end_update'), {
             winner: data.winner,
             lastWinner: lastWinnerRef.current,
             timestamp: Date.now()
@@ -219,7 +222,7 @@ const App: React.FC = () => {
 
         // 如果是重置，清除勝者記錄
         if (isReset) {
-          console.log('🔄 重置遊戲 - 清除勝者記錄');
+          console.log(t('message.reset_clear_winner'));
           lastWinnerRef.current = null;
         }
 
@@ -256,21 +259,21 @@ const App: React.FC = () => {
 
     // 監聽對手離開
     socketService.onOpponentLeft(() => {
-      console.log('👋 對手已離開房間');
+      console.log(t('message.opponent_left_log'));
       setIsConnected(false);
       setShowOpponentLeftDialog(true);
     });
 
     // 監聽錯誤
     socketService.onError(({ message }) => {
-      console.error('Server 錯誤:', message);
+      console.error(t('message.error_prefix') + message);
       if (!room) {
         setError(message);
         setIsConnecting(false);
 
         // 延遲清除 hash，讓用戶能看到錯誤訊息 3 秒
         setTimeout(() => {
-          console.log('⏰ 清除錯誤狀態並返回大廳');
+          console.log(t('message.time_clearing'));
           window.location.hash = '';
           setError(null);
           // 清除嘗試記錄，允許重新嘗試
@@ -283,7 +286,7 @@ const App: React.FC = () => {
 
     // 監聽悔棋請求
     socketService.onUndoRequested(({ requestedBy }) => {
-      console.log('🤔 收到悔棋請求:', requestedBy);
+      console.log(t('message.undo_req_log', { requestedBy }));
       setUndoRequest({
         requestedBy,
         requestedAt: Date.now(),
@@ -292,7 +295,7 @@ const App: React.FC = () => {
 
     // 監聽悔棋成功
     socketService.onUndoAccepted((data) => {
-      console.log('✅ 悔棋成功:', data);
+      console.log(t('message.undo_accepted_log', { data }));
       setRoom(prev => {
         if (!prev) return prev;
         return {
@@ -314,12 +317,12 @@ const App: React.FC = () => {
 
     // 監聽悔棋被拒絕
     socketService.onUndoRejected(() => {
-      console.log('❌ 悔棋被拒絕');
+      console.log(t('message.undo_rejected_log'));
       setUndoRequest(null);
       setIsWaitingUndo(false);  // 清除等待狀態
       setMessageDialog({
-        title: '悔棋被拒絕',
-        message: '對方拒絕了您的悔棋請求',
+        title: t('message.undo_rejected_title'),
+        message: t('message.undo_rejected_msg'),
         icon: 'error'
       });
     });
@@ -328,7 +331,7 @@ const App: React.FC = () => {
 
     // 監聽重置請求
     socketService.onResetRequested(({ requestedBy }) => {
-      console.log('🔄 收到重置請求:', requestedBy);
+      console.log(t('message.reset_req_log', { requestedBy }));
       setResetRequest({
         requestedBy,
         requestedAt: Date.now(),
@@ -337,7 +340,7 @@ const App: React.FC = () => {
 
     // 監聽重置成功
     socketService.onResetAccepted(() => {
-      console.log('✅ 重置成功');
+      console.log(t('message.reset_accepted_log'));
       setResetRequest(null);
       setIsWaitingReset(false);  // 清除等待狀態
       // 棋盤會通過 GAME_UPDATE 事件自動更新
@@ -345,19 +348,19 @@ const App: React.FC = () => {
 
     // 監聽重置被拒絕
     socketService.onResetRejected(() => {
-      console.log('❌ 重置被拒絕');
+      console.log(t('message.reset_rejected_log'));
       setResetRequest(null);
       setIsWaitingReset(false);  // 清除等待狀態
       setMessageDialog({
-        title: '重新開始被拒絕',
-        message: '對方拒絕了您的重新開始請求',
+        title: t('message.reset_rejected_title'),
+        message: t('message.reset_rejected_msg'),
         icon: 'error'
       });
     });
 
     // 監聽房間加入事件（當第二個玩家加入時，房主也會收到這個事件）
     socketService.onRoomJoined(({ room: serverRoom, yourSide }) => {
-      console.log('🎉 對手已加入房間！更新房間狀態', serverRoom);
+      console.log(t('message.opponent_joined_log', { room: serverRoom }));
 
       setRoom(prev => {
         // 轉換服務器端的房間數據為客戶端格式
@@ -422,8 +425,8 @@ const App: React.FC = () => {
   const handleCreate = (side: Player) => {
     // 檢查 Socket 是否已連線
     if (!socketService.isConnected()) {
-      setError('網路連線中，請稍後再試');
-      console.error('❌ Socket 未連線');
+      setError(t('app.connection_failed'));
+      console.error(t('message.socket_error') + ' Not connected');
       return;
     }
 
@@ -469,9 +472,9 @@ const App: React.FC = () => {
         white: { wins: 0, losses: 0, draws: 0 }
       });
 
-      console.log('✅ 房間已創建:', roomId);
-      console.log('📋 分享連結:', shareUrl);
-      console.log('⚙️ 遊戲設定:', settings);
+      console.log(t('message.create_room_log', { roomId }));
+      console.log(t('app.share_link', { url: shareUrl }));
+      console.log(t('app.game_settings', { settings }));
     });
   };
 
@@ -503,7 +506,7 @@ const App: React.FC = () => {
         white: { wins: 0, losses: 0, draws: 0 }
       });
 
-      console.log('✅ 已加入房間:', roomId, '| 您執:', yourSide);
+      console.log(t('message.join_room_log', { roomId, side: yourSide }));
     });
   };
 
@@ -513,7 +516,7 @@ const App: React.FC = () => {
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer) return;
     if (room.board[pos.y][pos.x]) return;
     if (!socketService.isConnected()) {
-      setError('連線中斷，請重新整理頁面');
+      setError(t('app.connection_lost_refresh'));
       return;
     }
 
@@ -543,8 +546,8 @@ const App: React.FC = () => {
     // 檢查是否允許悔棋
     if (room.settings.undoLimit === 0) {
       setMessageDialog({
-        title: '無法悔棋',
-        message: '此房間不允許悔棋',
+        title: t('app.cannot_undo_title'),
+        message: t('app.cannot_undo_not_allowed'),
         icon: 'info'
       });
       return;
@@ -555,8 +558,8 @@ const App: React.FC = () => {
       const used = room.undoCount[localPlayer];
       if (used >= room.settings.undoLimit) {
         setMessageDialog({
-          title: '無法悔棋',
-          message: `悔棋次數已用完（${used}/${room.settings.undoLimit}）`,
+          title: t('app.cannot_undo_title'),
+          message: t('app.cannot_undo_limit', { used, limit: room.settings.undoLimit }),
           icon: 'info'
         });
         return;
@@ -566,8 +569,8 @@ const App: React.FC = () => {
     // 檢查是否有歷史記錄
     if (!room.history || room.history.length === 0) {
       setMessageDialog({
-        title: '無法悔棋',
-        message: '沒有可以悔棋的步驟',
+        title: t('app.cannot_undo_title'),
+        message: t('app.cannot_undo_no_steps'),
         icon: 'info'
       });
       return;
@@ -577,21 +580,21 @@ const App: React.FC = () => {
     const lastMove = room.history[room.history.length - 1];
     if (lastMove.player !== localPlayer) {
       setMessageDialog({
-        title: '無法悔棋',
-        message: '只能悔自己剛下的棋',
+        title: t('app.cannot_undo_title'),
+        message: t('app.cannot_undo_only_own'),
         icon: 'info'
       });
       return;
     }
 
-    console.log('📤 請求悔棋');
+    console.log(t('message.request_undo_log'));
     setIsWaitingUndo(true);  // 設置等待狀態
     socketService.requestUndo();
   };
 
   // 回應悔棋請求
   const handleRespondUndo = (accept: boolean) => {
-    console.log('📤 回應悔棋請求:', accept ? '同意' : '拒絕');
+    console.log(t('message.respond_undo_log', { accept: accept ? t('dialog.agree') : t('dialog.reject') }));
     socketService.respondUndo(accept);
     setUndoRequest(null);
   };
@@ -602,14 +605,14 @@ const App: React.FC = () => {
   const handleReset = () => {
     if (!room || !localPlayer) return;
 
-    console.log('📤 請求重新開始');
+    console.log(t('message.request_reset_log'));
     setIsWaitingReset(true);  // 設置等待狀態
     socketService.requestReset();
   };
 
   // 回應重置請求
   const handleRespondReset = (accept: boolean) => {
-    console.log('📤 回應重置請求:', accept ? '同意' : '拒絕');
+    console.log(t('message.respond_reset_log', { accept: accept ? t('dialog.agree') : t('dialog.reject') }));
     socketService.respondReset(accept);
     setResetRequest(null);
   };
@@ -759,8 +762,8 @@ const App: React.FC = () => {
                 <div className="w-4 h-4 border-2 border-white rounded-full"></div>
               </div>
               <div>
-                <h1 className="text-sm sm:text-base font-bold font-serif text-slate-900">靜弈五子棋</h1>
-                <p className="text-xs text-slate-400">房間 {room.id}</p>
+                <h1 className="text-sm sm:text-base font-bold font-serif text-slate-900">{t('app.title')}</h1>
+                <p className="text-xs text-slate-400">{t('app.room_id', { id: room.id })}</p>
               </div>
             </div>
 
@@ -774,11 +777,10 @@ const App: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs sm:text-sm font-bold text-slate-700 leading-tight">
-                  {room.turn === 'black' ? '黑方' : '白方'}
-                  <span className="hidden sm:inline">回合</span>
+                  {t('app.turn', { color: room.turn === 'black' ? t('app.black') : t('app.white') })}
                 </p>
                 <p className="text-xs text-slate-400 leading-tight">
-                  {room.winner ? '已結束' : (localPlayer === room.turn ? '您的' : '對手')}
+                  {room.winner ? t('app.ended') : (localPlayer === room.turn ? t('app.yourTurn') : t('app.opponentTurn'))}
                 </p>
               </div>
             </div>
@@ -791,10 +793,15 @@ const App: React.FC = () => {
                   'bg-amber-500 animate-pulse'
                 }`}></span>
               <span className="text-xs sm:text-sm font-medium text-slate-600">
-                {isReconnecting ? '重連中' :
-                  (isConnected && Object.keys(room.players).length === 2) ? '已連線' :
-                    '等待中'}
+                {isReconnecting ? t('app.reconnecting') :
+                  (isConnected && Object.keys(room.players).length === 2) ? t('app.connected') :
+                    t('app.waiting')}
               </span>
+            </div>
+
+            {/* Language Switcher in Room Header */}
+            <div className="ml-2">
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
@@ -802,10 +809,13 @@ const App: React.FC = () => {
 
       {/* 非遊戲狀態的標題 */}
       {showFatalError && (
-        <header className="py-6 text-center animate-in fade-in duration-1000">
-          <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">靜弈五子棋</h1>
+        <header className="py-6 text-center animate-in fade-in duration-1000 relative">
+          <div className="absolute right-4 top-4">
+             <LanguageSwitcher />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">{t('app.title')}</h1>
           {<p className="text-slate-400 italic text-sm mt-1">
-            {isConnected ? '即時對戰中' : (isReconnecting ? '網路恢復中...' : 'Client-Server 連線版本')}
+            {isConnected ? t('app.online_game') : (isReconnecting ? t('app.network_recovering') : t('app.client_server_version'))}
           </p>}
         </header>
       )}
@@ -819,11 +829,11 @@ const App: React.FC = () => {
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
               </svg>
-              <h2 className="font-bold">連線失敗</h2>
+              <h2 className="font-bold">{t('app.connection_failed')}</h2>
             </div>
             <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
             <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
-              返回大廳
+              {t('app.back_to_lobby')}
             </button>
           </div>
         )}
@@ -831,7 +841,7 @@ const App: React.FC = () => {
         {isConnecting && !room && !error && (
           <div className="flex flex-col items-center justify-center p-12 space-y-4 animate-in fade-in">
             <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
-            <p className="text-slate-400 font-serif italic">正在尋找遊戲房間中...</p>
+            <p className="text-slate-400 font-serif italic">{t('app.finding_room')}</p>
           </div>
         )}
 
@@ -861,7 +871,7 @@ const App: React.FC = () => {
                 <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
                   <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
-                    <p className="text-amber-700 font-bold text-sm">網路不穩定，嘗試恢復連線中...</p>
+                    <p className="text-amber-700 font-bold text-sm">{t('app.internet_unstable')}</p>
                   </div>
                 </div>
               )}
@@ -903,17 +913,17 @@ const App: React.FC = () => {
         )}
 
         <footer className="mt-auto py-8 text-slate-300 text-xs tracking-widest text-center">
-          靜弈 • 以棋會友
+          {t('app.footer_text')}
         </footer>
       </div>
 
       {/* 確認對話框 */}
       {showConfirm && (
         <ConfirmDialog
-          title="確認離開遊戲？"
-          message="遊戲正在進行中，離開後對局將中斷，對手將收到您離線的通知。"
-          confirmText="確認離開"
-          cancelText="取消"
+          title={t('app.confirm_leave_title')}
+          message={t('app.confirm_leave_message')}
+          confirmText={t('app.confirm_leave_confirm')}
+          cancelText={t('app.confirm_leave_cancel')}
           onConfirm={() => {
             setShowConfirm(false);
             goHome();
@@ -943,10 +953,10 @@ const App: React.FC = () => {
       {/* 對手離開對話框 */}
       {showOpponentLeftDialog && (
         <ConfirmDialog
-          title="對手已離開"
-          message="對方玩家已離開房間，對局已結束"
-          confirmText="關閉"
-          cancelText="返回大廳"
+          title={t('app.opponent_left_title')}
+          message={t('app.opponent_left_message')}
+          confirmText={t('app.close')}
+          cancelText={t('app.back_to_lobby')}
           onConfirm={() => setShowOpponentLeftDialog(false)}
           onCancel={() => {
             setShowOpponentLeftDialog(false);

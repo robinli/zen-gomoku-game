@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import BaseDialog from './BaseDialog';
 import DialogButton from './DialogButton';
 
@@ -14,11 +15,15 @@ interface ConfirmDialogProps {
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     title,
     message,
-    confirmText = '確認',
-    cancelText = '取消',
+    confirmText,
+    cancelText,
     onConfirm,
     onCancel,
 }) => {
+    const { t } = useTranslation();
+    const finalConfirmText = confirmText || t('dialog.confirm');
+    const finalCancelText = cancelText || t('dialog.cancel');
+
     return (
         <BaseDialog
             title={title}
@@ -27,10 +32,10 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             actions={
                 <>
                     <DialogButton onClick={onCancel}>
-                        {cancelText}
+                        {finalCancelText}
                     </DialogButton>
                     <DialogButton onClick={onConfirm}>
-                        {confirmText}
+                        {finalConfirmText}
                     </DialogButton>
                 </>
             }

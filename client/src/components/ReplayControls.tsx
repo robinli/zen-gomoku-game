@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ReplayControlsProps {
     currentStep: number;
@@ -23,6 +24,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
     onExit,
     onFastForward,
 }) => {
+    const { t } = useTranslation();
     const canGoPrevious = currentStep > 0;
     const canGoNext = currentStep < totalSteps - 1;
 
@@ -34,12 +36,12 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-slate-700">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                     </svg>
-                    <h3 className="text-lg font-bold text-slate-900">對局回放</h3>
+                    <h3 className="text-lg font-bold text-slate-900">{t('replay.title')}</h3>
                 </div>
                 <button
                     onClick={onExit}
                     className="text-slate-400 hover:text-slate-600 transition-colors"
-                    title="退出回放"
+                    title={t('app.close')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -50,8 +52,8 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
             {/* 進度條 */}
             <div className="mb-4">
                 <div className="flex justify-between text-xs text-slate-500 mb-2">
-                    <span>第 {currentStep + 1} 步</span>
-                    <span>共 {totalSteps} 步</span>
+                    <span>{t('replay.step_progress', { current: currentStep + 1, total: totalSteps }).split('/')[0].trim()}</span>
+                    <span>{t('replay.step_progress', { current: currentStep + 1, total: totalSteps }).split('/')[1]?.trim()}</span>
                 </div>
                 <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
@@ -68,7 +70,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                     onClick={onRestart}
                     disabled={currentStep === 0}
                     className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    title="重新開始"
+                    title={t('replay.restart')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-700">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
@@ -80,7 +82,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                     onClick={onPrevious}
                     disabled={!canGoPrevious}
                     className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    title="上一步"
+                    title={t('replay.prev')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-700">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -91,7 +93,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                 <button
                     onClick={onToggleAutoPlay}
                     className="p-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-lg hover:shadow-xl"
-                    title={isAutoPlaying ? '暫停' : '自動播放'}
+                    title={isAutoPlaying ? t('replay.pause') : t('replay.play')}
                 >
                     {isAutoPlaying ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -109,7 +111,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                     onClick={onNext}
                     disabled={!canGoNext}
                     className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    title="下一步"
+                    title={t('replay.next')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-700">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
@@ -121,7 +123,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
                     onClick={onFastForward}
                     disabled={currentStep === totalSteps - 1}
                     className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    title="快進到最後"
+                    title={t('replay.end')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-slate-700">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8.689c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062a1.125 1.125 0 0 1-1.683-.977V8.69Z" />
@@ -132,7 +134,7 @@ const ReplayControls: React.FC<ReplayControlsProps> = ({
             {/* 提示文字 */}
             <div className="mt-4 text-center">
                 <p className="text-xs text-slate-400">
-                    {isAutoPlaying ? '自動播放中...' : '使用控制按鈕回顧對局'}
+                    {isAutoPlaying ? t('replay.playing') : t('replay.controls_hint')}
                 </p>
             </div>
         </div>

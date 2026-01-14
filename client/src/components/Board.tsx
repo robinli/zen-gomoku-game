@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BoardState, Position, Player } from '../types';
 import { BOARD_SIZE } from '../utils/gameLogic';
 
@@ -15,6 +16,7 @@ interface BoardProps {
 }
 
 const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, threatLine, turn, disabled }) => {
+  const { t } = useTranslation();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const cellSize = 30;
   const padding = 20;
@@ -136,7 +138,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
           </svg>
-          查看結算
+          {t('board.view_results')}
         </button>
       )}
 
@@ -145,7 +147,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-            <p className="text-slate-500 font-medium text-xs uppercase tracking-wider">對手思考中</p>
+            <p className="text-slate-500 font-medium text-xs uppercase tracking-wider">{t('board.thinking')}</p>
           </div>
         </div>
       )}
@@ -170,15 +172,15 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
             </div>
 
             <h2 className="text-3xl font-serif font-bold mb-2 text-slate-900">
-              {winner === 'draw' ? '和局' : (winner === 'black' ? '黑子勝出' : '白子勝出')}
+              {winner === 'draw' ? t('board.draw') : (winner === 'black' ? t('board.winner_black') : t('board.winner_white'))}
             </h2>
-            <p className="text-slate-500 font-light tracking-widest uppercase text-xs mb-6">對局已結束</p>
+            <p className="text-slate-500 font-light tracking-widest uppercase text-xs mb-6">{t('board.game_over')}</p>
 
             <button
               onClick={() => setOverlayVisible(false)}
               className="px-6 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-semibold transition-all border border-slate-200/50"
             >
-              檢視棋盤連線
+              {t('board.view_board')}
             </button>
           </div>
         </div>
