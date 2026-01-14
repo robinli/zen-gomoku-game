@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Player } from '../types';
 import RoomSettings, { GameSettings } from './RoomSettings';
-import LanguageSwitcher from './LanguageSwitcher';
 
 interface LobbyProps {
   onCreate: (side: Player) => void;
@@ -16,12 +15,7 @@ const Lobby: React.FC<LobbyProps> = ({ onCreate, settings, onSettingsChange }) =
   const [selectedSide, setSelectedSide] = useState<Player>('black');
 
   return (
-    <div className="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center space-y-8 animate-in slide-in-from-bottom duration-700 border border-slate-100 relative">
-      {/* Language Switcher in Lobby */}
-      <div className="absolute top-4 right-4">
-        <LanguageSwitcher />
-      </div>
-
+    <div className="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center space-y-8 animate-in slide-in-from-bottom duration-700 border border-slate-100">
       <div className="space-y-2">
         <div className="w-16 h-16 bg-slate-900 rounded-full mx-auto flex items-center justify-center shadow-lg">
           <div className="w-8 h-8 border-4 border-white rounded-full"></div>

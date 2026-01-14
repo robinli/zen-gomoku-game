@@ -798,21 +798,13 @@ const App: React.FC = () => {
                     t('app.waiting')}
               </span>
             </div>
-
-            {/* Language Switcher in Room Header */}
-            <div className="ml-2">
-              <LanguageSwitcher />
-            </div>
           </div>
         </div>
       )}
 
       {/* 非遊戲狀態的標題 */}
       {showFatalError && (
-        <header className="py-6 text-center animate-in fade-in duration-1000 relative">
-          <div className="absolute right-4 top-4">
-             <LanguageSwitcher />
-          </div>
+        <header className="py-6 text-center animate-in fade-in duration-1000">
           <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">{t('app.title')}</h1>
           {<p className="text-slate-400 italic text-sm mt-1">
             {isConnected ? t('app.online_game') : (isReconnecting ? t('app.network_recovering') : t('app.client_server_version'))}
@@ -854,7 +846,7 @@ const App: React.FC = () => {
         )}
 
         {room && (
-          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-8 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
+          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-6 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
             <div className="w-full flex justify-center relative">
               <Board
                 board={isReplaying ? getReplayBoard(replayStep) : room.board}
@@ -912,8 +904,14 @@ const App: React.FC = () => {
           </main>
         )}
 
-        <footer className="mt-auto py-8 text-slate-300 text-xs tracking-widest text-center">
-          {t('app.footer_text')}
+        {/* Footer - 所有頁面共用 */}
+        <footer className="mt-6 py-3 text-slate-300 text-xs tracking-widest text-center space-y-2">
+          {/* Language Switcher */}
+          <div className="flex justify-center">
+            <LanguageSwitcher />
+          </div>
+          {/* Copyright Text */}
+          <div>{t('app.footer_text')}</div>
         </footer>
       </div>
 
