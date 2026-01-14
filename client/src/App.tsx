@@ -17,6 +17,7 @@ import { GAME_RULES, REPLAY_CONFIG, UI_CONFIG, STORAGE_KEYS, BOARD_CONFIG } from
 import { useRoomStats } from './hooks/useRoomStats';
 import { useReplay } from './hooks/useReplay';
 import { useGameActions } from './hooks/useGameActions';
+import { useEffectOnce } from './hooks/useEffectOnce';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
