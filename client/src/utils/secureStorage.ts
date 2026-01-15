@@ -50,7 +50,16 @@ class SecureStorage {
             const encryptedValue = localStorage.getItem(key);
             if (!encryptedValue) return null;
 
-            return decrypt(encryptedValue);
+            const decrypted = decrypt(encryptedValue);
+
+            // CryptoJS 在解密失敗時返回空字符串
+            // 如果解密結果為空，且原始數據不是空字符串，且不看起來像加密數據
+            // 則返回原始數據（可能是舊的未加密資料）
+            if (decrypted === '' && encryptedValue !== '' && !encryptedValue.startsWith('U2FsdGVkX1')) {
+                return encryptedValue;
+            }
+
+            return decrypted;
         } catch (error) {
             console.error('SecureStorage.getItem error:', error);
             // 如果解密失敗，可能是舊的未加密資料，直接返回
@@ -98,7 +107,14 @@ class SecureStorage {
      * 獲取所有鍵
      */
     keys(): string[] {
-        return Object.keys(localStorage);
+        const keys: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key !== null) {
+                keys.push(key);
+            }
+        }
+        return keys;
     }
 
     /**
@@ -109,12 +125,19 @@ class SecureStorage {
             const value = localStorage.getItem(key);
             if (!value) return;
 
-            // 嘗試解密，如果失敗說明是未加密的資料
+            // 嘗試解密
             try {
-                decrypt(value);
-                // 已經是加密的，不需要遷移
+                const decrypted = decrypt(value);
+
+                // 如果解密結果為空且原始數據不為空且不看起來像加密數據
+                // 說明是未加密的資料，需要遷移
+                if (decrypted === '' && value !== '' && !value.startsWith('U2FsdGVkX1')) {
+                    console.log(`Migrating unencrypted data for key: ${key}`);
+                    this.setItem(key, value);
+                }
+                // 否則已經是加密的，或者是空字符串，不需要遷移
             } catch {
-                // 未加密，進行遷移
+                // 解密拋出異常，說明是未加密的資料，進行遷移
                 console.log(`Migrating unencrypted data for key: ${key}`);
                 this.setItem(key, value);
             }

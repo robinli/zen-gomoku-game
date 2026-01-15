@@ -1,0 +1,822 @@
+
+> zen-gomoku-client@2.0.0 test
+> vitest
+
+
+[1m[44m DEV [49m[22m [34mv4.0.17 [39m[90mE:/GitHub/zen-gomoku-game/client[39m
+
+ [32m??[39m src/utils/__tests__/gameLogic.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m暺???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350251[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?賣???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768438350258[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m撟喳???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'draw'[39m, timestamp: [33m1768438350262[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?府?脫迫???湔??????[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350266[39m }
+
+Error: Test error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:123:27
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?府?迂?湔銝?????[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350270[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768438350270[39m }
+
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useEffectOnce > ???? > effect ??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mresetStats[2m > [22m[2m?府?蔭??絞閮??[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350272[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768438350273[39m }
+?? ?蔭蝯梯?
+
+Error: Cleanup error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:138:27
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useEffectOnce > ???? > 皜??賣??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mclearWinnerRef[2m > [22m[2m?府皜?????迂銝活?湔
+[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350277[39m }
+?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350278[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2m憭憚?蝯梯?[2m > [22m[2m?府甇?Ⅱ蝝航?憭憚??絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350281[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768438350281[39m }
+?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768438350281[39m }
+?? ?湔蝯梯?: { winner: [32m'draw'[39m, timestamp: [33m1768438350281[39m }
+
+ [32m??[39m src/hooks/__tests__/useRoomStats.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+Error: Unmount error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:248:23
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useUnmount > callback ??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ [32m??[39m src/hooks/__tests__/useEffectOnce.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:69:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 70[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 9[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 3[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 1[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 2[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府餈???[39m[32m 10[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 4[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 1[2mms[22m[39m
+[31m       [31m?[31m 閫??憭望???閰脰???憪????璈嚗?[39m[32m 1[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 3[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??蝛箏?銝?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 12[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 2[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 1[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 1[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 1[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 3 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > ?府餈???
+AssertionError: expected [ 'getItem', 'setItem', ??4) ] to include 'key1'
+ ??[22m src/utils/__tests__/secureStorage.test.ts:88:26
+     86|             const keys = secureStorage.keys();
+     87| 
+     88|             expect(keys).toContain('key1');
+       |                          ^
+     89|             expect(keys).toContain('key2');
+     90|             expect(keys.length).toBeGreaterThanOrEqual(2);
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/3]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected '' to be 'unencrypted value' // Object.is equality
+
+- Expected
++ Received
+
+- unencrypted value
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:105:27
+    103|             // ?府?賣迤蝣箄???[39m
+    104|             const value = secureStorage.getItem('oldData');
+    105|             expect(value).toBe(unencryptedValue);
+       |                           ^
+    106| 
+    107|             // ?曉?府?臬?撖?嚗??舀???
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[2/3]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?AssertionError: expected '' to be 'not-encrypted-data' // Object.is equality
+
+- Expected
++ Received
+
+- not-encrypted-data
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:140:27
+    138|             // ?府餈???鞈?嚗??璈嚗?[39m
+    139|             const value = secureStorage.getItem('invalid');
+    140|             expect(value).toBe('not-encrypted-data');
+       |                           ^
+    141|         });
+    142| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[3/3]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m75 passed[39m[22m[90m (78)[39m
+[2m   Start at [22m 08:52:28
+[2m   Duration [22m 2.04s[2m (transform 515ms, setup 1.49s, import 419ms, tests 220ms, environment 4.67s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx1 [34m[39m
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?SecureStorage.getItem error: Error: Malformed UTF-8 data
+    at Object.stringify (E:\GitHub\zen-gomoku-game\client\node_modules\crypto-js\core.js:523:24)
+    at WordArray.init.toString (E:\GitHub\zen-gomoku-game\client\node_modules\crypto-js\core.js:278:38)
+    at decrypt (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:25:18)
+    at SecureStorage.getItem (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:53:20)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:139:41
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:69:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 88[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 9[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 1[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 2[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 9[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 1[2mms[22m[39m
+       [32m??[39m 閫??憭望???閰脰???憪????璈嚗?[32m 3[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 2[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??蝛箏?銝?[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 27[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 3[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 2[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 1[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 2[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 1 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected '' to be 'unencrypted value' // Object.is equality
+
+- Expected
++ Received
+
+- unencrypted value
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:105:27
+    103|             // ?府?賣迤蝣箄???[39m
+    104|             const value = secureStorage.getItem('oldData');
+    105|             expect(value).toBe(unencryptedValue);
+       |                           ^
+    106| 
+    107|             // ?曉?府?臬?撖?嚗??舀???
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/1]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m27 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 08:54:13
+[2m   Duration [22m 459ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx2 [34m[39m
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:77:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ?? undefined
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'U', "U2FsdGVkX1"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:77:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:207:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 73[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 7[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 1[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 1[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 6[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 1[2mms[22m[39m
+       [32m??[39m 閫??憭望???閰脰???憪????璈嚗?[32m 0[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 3[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??蝛箏?銝?[39m[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 19[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 3[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 3[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 2[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 2[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 2 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected 'unencrypted value' not to be 'unencrypted value' // Object.is equality
+ ??[22m src/utils/__tests__/secureStorage.test.ts:109:34
+    107|             // ?曉?府?臬?撖?嚗??舀???
+    108|             const rawValue = localStorage.getItem('oldData');
+    109|             expect(rawValue).not.toBe(unencryptedValue);
+       |                                  ^
+    110|         });
+    111| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/2]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??蝛箏?銝?AssertionError: expected 'U2FsdGVkX18LnLrGnWStEt61nZ6UC220+KeVt?? to be '' // Object.is equality
+
+- Expected
++ Received
+
++ U2FsdGVkX18LnLrGnWStEt61nZ6UC220+KeVtX2xRzU=
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:171:27
+    169|             const value = secureStorage.getItem('empty');
+    170| 
+    171|             expect(value).toBe('');
+       |                           ^
+    172|         });
+    173| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[2/2]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 08:54:31
+[2m   Duration [22m 379ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx3 [34m[39m
+
+[90mstdout[2m | src/utils/__tests__/secureStorage.test.ts[2m > [22m[2msecureStorage[2m > [22m[2m鞈??瑞宏[2m > [22m[2m?府?瑞宏?芸?撖?鞈?
+[22m[39mMigrating unencrypted data for key: oldData
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:77:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ?? undefined
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'U', "U2FsdGVkX1"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:77:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:207:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 99[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 14[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 1[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 3[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 3[2mms[22m[39m
+       [32m??[39m ?府?瑞宏?芸?撖?鞈?[32m 5[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+       [32m??[39m 閫??憭望???閰脰???憪????璈嚗?[32m 1[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 8[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??蝛箏?銝?[39m[32m 7[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 18[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 2[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 3[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 4[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 3[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 1[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 1 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??蝛箏?銝?AssertionError: expected 'U2FsdGVkX1/Fa6CndMBBKAVtW2JgGuZG+Uy2Z?? to be '' // Object.is equality
+
+- Expected
++ Received
+
++ U2FsdGVkX1/Fa6CndMBBKAVtW2JgGuZG+Uy2ZHEf1JU=
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:171:27
+    169|             const value = secureStorage.getItem('empty');
+    170| 
+    171|             expect(value).toBe('');
+       |                           ^
+    172|         });
+    173| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/1]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m27 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 08:56:52
+[2m   Duration [22m 513ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx4 [34m[39m
+
+[90mstdout[2m | src/utils/__tests__/secureStorage.test.ts[2m > [22m[2msecureStorage[2m > [22m[2m鞈??瑞宏[2m > [22m[2m?府?瑞宏?芸?撖?鞈?
+[22m[39mMigrating unencrypted data for key: oldData
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:80:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ?? undefined
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'U', "U2FsdGVkX1"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:80:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:207:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 179[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 15[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 5[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 3[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 4[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 2[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 5[2mms[22m[39m
+       [32m??[39m ?府?瑞宏?芸?撖?鞈?[32m 9[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 4[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+[31m       [31m?[31m 閫??憭望???閰脰???憪????璈嚗?[39m[32m 47[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 5[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 3[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??蝛箏?銝?[39m[32m 7[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 3[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 4[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 6[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 26[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 4[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 3[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 3[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 1[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 2 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?AssertionError: expected '' to be 'not-encrypted-data' // Object.is equality
+
+- Expected
++ Received
+
+- not-encrypted-data
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:140:27
+    138|             // ?府餈???鞈?嚗??璈嚗?[39m
+    139|             const value = secureStorage.getItem('invalid');
+    140|             expect(value).toBe('not-encrypted-data');
+       |                           ^
+    141|         });
+    142| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/2]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??蝛箏?銝?AssertionError: expected 'U2FsdGVkX19xKNpzDdhSali4ui1Rbx7ThRQqT?? to be '' // Object.is equality
+
+- Expected
++ Received
+
++ U2FsdGVkX19xKNpzDdhSali4ui1Rbx7ThRQqTRpiINw=
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:171:27
+    169|             const value = secureStorage.getItem('empty');
+    170| 
+    171|             expect(value).toBe('');
+       |                           ^
+    172|         });
+    173| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[2/2]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 08:59:29
+[2m   Duration [22m 743ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx5 [34m[39m
+
+[90mstdout[2m | src/utils/__tests__/secureStorage.test.ts[2m > [22m[2msecureStorage[2m > [22m[2m鞈??瑞宏[2m > [22m[2m?府?瑞宏?芸?撖?鞈?
+[22m[39mMigrating unencrypted data for key: oldData
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:70:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 99[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 9[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 1[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 2[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 3[2mms[22m[39m
+       [32m??[39m ?府?瑞宏?芸?撖?鞈?[32m 3[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 3[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+[31m       [31m?[31m 閫??憭望???閰脰???憪????璈嚗?[39m[32m 13[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 4[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??蝛箏?銝?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 23[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 3[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 3[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 3[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 2[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 1 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?AssertionError: expected '' to be 'not-encrypted-data' // Object.is equality
+
+- Expected
++ Received
+
+- not-encrypted-data
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:140:27
+    138|             // ?府餈???鞈?嚗??璈嚗?[39m
+    139|             const value = secureStorage.getItem('invalid');
+    140|             expect(value).toBe('not-encrypted-data');
+       |                           ^
+    141|         });
+    142| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/1]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m27 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 08:59:53
+[2m   Duration [22m 574ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx6 [34m[39m
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:70:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 159[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 10[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 3[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 2[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 4[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 1[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 4[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 15[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 4[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+[31m       [31m?[31m 閫??憭望???閰脰???憪????璈嚗?[39m[32m 3[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 7[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 3[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??蝛箏?銝?[32m 3[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 5[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 3[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 3[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 46[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 4[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 3[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 2[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 2[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 7[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 5[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 5[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 2[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 2 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected '' to be 'unencrypted value' // Object.is equality
+
+- Expected
++ Received
+
+- unencrypted value
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:105:27
+    103|             // ?府?賣迤蝣箄???[39m
+    104|             const value = secureStorage.getItem('oldData');
+    105|             expect(value).toBe(unencryptedValue);
+       |                           ^
+    106| 
+    107|             // ?曉?府?臬?撖?嚗??舀???
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/2]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?AssertionError: expected '' to be 'not-encrypted-data' // Object.is equality
+
+- Expected
++ Received
+
+- not-encrypted-data
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:140:27
+    138|             // ?府餈???鞈?嚗??璈嚗?[39m
+    139|             const value = secureStorage.getItem('invalid');
+    140|             expect(value).toBe('not-encrypted-data');
+       |                           ^
+    141|         });
+    142| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[2/2]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 09:00:11
+[2m   Duration [22m 690ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx7 [34m[39m
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:78:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 134[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???圾撖?銝?[32m 16[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? JSON 鞈?[32m 4[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?芷?[32m 4[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 5[2mms[22m[39m
+       [32m??[39m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[32m 2[2mms[22m[39m
+       [32m??[39m ?府餈???[32m 5[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 17[2mms[22m[39m
+       [32m??[39m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[32m 4[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+       [32m??[39m 閫??憭望???閰脰???憪????璈嚗?[32m 7[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 10[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??蝛箏?銝?[32m 5[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???寞?摮泵[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???詨?[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??撣???[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 2[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ???瑕?銝?[32m 22[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ??銴???憟?鞊?[32m 3[2mms[22m[39m
+       [32m??[39m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[32m 2[2mms[22m[39m
+       [32m??[39m ??敺?鞈??府?⊥??湔霈??[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢撱箸??SecureStorage 撖虫?[32m 1[2mms[22m[39m
+       [32m??[39m 銝?撖虫??府?曹澈 localStorage[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???ID[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈??嗅?憟質身摰?[32m 1[2mms[22m[39m
+       [32m??[39m ?府?賢??脣?霈???脩???[32m 1[2mms[22m[39m
+
+?胼?胼?胼??[39m Failed Tests 1 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected 'unencrypted value' not to be 'unencrypted value' // Object.is equality
+ ??[22m src/utils/__tests__/secureStorage.test.ts:109:34
+    107|             // ?曉?府?臬?撖?嚗??舀???
+    108|             const rawValue = localStorage.getItem('oldData');
+    109|             expect(rawValue).not.toBe(unencryptedValue);
+       |                                  ^
+    110|         });
+    111| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[1/1]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m27 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 09:01:20
+[2m   Duration [22m 647ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/utils/secureStorage.ts [22m[34mx8 [34m[39m
+
+[90mstdout[2m | src/utils/__tests__/secureStorage.test.ts[2m > [22m[2msecureStorage[2m > [22m[2m鞈??瑞宏[2m > [22m[2m?府?瑞宏?芸?撖?鞈?
+[22m[39mMigrating unencrypted data for key: oldData
+
+stderr | src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > JSON 閫??憭望???閰脰???null
+SecureStorage.getJSON error: SyntaxError: Unexpected token 'o', "not a json string" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at SecureStorage.getJSON (E:/GitHub/zen-gomoku-game/client/src/utils/secureStorage.ts:78:25)
+    at E:/GitHub/zen-gomoku-game/client/src/utils/__tests__/secureStorage.test.ts:146:42
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [32m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m28 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 09:01:35
+[2m   Duration [22m 726ms
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m

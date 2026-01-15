@@ -16,7 +16,7 @@ export function useEffectOnce(effect: () => void | (() => void)): void {
     useEffect(() => {
         // 如果已經執行過，直接返回
         if (hasRun.current) {
-            return cleanupRef.current;
+            return;
         }
 
         // 標記為已執行

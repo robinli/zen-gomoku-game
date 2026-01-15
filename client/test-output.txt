@@ -1,0 +1,545 @@
+
+> zen-gomoku-client@2.0.0 test
+> vitest
+
+
+[1m[44m DEV [49m[22m [34mv4.0.17 [39m[90mE:/GitHub/zen-gomoku-game/client[39m
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m暺???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874716[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?賣???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768394874722[39m }
+
+ [32m??[39m src/utils/__tests__/gameLogic.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m撟喳???閰脫迤蝣箸?啁絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'draw'[39m, timestamp: [33m1768394874725[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?府?脫迫???湔??????[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874729[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mupdateStats[2m > [22m[2m?府?迂?湔銝?????[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874731[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768394874732[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mresetStats[2m > [22m[2m?府?蔭??絞閮??[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874734[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768394874734[39m }
+?? ?蔭蝯梯?
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2mclearWinnerRef[2m > [22m[2m?府皜?????迂銝活?湔
+[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874738[39m }
+?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874739[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useRoomStats.test.ts[2m > [22m[2museRoomStats[2m > [22m[2m憭憚?蝯梯?[2m > [22m[2m?府甇?Ⅱ蝝航?憭憚??絞閮?[22m[39m?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874742[39m }
+?? ?湔蝯梯?: { winner: [32m'white'[39m, timestamp: [33m1768394874742[39m }
+?? ?湔蝯梯?: { winner: [32m'black'[39m, timestamp: [33m1768394874742[39m }
+?? ?湔蝯梯?: { winner: [32m'draw'[39m, timestamp: [33m1768394874742[39m }
+
+ [32m??[39m src/hooks/__tests__/useRoomStats.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+Error: Test error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:123:27
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useEffectOnce > ???? > effect ??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+Error: Cleanup error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:138:27
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useEffectOnce > ???? > 皜??賣??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+Error: Unmount error
+    at E:/GitHub/zen-gomoku-game/client/src/hooks/__tests__/useEffectOnce.test.ts:248:23
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///E:/GitHub/zen-gomoku-game/client/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///E:/GitHub/zen-gomoku-game/client/node_modules/@vitest/runner/dist/index.js:1653:12)
+stderr | src/hooks/__tests__/useEffectOnce.test.ts > useUnmount > callback ??航炊??閰脫迤蝣箄???The above error occurred in the <TestComponent> component:
+
+    at TestComponent (E:\GitHub\zen-gomoku-game\client\node_modules\@testing-library\react\dist\pure.js:328:5)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ [32m??[39m src/hooks/__tests__/useEffectOnce.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [31m??[39m src/utils/__tests__/secureStorage.test.ts [2m([22m[2m28 tests[22m[2m | [22m[31m21 failed[39m[2m)[22m[32m 71[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ???圾撖?銝?[39m[32m 13[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ?? JSON 鞈?[39m[32m 6[2mms[22m[39m
+       [32m??[39m 銝??函? key ?府餈? null[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ?芷?[39m[32m 3[2mms[22m[39m
+       [32m??[39m ?府皜?????[32m 2[2mms[22m[39m
+[31m       [31m?[31m hasItem ?府甇?Ⅱ瑼Ｘ??臬摮[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府餈???[39m[32m 4[2mms[22m[39m
+[31m       [31m?[31m ?府?瑞宏?芸?撖?鞈?[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m 撌脣?撖?鞈?銝?閰脰◤???瑞宏[39m[32m 2[2mms[22m[39m
+       [32m??[39m 銝??函? key ?瑞宏???府?梢[32m 2[2mms[22m[39m
+[31m       [31m?[31m 閫??憭望???閰脰???憪????璈嚗?[39m[32m 1[2mms[22m[39m
+       [32m??[39m JSON 閫??憭望???閰脰???null[32m 1[2mms[22m[39m
+       [32m??[39m setItem ?航炊???府??啣虜[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??蝛箏?銝?[39m[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ???寞?摮泵[39m[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ???詨?[39m[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??撣???[39m[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? null ??[32m 1[2mms[22m[39m
+       [32m??[39m ?府甇?Ⅱ?? undefined[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ???瑕?銝?[39m[32m 7[2mms[22m[39m
+[31m       [31m?[31m ?府甇?Ⅱ??銴???憟?鞊?[39m[32m 3[2mms[22m[39m
+[31m       [31m?[31m ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?[39m[32m 2[2mms[22m[39m
+[31m       [31m?[31m ??敺?鞈??府?⊥??湔霈??[39m[32m 2[2mms[22m[39m
+[31m       [31m?[31m ?府?賢撱箸??SecureStorage 撖虫?[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m 銝?撖虫??府?曹澈 localStorage[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府?賢??脣?霈???ID[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府?賢??脣?霈??嗅?憟質身摰?[39m[32m 1[2mms[22m[39m
+[31m       [31m?[31m ?府?賢??脣?霈???脩???[39m[32m 1[2mms[22m[39m
+
+?胼?胼?胼 Failed Tests 21 ?胼?胼?胼??[39m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > ?府甇?Ⅱ???圾撖?銝?AssertionError: expected null to be 'hello world' // Object.is equality
+
+- Expected: 
+"hello world"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:18:31
+     16|             const retrieved = secureStorage.getItem('test');
+     17| 
+     18|             expect(retrieved).toBe(testValue);
+       |                               ^
+     19| 
+     20|             // 撽?撖阡?摮?????銝??嚗?[39m
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉1/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > ?府甇?Ⅱ?? JSON 鞈?
+AssertionError: expected null to deeply equal { name: 'test', value: 123, ??2) }
+
+- Expected: 
+{
+  "array": [
+    1,
+    2,
+    3,
+  ],
+  "name": "test",
+  "nested": {
+    "foo": "bar",
+  },
+  "value": 123,
+}
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:37:28
+     35|             const result = secureStorage.getJSON<typeof data>('json');
+     36| 
+     37|             expect(result).toEqual(data);
+       |                            ^
+     38|         });
+     39| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉2/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > ?府甇?Ⅱ?芷?
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:54:55
+     52|             secureStorage.removeItem('toDelete');
+     53| 
+     54|             expect(secureStorage.hasItem('toDelete')).toBe(false);
+       |                                                       ^
+     55|             expect(secureStorage.getItem('toDelete')).toBeNull();
+     56|         });
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉3/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > hasItem ?府甇?Ⅱ瑼Ｘ??臬摮
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:71:51
+     69| 
+     70|         it('hasItem ?府甇?Ⅱ瑼Ｘ??臬摮', () => {
+     71|             expect(secureStorage.hasItem('test')).toBe(false);
+       |                                                   ^
+     72| 
+     73|             secureStorage.setItem('test', 'value');
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉4/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?箸? > ?府餈???
+AssertionError: expected [ 'getItem', 'setItem', ??2) ] to include 'key1'
+ ??[22m src/utils/__tests__/secureStorage.test.ts:88:26
+     86|             const keys = secureStorage.keys();
+     87| 
+     88|             expect(keys).toContain('key1');
+       |                          ^
+     89|             expect(keys).toContain('key2');
+     90|             expect(keys.length).toBeGreaterThanOrEqual(2);
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉5/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > ?府?瑞宏?芸?撖?鞈?
+AssertionError: expected null to be 'unencrypted value' // Object.is equality
+
+- Expected: 
+"unencrypted value"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:105:27
+    103|             // ?府?賣迤蝣箄???[39m
+    104|             const value = secureStorage.getItem('oldData');
+    105|             expect(value).toBe(unencryptedValue);
+       |                           ^
+    106| 
+    107|             // ?曉?府?臬?撖?嚗??舀???
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉6/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 鞈??瑞宏 > 撌脣?撖?鞈?銝?閰脰◤???瑞宏
+AssertionError: expected null to be 'value' // Object.is equality
+
+- Expected: 
+"value"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:123:56
+    121| 
+    122|             // 隞?賣迤蝣箄???[39m
+    123|             expect(secureStorage.getItem('encrypted')).toBe('value');
+       |                                                        ^
+    124|         });
+    125| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉7/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?航炊?? > 閫??憭望???閰脰???憪????璈嚗?AssertionError: expected null to be 'not-encrypted-data' // Object.is equality
+
+- Expected: 
+"not-encrypted-data"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:140:27
+    138|             // ?府餈???鞈?嚗??璈嚗?[39m
+    139|             const value = secureStorage.getItem('invalid');
+    140|             expect(value).toBe('not-encrypted-data');
+       |                           ^
+    141|         });
+    142| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉8/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??蝛箏?銝?AssertionError: expected null to be '' // Object.is equality
+
+- Expected: 
+""
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:171:27
+    169|             const value = secureStorage.getItem('empty');
+    170| 
+    171|             expect(value).toBe('');
+       |                           ^
+    172|         });
+    173| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?琉9/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ???寞?摮泵
+AssertionError: expected null to be '!@#$%^&*()_+{}[]|\:";\'<>?,./\n\t銝剜?摮泵' // Object.is equality
+
+- Expected: 
+"!@#$%^&*()_+{}[]|\\:\";'<>?,./
+	銝剜?摮泵"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:180:27
+    178|             const value = secureStorage.getItem('special');
+    179| 
+    180|             expect(value).toBe(special);
+       |                           ^
+    181|         });
+    182| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[10/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ???詨?
+AssertionError: expected null to be '123' // Object.is equality
+
+- Expected: 
+"123"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:188:27
+    186| 
+    187|             // ?詨??◤頧??箏?銝?[39m
+    188|             expect(value).toBe('123');
+       |                           ^
+    189|         });
+    190| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[11/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??撣???AssertionError: expected null to be true // Object.is equality
+
+- Expected: 
+true
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:195:28
+    193|             const result = secureStorage.getJSON<boolean>('bool');
+    194| 
+    195|             expect(result).toBe(true);
+       |                            ^
+    196|         });
+    197| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[12/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ???瑕?銝?AssertionError: expected null to be 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?? // Object.is equality
+
+- Expected: 
+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:219:27
+    217|             const value = secureStorage.getItem('long');
+    218| 
+    219|             expect(value).toBe(longString);
+       |                           ^
+    220|         });
+    221| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[13/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ?寞??? > ?府甇?Ⅱ??銴???憟?鞊?AssertionError: expected null to deeply equal { level1: { level2: { ??1) } } }
+
+- Expected: 
+{
+  "level1": {
+    "level2": {
+      "level3": {
+        "array": [
+          1,
+          2,
+          {
+            "nested": true,
+          },
+        ],
+        "bool": false,
+        "null": null,
+        "number": 123,
+        "string": "test",
+      },
+    },
+  },
+}
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:240:28
+    238|             const result = secureStorage.getJSON<typeof complex>('comp??    239| 
+    240|             expect(result).toEqual(complex);
+       |                            ^
+    241|         });
+    242|     });
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[14/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ??撽? > ?詨??潭?閰脩??????蝯?嚗蝙?券璈?IV嚗?AssertionError: expected null to be 'same value' // Object.is equality
+
+- Expected: 
+"same value"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:256:52
+    254|             // ?望 AES 雿輻?冽? IV嚗???潭??Ｙ?銝???撖???[39m
+    255|             // 雿圾撖??府?詨?
+    256|             expect(secureStorage.getItem('test1')).toBe('same value');
+       |                                                    ^
+    257|         });
+    258| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[15/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > ??撽? > ??敺?鞈??府?⊥??湔霈??AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ??[22m src/utils/__tests__/secureStorage.test.ts:266:35
+    264| 
+    265|             // ??敺?鞈?銝?閰脣??怠?憪?摮?[39m
+    266|             expect(encrypted).not.toContain(sensitiveData);
+       |                                   ^
+    267|             expect(encrypted).not.toBe(sensitiveData);
+    268|         });
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[16/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > SecureStorage 憿祕靘? > ?府?賢撱箸??SecureStorage 撖虫?
+AssertionError: expected null to be 'value' // Object.is equality
+
+- Expected: 
+"value"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:276:49
+    274| 
+    275|             newInstance.setItem('test', 'value');
+    276|             expect(newInstance.getItem('test')).toBe('value');
+       |                                                 ^
+    277|         });
+    278| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[17/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > SecureStorage 憿祕靘? > 銝?撖虫??府?曹澈 localStorage
+AssertionError: expected null to be 'value' // Object.is equality
+
+- Expected: 
+"value"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:286:49
+    284| 
+    285|             // ??賭蝙?典?銝??localStorage
+    286|             expect(instance2.getItem('shared')).toBe('value');
+       |                                                 ^
+    287|         });
+    288|     });
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[18/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 撖阡?雿輻?湔 > ?府?賢??脣?霈???ID
+AssertionError: expected null to be 'room-abc-123' // Object.is equality
+
+- Expected: 
+"room-abc-123"
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:297:31
+    295|             const retrieved = secureStorage.getItem('currentRoomId');
+    296| 
+    297|             expect(retrieved).toBe(roomId);
+       |                               ^
+    298|         });
+    299| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[19/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 撖阡?雿輻?湔 > ?府?賢??脣?霈??嗅?憟質身摰?AssertionError: expected null to deeply equal { language: 'zh-TW', ??3) }
+
+- Expected: 
+{
+  "language": "zh-TW",
+  "soundEnabled": true,
+  "theme": "dark",
+  "volume": 0.8,
+}
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:311:31
+    309|             const retrieved = secureStorage.getJSON<typeof preferences??    310| 
+    311|             expect(retrieved).toEqual(preferences);
+       |                               ^
+    312|         });
+    313| 
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[20/21]??[22m
+
+ FAIL  src/utils/__tests__/secureStorage.test.ts > secureStorage > 撖阡?雿輻?湔 > ?府?賢??脣?霈???脩???AssertionError: expected null to deeply equal { roomId: 'abc123', ??3) }
+
+- Expected: 
+{
+  "lastMove": {
+    "x": 7,
+    "y": 7,
+  },
+  "roomId": "abc123",
+  "side": "black",
+  "timestamp": 1768394874787,
+}
+
++ Received: 
+null
+
+ ??[22m src/utils/__tests__/secureStorage.test.ts:325:31
+    323|             const retrieved = secureStorage.getJSON<typeof gameState>(??    324| 
+    325|             expect(retrieved).toEqual(gameState);
+       |                               ^
+    326|         });
+    327|     });
+
+?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼?胼[21/21]??[22m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m21 failed[39m[22m[2m | [22m[1m[32m57 passed[39m[22m[90m (78)[39m
+[2m   Start at [22m 20:47:52
+[2m   Duration [22m 1.95s[2m (transform 454ms, setup 1.27s, import 509ms, tests 238ms, environment 4.58s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[31mCancelling test run. Press CTRL+c again to exit forcefully.
+[39m
