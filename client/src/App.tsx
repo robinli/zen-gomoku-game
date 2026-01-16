@@ -19,15 +19,15 @@ import { useReplay } from './hooks/useReplay';
 import { useGameActions } from './hooks/useGameActions';
 import { useEffectOnce } from './hooks/useEffectOnce';
 import { useDialogs } from './hooks/useDialogs';
+import { useConnection } from './hooks/useConnection';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [localPlayer, setLocalPlayer] = useState<Player | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // 使用 useConnection Hook 管理連線狀態
+  const connection = useConnection();
 
   // 使用 useRoomStats Hook 管理房間統計
   const { roomStats, updateStats, resetStats, clearWinnerRef } = useRoomStats();
@@ -72,8 +72,8 @@ const App: React.FC = () => {
     // 防止無限重試：檢查是否已嘗試過此房間
     if (roomId
       && !room
-      && !isConnecting
-      && socketService.isConnected()
+      && !connection.isConnecting
+      && socketService.connection.isConnected()
       && !attemptedRooms.current.has(roomId)
     ) {
       console.log(t('message.detect_room_id', { roomId }));
@@ -96,9 +96,9 @@ const App: React.FC = () => {
     // 監聽連線成功事件
     socketService.onConnect(() => {
       console.log(t('message.socket_connected'));
-      setIsConnected(true);
-      setIsConnecting(false);
-      setError(null);
+      connection.setIsConnected(true);
+      connection.setIsConnecting(false);
+      connection.setError(null);
 
       // 🔥 檢查是否有未完成的房間（寬限期重連）
       const savedRoomId = localStorage.getItem(STORAGE_KEYS.CURRENT_ROOM_ID);
@@ -142,11 +142,11 @@ const App: React.FC = () => {
     });
 
     // 監聽連線錯誤
-    socketService.onConnectError((error) => {
-      console.error(t('message.socket_error'), error);
-      setIsConnected(false);
-      setIsConnecting(false);
-      setError(t('app.connection_failed'));
+    socketService.onConnectError((connection.error) => {
+      console.connection.error(t('message.socket_error'), connection.error);
+      connection.setIsConnected(false);
+      connection.setIsConnecting(false);
+      connection.setError(t('app.connection_failed'));
     });
 
     // 監聽遊戲更新
@@ -210,28 +210,28 @@ const App: React.FC = () => {
       }
 
       isProcessingMove.current = false;
-      setIsReconnecting(false);
+      connection.setReconnecting(false);
     });
 
     // 監聽對手離開
     socketService.onOpponentLeft(() => {
       console.log(t('message.opponent_left_log'));
-      setIsConnected(false);
+      connection.setIsConnected(false);
       dialogs.setShowOpponentLeftDialog(true);
     });
 
     // 監聽錯誤
     socketService.onError(({ message }) => {
-      console.error(t('message.error_prefix') + message);
+      console.connection.error(t('message.error_prefix') + message);
       if (!room) {
-        setError(message);
-        setIsConnecting(false);
+        connection.setError(message);
+        connection.setIsConnecting(false);
 
         // 延遲清除 hash，讓用戶能看到錯誤訊息
         setTimeout(() => {
           console.log(t('message.time_clearing'));
           window.location.hash = '';
-          setError(null);
+          connection.setError(null);
           // 清除嘗試記錄，允許重新嘗試
           attemptedRooms.current.clear();
         }, UI_CONFIG.ERROR_MESSAGE_DURATION_MS);
@@ -279,7 +279,7 @@ const App: React.FC = () => {
       dialogs.setMessageDialog({
         title: t('message.undo_rejected_title'),
         message: t('message.undo_rejected_msg'),
-        icon: 'error'
+        icon: 'connection.error'
       });
     });
 
@@ -310,7 +310,7 @@ const App: React.FC = () => {
       dialogs.setMessageDialog({
         title: t('message.reset_rejected_title'),
         message: t('message.reset_rejected_msg'),
-        icon: 'error'
+        icon: 'connection.error'
       });
     });
 
@@ -357,7 +357,7 @@ const App: React.FC = () => {
           };
         }
       });
-      setIsConnected(true);
+      connection.setIsConnected(true);
     });
 
     // ⚠️ 不要在 cleanup 中 disconnect，避免 React Strict Mode 導致的問題
@@ -375,19 +375,19 @@ const App: React.FC = () => {
       clearTimeout(timer);
       window.removeEventListener('hashchange', checkAndJoinRoom);
     };
-  }, [room, isConnecting]);
+  }, [room, connection.isConnecting]);
 
   // 建立房主模式 (Host)
   const handleCreate = (side: Player) => {
     // 檢查 Socket 是否已連線
-    if (!socketService.isConnected()) {
-      setError(t('app.connection_failed'));
-      console.error(t('message.socket_error') + ' Not connected');
+    if (!socketService.connection.isConnected()) {
+      connection.setError(t('app.connection_failed'));
+      console.connection.error(t('message.socket_error') + ' Not connected');
       return;
     }
 
-    setIsConnecting(true);
-    setError(null);
+    connection.setIsConnecting(true);
+    connection.setError(null);
 
     socketService.createRoom(side, roomSettings, ({ roomId, shareUrl, settings }) => {
       window.location.hash = `room=${roomId}`;
@@ -416,7 +416,7 @@ const App: React.FC = () => {
 
       setRoom(newRoom);
       setLocalPlayer(side);
-      setIsConnecting(false);
+      connection.setIsConnecting(false);
 
       // 📊 重置房間統計
       resetStats();
@@ -429,8 +429,8 @@ const App: React.FC = () => {
 
   // 加入房間模式 (Guest)
   const handleJoinRoom = (roomId: string) => {
-    setIsConnecting(true);
-    setError(null);
+    connection.setIsConnecting(true);
+    connection.setError(null);
 
     socketService.joinRoom(roomId, ({ room: serverRoom, yourSide }) => {
       setRoom({
@@ -441,9 +441,9 @@ const App: React.FC = () => {
         }
       });
       setLocalPlayer(yourSide);
-      setIsConnected(true);
-      setIsConnecting(false);
-      setError(null);
+      connection.setIsConnected(true);
+      connection.setIsConnecting(false);
+      connection.setError(null);
 
       // 📊 重置房間統計
       resetStats();
@@ -457,8 +457,8 @@ const App: React.FC = () => {
     if (isProcessingMove.current) return;
     if (!room || !localPlayer || room.winner || room.turn !== localPlayer) return;
     if (room.board[pos.y][pos.x]) return;
-    if (!socketService.isConnected()) {
-      setError(t('app.connection_lost_refresh'));
+    if (!socketService.connection.isConnected()) {
+      connection.setError(t('app.connection_lost_refresh'));
       return;
     }
 
@@ -674,7 +674,7 @@ const App: React.FC = () => {
     // 游戏未开始（等待对手）或已结束，直接返回
     const gameNotStarted = Object.keys(room.players).length < 2;
     const gameEnded = room.winner !== null;
-    const connectionLost = !isConnected;  // 連線已斷開（對手離開）
+    const connectionLost = !connection.isConnected;  // 連線已斷開（對手離開）
 
     if (gameNotStarted || gameEnded || connectionLost) {
       goHome();
@@ -685,12 +685,12 @@ const App: React.FC = () => {
   };
 
   const isBoardDisabled =
-    !socketService.isConnected() ||
+    !socketService.connection.isConnected() ||
     (room !== null && room.turn !== localPlayer) ||
     (room !== null && room.winner !== null);
 
   // 決定何時顯示致命錯誤畫面
-  const showFatalError = error && !room;
+  const showFatalError = connection.error && !room;
 
   return (
     <div className="min-h-screen bg-[#f8f5f2] flex flex-col">
@@ -730,13 +730,13 @@ const App: React.FC = () => {
 
             {/* 右側：連線狀態 */}
             <div className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${isReconnecting ? 'bg-amber-500 animate-pulse' :
-                (isConnected && Object.keys(room.players).length === 2) ? 'bg-green-500' :
+              <span className={`w-2 h-2 rounded-full ${connection.isReconnecting ? 'bg-amber-500 animate-pulse' :
+                (connection.isConnected && Object.keys(room.players).length === 2) ? 'bg-green-500' :
                   'bg-amber-500 animate-pulse'
                 }`}></span>
               <span className="text-xs sm:text-sm font-medium text-slate-600">
-                {isReconnecting ? t('app.reconnecting') :
-                  (isConnected && Object.keys(room.players).length === 2) ? t('app.connected') :
+                {connection.isReconnecting ? t('app.reconnecting') :
+                  (connection.isConnected && Object.keys(room.players).length === 2) ? t('app.connected') :
                     t('app.waiting')}
               </span>
             </div>
@@ -749,7 +749,7 @@ const App: React.FC = () => {
         <header className="py-6 text-center animate-in fade-in duration-1000">
           <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 tracking-tighter">{t('app.title')}</h1>
           {<p className="text-slate-400 italic text-sm mt-1">
-            {isConnected ? t('app.online_game') : (isReconnecting ? t('app.network_recovering') : t('app.client_server_version'))}
+            {connection.isConnected ? t('app.online_game') : (connection.isReconnecting ? t('app.network_recovering') : t('app.client_server_version'))}
           </p>}
         </header>
       )}
@@ -765,21 +765,21 @@ const App: React.FC = () => {
               </svg>
               <h2 className="font-bold">{t('app.connection_failed')}</h2>
             </div>
-            <p className="text-slate-500 text-sm mb-4 leading-relaxed">{error}</p>
+            <p className="text-slate-500 text-sm mb-4 leading-relaxed">{connection.error}</p>
             <button onClick={goHome} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
               {t('app.back_to_lobby')}
             </button>
           </div>
         )}
 
-        {isConnecting && !room && !error && (
+        {connection.isConnecting && !room && !connection.error && (
           <div className="flex flex-col items-center justify-center p-12 space-y-4 animate-in fade-in">
             <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
             <p className="text-slate-400 font-serif italic">{t('app.finding_room')}</p>
           </div>
         )}
 
-        {!room && !isConnecting && !error && (
+        {!room && !connection.isConnecting && !connection.error && (
           <Lobby
             onCreate={handleCreate}
             settings={roomSettings}
@@ -788,7 +788,7 @@ const App: React.FC = () => {
         )}
 
         {room && (
-          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-2 transition-all duration-700 ${isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
+          <main className={`w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center mb-2 transition-all duration-700 ${connection.isConnecting ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
             <div className="w-full flex justify-center relative">
               <Board
                 board={isReplaying ? getReplayBoard(replayStep) : room.board}
@@ -800,8 +800,8 @@ const App: React.FC = () => {
                 turn={room.turn}
                 disabled={isBoardDisabled || isReplaying}
               />
-              {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
-              {isReconnecting && !room.winner && (
+              {/* 修正後的提示層：僅在真正的斷線重連 (connection.isReconnecting) 且對局未結束時顯示 */}
+              {connection.isReconnecting && !room.winner && (
                 <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-xl animate-in fade-in">
                   <div className="bg-white/90 px-6 py-4 rounded-2xl shadow-2xl border border-amber-100 flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-3 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
@@ -835,8 +835,8 @@ const App: React.FC = () => {
                   onGoHome={handleGoHome}
                   onRequestUndo={handleRequestUndo}
                   onStartReplay={handleStartReplay}
-                  isConnected={isConnected}
-                  isReconnecting={isReconnecting}
+                  connection.isConnected={connection.isConnected}
+                  connection.isReconnecting={connection.isReconnecting}
                   isWaitingUndo={isWaitingUndo}
                   isWaitingReset={isWaitingReset}
                   roomStats={roomStats}
