@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory, RoomStats } from './types';
+import { GameRoom, Player, Position, dialogs.undoRequest, dialogs.resetRequest, BoardState, MoveHistory, RoomStats } from './types';
 import Board from './components/Board';
 import Lobby from './components/Lobby';
 import GameInfo from './components/GameInfo';
 import RoomSettings, { GameSettings } from './components/RoomSettings';
 import UndoRequestDialog from './components/UndoRequestDialog';
 import ResetRequestDialog from './components/ResetRequestDialog';
-import MessageDialog from './components/MessageDialog';
+import dialogs.messageDialog from './components/dialogs.messageDialog';
 import ConfirmDialog from './components/ConfirmDialog';
 import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
@@ -18,6 +18,7 @@ import { useRoomStats } from './hooks/useRoomStats';
 import { useReplay } from './hooks/useReplay';
 import { useGameActions } from './hooks/useGameActions';
 import { useEffectOnce } from './hooks/useEffectOnce';
+import { useDialogs } from './hooks/useDialogs';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -27,7 +28,6 @@ const App: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   // 使用 useRoomStats Hook 管理房間統計
   const { roomStats, updateStats, resetStats, clearWinnerRef } = useRoomStats();
@@ -35,32 +35,19 @@ const App: React.FC = () => {
   // 使用 useReplay Hook 管理回放功能
   const replay = useReplay();
 
+  // 使用 useDialogs Hook 管理所有對話框狀態
+  const dialogs = useDialogs();
+
   // 房間設定
   const [roomSettings, setRoomSettings] = useState<GameSettings>({
     undoLimit: GAME_RULES.DEFAULT_UNDO_LIMIT,  // 使用配置常數
   });
 
-  // 悔棋請求
-  const [undoRequest, setUndoRequest] = useState<UndoRequest | null>(null);
-
   // 等待悔棋回應
   const [isWaitingUndo, setIsWaitingUndo] = useState(false);
 
-  // 重置請求
-  const [resetRequest, setResetRequest] = useState<ResetRequest | null>(null);
-
   // 等待重置回應
   const [isWaitingReset, setIsWaitingReset] = useState(false);
-
-  // 訊息對話框
-  const [messageDialog, setMessageDialog] = useState<{
-    title: string;
-    message: string;
-    icon: 'success' | 'error' | 'info';
-  } | null>(null);
-
-  // 對手離開對話框
-  const [showOpponentLeftDialog, setShowOpponentLeftDialog] = useState(false);
 
   // 回放模式狀態
   const [isReplaying, setIsReplaying] = useState(false);
@@ -230,7 +217,7 @@ const App: React.FC = () => {
     socketService.onOpponentLeft(() => {
       console.log(t('message.opponent_left_log'));
       setIsConnected(false);
-      setShowOpponentLeftDialog(true);
+      dialogs.setShowOpponentLeftDialog(true);
     });
 
     // 監聽錯誤
@@ -256,7 +243,7 @@ const App: React.FC = () => {
     // 監聽悔棋請求
     socketService.onUndoRequested(({ requestedBy }) => {
       console.log(t('message.undo_req_log', { requestedBy }));
-      setUndoRequest({
+      dialogs.setUndoRequest({
         requestedBy,
         requestedAt: Date.now(),
       });
@@ -278,7 +265,7 @@ const App: React.FC = () => {
           updatedAt: Date.now(),
         };
       });
-      setUndoRequest(null);
+      dialogs.setUndoRequest(null);
       setIsWaitingUndo(false);  // 清除等待狀態
       // 顯示成功提示（可選）
       // alert('悔棋成功');
@@ -287,9 +274,9 @@ const App: React.FC = () => {
     // 監聽悔棋被拒絕
     socketService.onUndoRejected(() => {
       console.log(t('message.undo_rejected_log'));
-      setUndoRequest(null);
+      dialogs.setUndoRequest(null);
       setIsWaitingUndo(false);  // 清除等待狀態
-      setMessageDialog({
+      dialogs.setMessageDialog({
         title: t('message.undo_rejected_title'),
         message: t('message.undo_rejected_msg'),
         icon: 'error'
@@ -301,7 +288,7 @@ const App: React.FC = () => {
     // 監聽重置請求
     socketService.onResetRequested(({ requestedBy }) => {
       console.log(t('message.reset_req_log', { requestedBy }));
-      setResetRequest({
+      dialogs.setResetRequest({
         requestedBy,
         requestedAt: Date.now(),
       });
@@ -310,7 +297,7 @@ const App: React.FC = () => {
     // 監聽重置成功
     socketService.onResetAccepted(() => {
       console.log(t('message.reset_accepted_log'));
-      setResetRequest(null);
+      dialogs.setResetRequest(null);
       setIsWaitingReset(false);  // 清除等待狀態
       // 棋盤會通過 GAME_UPDATE 事件自動更新
     });
@@ -318,9 +305,9 @@ const App: React.FC = () => {
     // 監聽重置被拒絕
     socketService.onResetRejected(() => {
       console.log(t('message.reset_rejected_log'));
-      setResetRequest(null);
+      dialogs.setResetRequest(null);
       setIsWaitingReset(false);  // 清除等待狀態
-      setMessageDialog({
+      dialogs.setMessageDialog({
         title: t('message.reset_rejected_title'),
         message: t('message.reset_rejected_msg'),
         icon: 'error'
@@ -500,7 +487,7 @@ const App: React.FC = () => {
 
     // 檢查是否允許悔棋
     if (room.settings.undoLimit === 0) {
-      setMessageDialog({
+      dialogs.setMessageDialog({
         title: t('app.cannot_undo_title'),
         message: t('app.cannot_undo_not_allowed'),
         icon: 'info'
@@ -512,7 +499,7 @@ const App: React.FC = () => {
     if (room.settings.undoLimit !== null) {
       const used = room.undoCount[localPlayer];
       if (used >= room.settings.undoLimit) {
-        setMessageDialog({
+        dialogs.setMessageDialog({
           title: t('app.cannot_undo_title'),
           message: t('app.cannot_undo_limit', { used, limit: room.settings.undoLimit }),
           icon: 'info'
@@ -523,7 +510,7 @@ const App: React.FC = () => {
 
     // 檢查是否有歷史記錄
     if (!room.history || room.history.length === 0) {
-      setMessageDialog({
+      dialogs.setMessageDialog({
         title: t('app.cannot_undo_title'),
         message: t('app.cannot_undo_no_steps'),
         icon: 'info'
@@ -534,7 +521,7 @@ const App: React.FC = () => {
     // 檢查最後一步是否是自己下的
     const lastMove = room.history[room.history.length - 1];
     if (lastMove.player !== localPlayer) {
-      setMessageDialog({
+      dialogs.setMessageDialog({
         title: t('app.cannot_undo_title'),
         message: t('app.cannot_undo_only_own'),
         icon: 'info'
@@ -551,7 +538,7 @@ const App: React.FC = () => {
   const handleRespondUndo = (accept: boolean) => {
     console.log(t('message.respond_undo_log', { accept: accept ? t('dialog.agree') : t('dialog.reject') }));
     socketService.respondUndo(accept);
-    setUndoRequest(null);
+    dialogs.setUndoRequest(null);
   };
 
   // ========== 重置處理函數 ==========
@@ -569,7 +556,7 @@ const App: React.FC = () => {
   const handleRespondReset = (accept: boolean) => {
     console.log(t('message.respond_reset_log', { accept: accept ? t('dialog.agree') : t('dialog.reject') }));
     socketService.respondReset(accept);
-    setResetRequest(null);
+    dialogs.setResetRequest(null);
   };
 
   // ========== 回放控制函數 ==========
@@ -693,7 +680,7 @@ const App: React.FC = () => {
       goHome();
     } else {
       // 游戏进行中，显示确认对话框
-      setShowConfirm(true);
+      dialogs.setShowConfirm(true);
     }
   };
 
@@ -871,60 +858,60 @@ const App: React.FC = () => {
       </div>
 
       {/* 確認對話框 */}
-      {showConfirm && (
+      {dialogs.showConfirm && (
         <ConfirmDialog
           title={t('app.confirm_leave_title')}
           message={t('app.confirm_leave_message')}
           confirmText={t('app.confirm_leave_confirm')}
           cancelText={t('app.confirm_leave_cancel')}
           onConfirm={() => {
-            setShowConfirm(false);
+            dialogs.setShowConfirm(false);
             goHome();
           }}
-          onCancel={() => setShowConfirm(false)}
+          onCancel={() => dialogs.setShowConfirm(false)}
         />
       )}
 
       {/* 悔棋請求對話框 */}
-      {undoRequest && (
+      {dialogs.undoRequest && (
         <UndoRequestDialog
-          requestedBy={undoRequest.requestedBy}
+          requestedBy={dialogs.undoRequest.requestedBy}
           onAccept={() => handleRespondUndo(true)}
           onReject={() => handleRespondUndo(false)}
         />
       )}
 
       {/* 重置請求對話框 */}
-      {resetRequest && (
+      {dialogs.resetRequest && (
         <ResetRequestDialog
-          requestedBy={resetRequest.requestedBy}
+          requestedBy={dialogs.resetRequest.requestedBy}
           onAccept={() => handleRespondReset(true)}
           onReject={() => handleRespondReset(false)}
         />
       )}
 
       {/* 對手離開對話框 */}
-      {showOpponentLeftDialog && (
+      {dialogs.showOpponentLeftDialog && (
         <ConfirmDialog
           title={t('app.opponent_left_title')}
           message={t('app.opponent_left_message')}
           confirmText={t('app.close')}
           cancelText={t('app.back_to_lobby')}
-          onConfirm={() => setShowOpponentLeftDialog(false)}
+          onConfirm={() => dialogs.setShowOpponentLeftDialog(false)}
           onCancel={() => {
-            setShowOpponentLeftDialog(false);
+            dialogs.setShowOpponentLeftDialog(false);
             goHome();
           }}
         />
       )}
 
       {/* 訊息對話框 */}
-      {messageDialog && (
-        <MessageDialog
-          title={messageDialog.title}
-          message={messageDialog.message}
-          icon={messageDialog.icon}
-          onClose={() => setMessageDialog(null)}
+      {dialogs.messageDialog && (
+        <dialogs.messageDialog
+          title={dialogs.messageDialog.title}
+          message={dialogs.messageDialog.message}
+          icon={dialogs.messageDialog.icon}
+          onClose={() => dialogs.setMessageDialog(null)}
         />
       )}
     </div>

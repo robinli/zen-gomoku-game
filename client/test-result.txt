@@ -1686,3 +1686,14 @@ Error: No test suite found in file E:/GitHub/zen-gomoku-game/client/src/componen
 
 [1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
        [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/hooks/__tests__/useDialogs.test.ts [22m[34mx1 [34m[39m
+
+ [32m??[39m src/hooks/__tests__/useDialogs.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 314[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 10:56:38
+[2m   Duration [22m 1.58s
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
