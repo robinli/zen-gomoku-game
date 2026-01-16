@@ -53,7 +53,6 @@ const App: React.FC = () => {
 
   // 使用 Ref 來處理同步鎖定
   const isProcessingMove = useRef(false);
-  const hasInitialized = useRef(false);
   // 追蹤已嘗試加入的房間，防止無限重試
   const attemptedRooms = useRef<Set<string>>(new Set());
 
@@ -94,14 +93,8 @@ const App: React.FC = () => {
     }
   };
 
-  // 初始化 Socket 連線
-  useEffect(() => {
-    if (hasInitialized.current) {
-      console.log(t('message.socket_init_skip'));
-      return;
-    }
-    hasInitialized.current = true;
-
+  // 初始化 Socket 連線（使用 useEffectOnce 以相容 React Strict Mode）
+  useEffectOnce(() => {
     console.log(t('message.socket_init_start'));
     socketService.connect();
 
@@ -374,7 +367,7 @@ const App: React.FC = () => {
 
     // ⚠️ 不要在 cleanup 中 disconnect，避免 React Strict Mode 導致的問題
     // 只有在真正離開應用時才斷線（例如 goHome 函數中）
-  }, []);
+  });
 
   // 檢查 URL Hash 自動加入房間（處理 hashchange 事件）
   useEffect(() => {
