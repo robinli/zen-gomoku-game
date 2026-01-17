@@ -47,7 +47,7 @@ test.describe('雙人連線功能', () => {
         console.log('🔍 Socket 狀態:', JSON.stringify(socketStatus, null, 2));
 
         // 截圖
-        await page.screenshot({ path: 'test-results/socket-diagnostic.png' });
+        await page.screenshot({ path: 'e2e/test-results/socket-diagnostic.png' });
 
         // 驗證
         expect(socketStatus.hasSocket).toBe(true);
@@ -101,7 +101,7 @@ test.describe('雙人連線功能', () => {
         console.log('🔍 創建房間後的 Socket 狀態:', JSON.stringify(socketStatus, null, 2));
 
         // 截圖
-        await page.screenshot({ path: 'test-results/socket-after-create-room.png' });
+        await page.screenshot({ path: 'e2e/test-results/socket-after-create-room.png' });
 
         // 驗證
         expect(socketStatus.hasSocket).toBe(true);
@@ -183,8 +183,8 @@ test.describe('雙人連線功能', () => {
             console.log('🟢 玩家 2 Socket:', player2Socket);
 
             // 截圖
-            await player1Page.screenshot({ path: 'test-results/player1-with-player2.png' });
-            await player2Page.screenshot({ path: 'test-results/player2-joined.png' });
+            await player1Page.screenshot({ path: 'e2e/test-results/player1-with-player2.png' });
+            await player2Page.screenshot({ path: 'e2e/test-results/player2-joined.png' });
 
             // 驗證
             expect(player1Socket.isConnected).toBe(true);
