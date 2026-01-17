@@ -858,6 +858,7 @@ const App: React.FC = () => {
                 threatLine={isReplaying ? null : room.threatLine}
                 turn={room.turn}
                 disabled={isBoardDisabled || isReplaying}
+                hasOpponent={Object.keys(room.players).length === 2}
               />
               {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
               {isReconnecting && !room.winner && (

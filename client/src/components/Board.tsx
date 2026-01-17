@@ -13,9 +13,10 @@ interface BoardProps {
   threatLine: Position[] | null;  // 威脅棋子位置
   turn: Player;
   disabled?: boolean;
+  hasOpponent?: boolean;  // 是否有對手
 }
 
-const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, threatLine, turn, disabled }) => {
+const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningLine, threatLine, turn, disabled, hasOpponent }) => {
   const { t } = useTranslation();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const cellSize = 30;
@@ -146,7 +147,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
       )}
 
       {/* 等待對手指示器 */}
-      {disabled && !winner && (
+      {disabled && !winner && hasOpponent && (
         <div className="absolute top-4 right-4 z-10">
           <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>

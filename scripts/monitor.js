@@ -2,7 +2,7 @@
 
 /**
  * 系統監控腳本
- * 用於即時查看 Zen Gomoku 伺服器狀態
+ * 用於即時查看靜弈伺服器狀態
  * 
  * 使用方式：
  *   本地環境：node monitor.js
@@ -16,7 +16,7 @@ const SERVER_URL = process.argv[2] || 'http://localhost:3000';
 const REFRESH_INTERVAL = 5000; // 5 秒刷新一次
 
 console.clear();
-console.log('🎮 禪意五子棋 - 系統監控儀表板');
+console.log('🎮 靜弈五子棋 - 系統監控儀表板');
 console.log('='.repeat(60));
 console.log(`📡 監控伺服器：${SERVER_URL}`);
 console.log(`🔄 刷新間隔：${REFRESH_INTERVAL / 1000} 秒`);
@@ -51,7 +51,7 @@ function fetchMetrics() {
 function displayMetrics(metrics) {
     console.clear();
     console.log('┌─────────────────────────────────────────────────────────┐');
-    console.log('│         🎮 禪意五子棋 - 系統監控儀表板                 │');
+    console.log('│         🎮 靜弈五子棋 - 系統監控儀表板                 │');
     console.log('└─────────────────────────────────────────────────────────┘');
     console.log();
 
