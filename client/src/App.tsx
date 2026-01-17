@@ -62,7 +62,7 @@ const App: React.FC = () => {
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayStep, setReplayStep] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const autoPlayTimer = useRef<number | null>(null);
+  const autoPlayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   // 儲存回放用的歷史記錄（快照），避免房間重置後資料遺失
   const [replayHistory, setReplayHistory] = useState<MoveHistory[]>([]);
 
@@ -744,6 +744,7 @@ const App: React.FC = () => {
 
   const isBoardDisabled =
     !socketService.isConnected() ||
+    (room !== null && Object.keys(room.players).length < 2) ||  // 等待第二個玩家
     (room !== null && room.turn !== localPlayer) ||
     (room !== null && room.winner !== null);
 

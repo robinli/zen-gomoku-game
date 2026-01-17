@@ -42,6 +42,9 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
     Array.from({ length: BOARD_SIZE }).map((_, x) => (
       <rect
         key={`cell-${x}-${y}`}
+        data-testid={`cell-${y}-${x}`}
+        data-row={y}
+        data-col={x}
         x={padding + x * cellSize - cellSize / 2}
         y={padding + y * cellSize - cellSize / 2}
         width={cellSize}
@@ -61,7 +64,7 @@ const Board: React.FC<BoardProps> = ({ board, onMove, lastMove, winner, winningL
       const isThreatStone = threatLine?.some(p => p.x === x && p.y === y);
 
       return (
-        <g key={`stone-${x}-${y}`} className="stone-shadow transition-all duration-300">
+        <g key={`stone-${x}-${y}`} className={`stone stone-shadow transition-all duration-300 ${cell}`}>
           <circle
             cx={padding + x * cellSize}
             cy={padding + y * cellSize}
