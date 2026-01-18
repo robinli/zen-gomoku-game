@@ -218,7 +218,7 @@ async function main() {
         });
 
         // 等待 server 就緒
-        await checkServiceReady('http://localhost:3000');
+        await checkServiceReady('http://localhost:3000/health');
         logSuccess(`Server 已啟動 (PID: ${serverProcess.pid})`);
 
         // ============================================
