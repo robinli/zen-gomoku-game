@@ -577,3 +577,149 @@ export async function verifyBoardEmpty(page: Page) {
         throw error;
     }
 }
+
+/**
+ * 點擊返回大廳按鈕
+ * @param page - Playwright Page 對象
+ */
+export async function clickReturnToLobby(page: Page) {
+    console.log('🏠 點擊返回大廳按鈕...');
+
+    try {
+        // 查找並點擊「返回大廳」按鈕
+        const returnButton = page.locator('button', { hasText: /返回大廳|Back to Lobby/i });
+        await returnButton.waitFor({ state: 'visible', timeout: 5000 });
+        await returnButton.click();
+
+        console.log('✅ 已點擊返回大廳按鈕');
+
+        // 等待確認對話框出現
+        await page.waitForTimeout(500);
+    } catch (error) {
+        console.error('❌ 點擊返回大廳按鈕失敗:', error);
+        await page.screenshot({ path: `test-results/click-return-lobby-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 在確認離開對話框中點擊取消
+ * @param page - Playwright Page 對象
+ */
+export async function cancelConfirmLeave(page: Page) {
+    console.log('❌ 點擊取消按鈕...');
+
+    try {
+        // 等待確認對話框出現
+        const dialog = page.locator('text=/確認離開遊戲|Confirm Leave/i');
+        await dialog.waitFor({ state: 'visible', timeout: 5000 });
+        console.log('✅ 確認對話框已顯示');
+
+        // 點擊取消按鈕
+        const cancelButton = page.locator('button', { hasText: /取消|Cancel/i });
+        await cancelButton.waitFor({ state: 'visible', timeout: 5000 });
+        await cancelButton.click();
+
+        console.log('✅ 已點擊取消按鈕');
+
+        // 等待對話框消失
+        await page.waitForTimeout(500);
+    } catch (error) {
+        console.error('❌ 點擊取消按鈕失敗:', error);
+        await page.screenshot({ path: `test-results/cancel-confirm-leave-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 在確認離開對話框中點擊確認離開
+ * @param page - Playwright Page 對象
+ */
+export async function confirmLeave(page: Page) {
+    console.log('✅ 點擊確認離開按鈕...');
+
+    try {
+        // 等待確認對話框出現
+        const dialog = page.locator('text=/確認離開遊戲|Confirm Leave/i');
+        await dialog.waitFor({ state: 'visible', timeout: 5000 });
+        console.log('✅ 確認對話框已顯示');
+
+        // 點擊確認離開按鈕
+        const confirmButton = page.locator('button', { hasText: /確認離開|Confirm/i });
+        await confirmButton.waitFor({ state: 'visible', timeout: 5000 });
+        await confirmButton.click();
+
+        console.log('✅ 已點擊確認離開按鈕');
+
+        // 等待頁面開始重新載入
+        await page.waitForTimeout(1000);
+    } catch (error) {
+        console.error('❌ 點擊確認離開按鈕失敗:', error);
+        await page.screenshot({ path: `test-results/confirm-leave-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 驗證已返回大廳
+ * @param page - Playwright Page 對象
+ */
+export async function verifyInLobby(page: Page) {
+    console.log('🔍 驗證已返回大廳...');
+
+    try {
+        // 驗證 URL 不包含 room=
+        const currentUrl = page.url();
+        if (currentUrl.includes('#room=')) {
+            throw new Error('URL 仍包含房間資訊，未返回大廳');
+        }
+
+        // 驗證大廳的創建房間按鈕存在
+        const createButton = page.locator('button', { hasText: /創建.*房間|Create.*Room/i });
+        await createButton.waitFor({ state: 'visible', timeout: 5000 });
+
+        console.log('✅ 已成功返回大廳');
+    } catch (error) {
+        console.error('❌ 驗證返回大廳失敗:', error);
+        await page.screenshot({ path: `test-results/verify-in-lobby-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 關閉對手離開對話框並返回大廳
+ * @param page - Playwright Page 對象
+ */
+export async function closeOpponentLeftDialog(page: Page) {
+    console.log('🔘 關閉對手離開對話框...');
+
+    try {
+        // 等待對手離開對話框出現
+        const dialog = page.locator('text=/對手已離開|Opponent.*Left/i');
+        await dialog.waitFor({ state: 'visible', timeout: 10000 });
+        console.log('✅ 對手離開對話框已顯示');
+
+        // 點擊返回大廳按鈕（在對手離開對話框中）
+        // 根據實際 HTML 結構，對話框中有兩個按鈕：
+        // 第一個按鈕：返回大廳
+        // 第二個按鈕：關閉
+        // 使用 .dialog-btn 選擇器並取第一個按鈕
+        const returnButton = page.locator('.base-dialog-actions .dialog-btn').first();
+        await returnButton.waitFor({ state: 'visible', timeout: 5000 });
+
+        // 驗證按鈕文字是否為「返回大廳」
+        const buttonText = await returnButton.textContent();
+        console.log(`📝 按鈕文字: "${buttonText}"`);
+
+        await returnButton.click();
+
+        console.log('✅ 已點擊返回大廳按鈕');
+
+        // 等待頁面開始重新載入
+        await page.waitForTimeout(1000);
+    } catch (error) {
+        console.error('❌ 關閉對手離開對話框失敗:', error);
+        await page.screenshot({ path: `test-results/close-opponent-left-error-${Date.now()}.png` });
+        throw error;
+    }
+}
