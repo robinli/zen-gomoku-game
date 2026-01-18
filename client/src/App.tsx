@@ -298,6 +298,10 @@ const App: React.FC = () => {
       console.log(t('message.undo_accepted_log', { data }));
       setRoom(prev => {
         if (!prev) return prev;
+
+        // 移除 history 的最後一步
+        const newHistory = prev.history.slice(0, -1);
+
         return {
           ...prev,
           board: data.board,
@@ -306,6 +310,7 @@ const App: React.FC = () => {
           undoCount: data.undoCount,
           winner: null,
           winningLine: null,
+          history: newHistory,  // 更新 history
           updatedAt: Date.now(),
         };
       });
