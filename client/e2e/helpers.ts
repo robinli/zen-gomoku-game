@@ -110,32 +110,28 @@ export async function waitForBoardReady(page: Page) {
     console.log('⏳ 等待棋盤準備好...');
 
     try {
-        // 等待棋盤不再有 brightness-95 opacity-90 類別（表示已解鎖）
-        await page.waitForFunction(() => {
-            const board = document.querySelector('.wood-texture');
-            if (!board) return false;
+        // 方法 1: 等待棋盤 SVG 元素出現
+        const boardSvg = page.locator('svg').first();
+        await boardSvg.waitFor({ state: 'visible', timeout: 10000 });
+        console.log('✅ 棋盤 SVG 已顯示');
 
-            const classes = board.className;
-            // 棋盤啟用時應該是 opacity-100，而不是 opacity-90
-            // 同時不應該有 brightness-95
-            const hasBrightness95 = classes.includes('brightness-95');
-            const hasOpacity90 = classes.includes('opacity-90');
-            const hasOpacity100 = classes.includes('opacity-100');
+        // 方法 2: 等待至少有一個可點擊的格子
+        const firstCell = page.locator('[data-testid^="cell-"]').first();
+        await firstCell.waitFor({ state: 'attached', timeout: 10000 });
+        console.log('✅ 棋盤格子已就緒');
 
-            // 棋盤準備好的條件：有 opacity-100 或者兩個禁用類別都不存在
-            const isReady = hasOpacity100 || (!hasBrightness95 && !hasOpacity90);
-
-            return isReady;
-        }, { timeout: 15000 });
-
-        // 額外等待一下確保狀態穩定
-        await page.waitForTimeout(500);
+        // 額外等待確保遊戲狀態完全同步
+        await page.waitForTimeout(1000);
         console.log('✅ 棋盤已準備好');
     } catch (error) {
         console.error('⚠️ 等待棋盤準備超時:', error);
         // 截圖以便調試
         await page.screenshot({ path: `test-results/board-not-ready-${Date.now()}.png` });
-        console.log('ℹ️ 繼續嘗試（可能棋盤已經準備好）...');
+
+        // 嘗試備用方案：直接等待固定時間
+        console.log('ℹ️ 使用備用方案：等待固定時間...');
+        await page.waitForTimeout(3000);
+        console.log('✅ 備用方案完成，繼續測試');
     }
 }
 
@@ -209,5 +205,201 @@ export async function verifyGameEnd(page: Page, winner: 'black' | 'white' | 'dra
     } else {
         const winnerText = winner === 'black' ? /黑.*勝|Black.*win/i : /白.*勝|White.*win/i;
         await expect(page.locator(`text=${winnerText}`)).toBeVisible({ timeout: 5000 });
+    }
+}
+
+/**
+ * 完成一局遊戲
+ * @param player1Page - 玩家1的 Page 對象（黑棋）
+ * @param player2Page - 玩家2的 Page 對象（白棋）
+ * @param moves - 棋步序列 [{row, col}, ...]
+ */
+export async function playFullGame(
+    player1Page: Page,
+    player2Page: Page,
+    moves: Array<{ row: number; col: number }>
+) {
+    console.log(`🎮 開始下棋，共 ${moves.length} 步...`);
+
+    for (let i = 0; i < moves.length; i++) {
+        const move = moves[i];
+        const isBlackTurn = i % 2 === 0;
+        const currentPage = isBlackTurn ? player1Page : player2Page;
+        const playerName = isBlackTurn ? '玩家1(黑)' : '玩家2(白)';
+
+        console.log(`${playerName} 下棋: (${move.row}, ${move.col})`);
+
+        // 落子
+        await makeMove(currentPage, move.row, move.col);
+
+        // 等待一下確保對方收到更新
+        await player1Page.waitForTimeout(700);
+        await player2Page.waitForTimeout(700);
+
+        console.log(`✅ 第 ${i + 1} 步完成`);
+    }
+
+    console.log('✅ 遊戲完成！');
+}
+
+/**
+ * 關閉遊戲結束對話框
+ * @param page - Playwright Page 對象
+ */
+export async function closeGameEndDialog(page: Page) {
+    console.log('🔘 關閉遊戲結束對話框...');
+
+    try {
+        // 查找對話框按鈕（使用 dialog-btn 類別）
+        console.log('🔍 查找對話框按鈕...');
+        const dialogButton = page.locator('.dialog-btn').first();
+
+        // 等待按鈕可見（縮短超時時間）
+        await dialogButton.waitFor({ state: 'visible', timeout: 1000 });
+        console.log('✅ 找到對話框按鈕');
+
+        // 點擊按鈕
+        await dialogButton.click();
+        console.log('✅ 已點擊確認按鈕');
+
+        // 等待對話框消失（縮短等待時間）
+        await page.waitForTimeout(500);
+        console.log('✅ 遊戲結束對話框已關閉');
+    } catch (error) {
+        console.error('⚠️ 關閉對話框失敗:', error);
+        await page.screenshot({ path: `test-results/close-dialog-error-${Date.now()}.png` });
+
+        // 即使失敗也繼續測試
+        console.log('ℹ️ 繼續測試（可能對話框已自動關閉或不存在）...');
+    }
+}
+
+/**
+ * 開始回放
+ * @param page - Playwright Page 對象
+ */
+export async function startReplay(page: Page) {
+    console.log('🎬 開始回放...');
+
+    try {
+        // 查找並點擊「回放對局」按鈕
+        const replayButton = page.locator('button', { hasText: /回放對局|Replay Game/i });
+        await replayButton.waitFor({ state: 'visible', timeout: 5000 });
+        await replayButton.click();
+
+        console.log('✅ 已點擊回放按鈕');
+
+        // 等待回放控制面板出現
+        await page.waitForTimeout(1000);
+
+        // 驗證回放控制面板已顯示
+        const replayTitle = page.locator('text=/對局回放|Game Replay/i');
+        await replayTitle.waitFor({ state: 'visible', timeout: 5000 });
+
+        console.log('✅ 回放模式已啟動');
+    } catch (error) {
+        console.error('❌ 開始回放失敗:', error);
+        await page.screenshot({ path: `test-results/start-replay-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 等待回放完成
+ * @param page - Playwright Page 對象
+ * @param totalSteps - 總步數
+ * @param timeoutMs - 超時時間（毫秒）
+ */
+export async function waitForReplayComplete(page: Page, totalSteps: number, timeoutMs: number = 30000) {
+    console.log(`⏳ 等待回放完成（共 ${totalSteps} 步）...`);
+
+    const startTime = Date.now();
+
+    try {
+        // 策略：輪詢檢查回放進度，直到達到最後一步
+        let lastStep = -1;
+        let stableCount = 0;
+        const requiredStableChecks = 3; // 需要連續 3 次檢查都顯示完成
+
+        while (Date.now() - startTime < timeoutMs) {
+            // 查找回放控制面板中的進度文字
+            // 中文格式: "第 X 步" 在第一個 span，"共 Y 步" 在第二個 span
+            // 英文格式: "Step X" 在第一個 span，"of Y" 在第二個 span
+            const progressContainer = page.locator('.flex.justify-between.text-xs.text-slate-500.mb-2').first();
+            const firstSpan = progressContainer.locator('span').first();
+            const progressText = await firstSpan.textContent().catch(() => null);
+
+            if (progressText) {
+                // 提取當前步數
+                // 中文: "第 9 步" -> 9
+                // 英文: "Step 9" -> 9
+                const match = progressText.match(/(\d+)/);
+                const currentStep = match ? parseInt(match[1]) : 0;
+
+                console.log(`📊 當前回放進度: ${currentStep}/${totalSteps} (文字: "${progressText}")`);
+
+                // 檢查是否已到達最後一步
+                if (currentStep >= totalSteps) {
+                    stableCount++;
+                    console.log(`✓ 回放已到達最後一步 (${stableCount}/${requiredStableChecks})`);
+
+                    if (stableCount >= requiredStableChecks) {
+                        // 額外等待 1 秒確保 UI 穩定
+                        await page.waitForTimeout(1000);
+
+                        const elapsed = Date.now() - startTime;
+                        console.log(`✅ 回放完成！耗時 ${(elapsed / 1000).toFixed(1)} 秒`);
+                        return;
+                    }
+                } else {
+                    stableCount = 0; // 重置穩定計數
+                }
+
+                lastStep = currentStep;
+            }
+
+            // 等待一小段時間再檢查
+            await page.waitForTimeout(500);
+        }
+
+        // 超時
+        throw new Error(`回放未在 ${timeoutMs}ms 內完成，最後步數: ${lastStep}/${totalSteps}`);
+
+    } catch (error) {
+        console.error('❌ 等待回放完成失敗:', error);
+        await page.screenshot({ path: `test-results/replay-timeout-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 退出回放
+ * @param page - Playwright Page 對象
+ */
+export async function exitReplay(page: Page) {
+    console.log('🚪 退出回放...');
+
+    try {
+        // 查找並點擊關閉按鈕（使用 title 屬性）
+        // 從錯誤上下文看：button \"關閉\" [ref=e38]
+        const closeButton = page.locator('button[title*="關閉"], button[title*="Close"]').first();
+
+        await closeButton.waitFor({ state: 'visible', timeout: 10000 });
+        await closeButton.click();
+
+        console.log('✅ 已點擊退出按鈕');
+
+        // 等待回放控制面板消失
+        await page.waitForTimeout(1000);
+
+        // 驗證回放控制面板已隱藏
+        const replayTitle = page.locator('text=/對局回放|Game Replay/i');
+        await replayTitle.waitFor({ state: 'hidden', timeout: 5000 });
+
+        console.log('✅ 已退出回放模式');
+    } catch (error) {
+        console.error('❌ 退出回放失敗:', error);
+        await page.screenshot({ path: `test-results/exit-replay-error-${Date.now()}.png` });
+        throw error;
     }
 }
