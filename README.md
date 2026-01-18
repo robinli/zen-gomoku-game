@@ -184,12 +184,12 @@ zen-gomoku-game/
 │   │   ├── App.tsx
 │   │   ├── index.tsx
 │   │   └── types.ts
+│   ├── e2e/                      # E2E 測試
 │   ├── public/
-│   │   └── vite.svg
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.ts
-│   └── tsconfig.json
+│   └── playwright.config.ts
 │
 ├── 🖥️ server/                    # Node.js 後端
 │   ├── src/
@@ -203,13 +203,19 @@ zen-gomoku-game/
 │   ├── architecture/             # 架構文檔
 │   ├── deployment/               # 部署指南
 │   ├── development/              # 開發文檔
-│   └── testing/                  # 測試報告
+│   ├── testing/                  # 測試報告
+│   └── archive/                  # 歷史文檔歸檔
+│       └── undo-feature-development/
 │
 ├── 🎨 assets/                    # 資源文件
 │   └── screenshot.png
 │
 ├── 🛠️ scripts/                   # 工具腳本
-│   └── monitor.js
+│   ├── auto-merge.js             # 自動化測試與合併 (Node.js)
+│   ├── auto-merge.ps1            # 自動化測試與合併 (PowerShell)
+│   ├── check-services.ps1        # 服務狀態檢查
+│   ├── monitor.js                # 系統監控
+│   └── README.md                 # 腳本使用說明
 │
 └── 📋 package.json               # Workspace root
 ```
