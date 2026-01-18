@@ -1,6 +1,8 @@
 # Logs
 logs
 *.log
+*_log.txt
+client_log.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -40,4 +42,3 @@ client/e2e/playwright-report/
 /playwright/.cache/
 playwright-report/
 test-results/
-
