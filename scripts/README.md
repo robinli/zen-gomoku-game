@@ -59,27 +59,41 @@ node scripts/auto-merge.js
 1. 檢查當前分支 (必須是 dev)
    └─ 檢查是否有未提交的更改
 
-2. 啟動 Server (http://localhost:3000)
-   └─ 等待服務就緒
+2. 停止現有服務
+   ├─ 檢查並停止佔用 3000 端口的進程 (Server)
+   └─ 檢查並停止佔用 5173 端口的進程 (Client)
 
-3. 啟動 Client (http://localhost:5173)
-   └─ 等待服務就緒
+3. Build Server
+   └─ 執行 npm run build (編譯 TypeScript)
 
-4. 執行 E2E 測試
+4. Build Client
+   └─ 執行 npm run build (編譯 TypeScript + Vite 打包)
+
+5. 啟動 Server (http://localhost:3000)
+   └─ 使用 npm run dev 啟動開發服務器
+
+6. 啟動 Client (http://localhost:5173)
+   └─ 使用 npm run dev 啟動 Vite 開發服務器
+
+7. 等待服務就緒
+   ├─ 健康檢查
+   └─ 額外等待時間確保完全初始化
+
+8. 執行 E2E 測試
    ├─ 測試通過 → 繼續
    └─ 測試失敗 → 停止服務並退出
 
-5. 停止所有服務
+9. 停止所有服務
 
-6. 合併分支
-   ├─ 切換到 main 分支
-   ├─ 合併 dev 分支
-   └─ 處理可能的衝突
+10. 合併分支
+    ├─ 切換到 main 分支
+    ├─ 合併 dev 分支
+    └─ 處理可能的衝突
 
-7. 推送到 GitHub
-   └─ 推送 main 分支
+11. 推送到 GitHub
+    └─ 推送 main 分支
 
-8. 切回 dev 分支
+12. 切回 dev 分支
 ```
 
 ---

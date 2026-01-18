@@ -88,7 +88,8 @@ if ($currentBranch -ne "dev") {
     if ($response -eq "y") {
         git checkout dev
         Write-ColorOutput "✓ 已切換到 dev 分支" "Green"
-    } else {
+    }
+    else {
         Write-ColorOutput "❌ 已取消操作" "Red"
         exit 1
     }
@@ -107,9 +108,80 @@ if ($status) {
 }
 
 # ============================================
-# 步驟 2: 啟動 Server
+# 步驟 2: 停止現有服務
 # ============================================
-Write-Step "🖥️  步驟 2: 啟動 Server"
+Write-Step "🛑 步驟 2: 停止現有服務"
+
+Write-ColorOutput "檢查並停止正在運行的 server 和 client..." "White"
+
+# 停止佔用 3000 端口的進程 (server)
+$serverPort = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue
+if ($serverPort) {
+    Stop-Process -Id $serverPort.OwningProcess -Force -ErrorAction SilentlyContinue
+    Write-ColorOutput "✓ 已停止 Server (Port 3000)" "Gray"
+}
+
+# 停止佔用 5173 端口的進程 (client)
+$clientPort = Get-NetTCPConnection -LocalPort 5173 -ErrorAction SilentlyContinue
+if ($clientPort) {
+    Stop-Process -Id $clientPort.OwningProcess -Force -ErrorAction SilentlyContinue
+    Write-ColorOutput "✓ 已停止 Client (Port 5173)" "Gray"
+}
+
+if (!$serverPort -and !$clientPort) {
+    Write-ColorOutput "ℹ️  沒有發現運行中的服務" "Gray"
+}
+else {
+    Write-ColorOutput "✓ 已停止現有服務" "Green"
+}
+
+# 等待端口釋放
+Start-Sleep -Seconds 2
+
+# ============================================
+# 步驟 3: Build Server
+# ============================================
+Write-Step "🔨 步驟 3: Build Server"
+
+Set-Location "$rootDir\server"
+Write-ColorOutput "正在編譯 TypeScript..." "White"
+
+try {
+    npm run build
+    if ($LASTEXITCODE -ne 0) {
+        throw "Build 失敗"
+    }
+    Write-ColorOutput "✓ Server build 完成" "Green"
+}
+catch {
+    Write-ColorOutput "❌ Server build 失敗" "Red"
+    exit 1
+}
+
+# ============================================
+# 步驟 4: Build Client
+# ============================================
+Write-Step "🔨 步驟 4: Build Client"
+
+Set-Location "$rootDir\client"
+Write-ColorOutput "正在編譯 TypeScript 和打包 Vite..." "White"
+
+try {
+    npm run build
+    if ($LASTEXITCODE -ne 0) {
+        throw "Build 失敗"
+    }
+    Write-ColorOutput "✓ Client build 完成" "Green"
+}
+catch {
+    Write-ColorOutput "❌ Client build 失敗" "Red"
+    exit 1
+}
+
+# ============================================
+# 步驟 5: 啟動 Server
+# ============================================
+Write-Step "🖥️  步驟 5: 啟動 Server"
 
 Set-Location "$rootDir\server"
 Write-ColorOutput "正在啟動 server (http://localhost:3000)..." "White"
@@ -121,12 +193,15 @@ if ($serverProcess.HasExited) {
     throw "Server 啟動失敗"
 }
 
+Write-ColorOutput "等待 Socket.IO 完全初始化..." "White"
+Start-Sleep -Seconds 3
+
 Write-ColorOutput "✓ Server 已啟動 (PID: $($serverProcess.Id))" "Green"
 
 # ============================================
-# 步驟 3: 啟動 Client
+# 步驟 6: 啟動 Client
 # ============================================
-Write-Step "🌐 步驟 3: 啟動 Client"
+Write-Step "🌐 步驟 6: 啟動 Client"
 
 Set-Location "$rootDir\client"
 Write-ColorOutput "正在啟動 client (http://localhost:5173)..." "White"
@@ -139,12 +214,15 @@ if ($clientProcess.HasExited) {
     throw "Client 啟動失敗"
 }
 
+Write-ColorOutput "等待 Vite 完成編譯和 HMR 準備..." "White"
+Start-Sleep -Seconds 5
+
 Write-ColorOutput "✓ Client 已啟動 (PID: $($clientProcess.Id))" "Green"
 
 # ============================================
-# 步驟 4: 等待服務就緒
+# 步驟 7: 等待服務就緒
 # ============================================
-Write-Step "⏳ 步驟 4: 等待服務就緒"
+Write-Step "⏳ 步驟 7: 等待服務就緒"
 
 Write-ColorOutput "等待服務完全啟動..." "White"
 Start-Sleep -Seconds 5
@@ -153,15 +231,16 @@ Start-Sleep -Seconds 5
 try {
     $response = Invoke-WebRequest -Uri "http://localhost:5173" -UseBasicParsing -TimeoutSec 5
     Write-ColorOutput "✓ Client 服務就緒" "Green"
-} catch {
+}
+catch {
     Stop-Services
     throw "Client 服務未就緒"
 }
 
 # ============================================
-# 步驟 5: 執行 E2E 測試
+# 步驟 8: 執行 E2E 測試
 # ============================================
-Write-Step "🧪 步驟 5: 執行 E2E 測試"
+Write-Step "🧪 步驟 8: 執行 E2E 測試"
 
 Set-Location "$rootDir\client"
 Write-ColorOutput "正在執行所有 E2E 測試案例..." "White"
@@ -172,10 +251,12 @@ try {
     
     if ($testExitCode -eq 0) {
         Write-ColorOutput "`n✅ 所有測試通過!" "Green"
-    } else {
+    }
+    else {
         throw "測試失敗 (Exit Code: $testExitCode)"
     }
-} catch {
+}
+catch {
     Stop-Services
     Write-ColorOutput "`n❌ E2E 測試失敗,中止合併流程" "Red"
     Write-ColorOutput "查看測試報告: npx playwright show-report" "Yellow"
@@ -183,16 +264,16 @@ try {
 }
 
 # ============================================
-# 步驟 6: 停止服務
+# 步驟 9: 停止服務
 # ============================================
-Write-Step "🛑 步驟 6: 停止服務"
+Write-Step "🛑 步驟 9: 停止服務"
 Stop-Services
 Write-ColorOutput "✓ 所有服務已停止" "Green"
 
 # ============================================
-# 步驟 7: 合併分支
+# 步驟 10: 合併分支
 # ============================================
-Write-Step "🔀 步驟 7: 合併 dev 到 main"
+Write-Step "🔀 步驟 10: 合併 dev 到 main"
 
 Set-Location $rootDir
 
@@ -203,21 +284,23 @@ Write-ColorOutput "合併 dev 分支..." "White"
 try {
     git merge dev --no-ff -m "chore: auto-merge dev to main after E2E tests passed"
     Write-ColorOutput "✓ 合併成功" "Green"
-} catch {
+}
+catch {
     Write-ColorOutput "❌ 合併失敗,可能有衝突需要手動解決" "Red"
     exit 1
 }
 
 # ============================================
-# 步驟 8: 推送到 GitHub
+# 步驟 11: 推送到 GitHub
 # ============================================
-Write-Step "📤 步驟 8: 推送到 GitHub"
+Write-Step "📤 步驟 11: 推送到 GitHub"
 
 Write-ColorOutput "推送 main 分支到 GitHub..." "White"
 try {
     git push origin main
     Write-ColorOutput "✓ 推送成功" "Green"
-} catch {
+}
+catch {
     Write-ColorOutput "❌ 推送失敗" "Red"
     exit 1
 }
