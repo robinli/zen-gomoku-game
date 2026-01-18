@@ -95,8 +95,8 @@ test.describe('完整遊戲流程與回放功能', () => {
             await playFullGame(player1Page, player2Page, winningMoves);
 
             // 等待一下確保遊戲結束狀態更新
-            await player1Page.waitForTimeout(2000);
-            await player2Page.waitForTimeout(2000);
+            await player1Page.waitForTimeout(1500);
+            await player2Page.waitForTimeout(1500);
 
             // 驗證遊戲結束（黑棋勝利）
             console.log('🔍 驗證遊戲結束狀態...');
@@ -113,7 +113,7 @@ test.describe('完整遊戲流程與回放功能', () => {
             console.log('\n========== 階段 3: 第一個玩家回放 ==========');
 
             // 關閉遊戲結束對話框
-            await closeGameEndDialog(player1Page);
+            //await closeGameEndDialog(player1Page);
 
             // 開始回放
             await startReplay(player1Page);

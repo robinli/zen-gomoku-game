@@ -403,3 +403,177 @@ export async function exitReplay(page: Page) {
         throw error;
     }
 }
+
+/**
+ * 請求悔棋
+ * @param page - Playwright Page 對象
+ */
+export async function requestUndo(page: Page) {
+    console.log('🔄 請求悔棋...');
+
+    try {
+        // 查找並點擊「請求悔棋」按鈕
+        const undoButton = page.locator('button', { hasText: /請求悔棋|Request Undo/i });
+        await undoButton.waitFor({ state: 'visible', timeout: 5000 });
+        await undoButton.click();
+
+        console.log('✅ 已點擊請求悔棋按鈕');
+
+        // 等待請求發送
+        await page.waitForTimeout(500);
+    } catch (error) {
+        console.error('❌ 請求悔棋失敗:', error);
+        await page.screenshot({ path: `test-results/request-undo-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 回應悔棋請求（同意或拒絕）
+ * @param page - Playwright Page 對象
+ * @param accept - true 表示同意，false 表示拒絕
+ */
+export async function respondToUndoRequest(page: Page, accept: boolean) {
+    console.log(`${accept ? '✅ 同意' : '❌ 拒絕'}悔棋請求...`);
+
+    try {
+        // 等待悔棋請求對話框出現
+        const dialog = page.locator('text=/悔棋請求|Undo Request/i');
+        await dialog.waitFor({ state: 'visible', timeout: 5000 });
+        console.log('✅ 悔棋請求對話框已顯示');
+
+        // 點擊同意或拒絕按鈕
+        const buttonText = accept ? /同意|Agree/i : /拒絕|Reject/i;
+        const button = page.locator('button', { hasText: buttonText });
+        await button.waitFor({ state: 'visible', timeout: 5000 });
+        await button.click();
+
+        console.log(`✅ 已點擊${accept ? '同意' : '拒絕'}按鈕`);
+
+        // 等待對話框消失
+        await page.waitForTimeout(500);
+    } catch (error) {
+        console.error(`❌ 回應悔棋請求失敗:`, error);
+        await page.screenshot({ path: `test-results/respond-undo-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 關閉悔棋被拒絕的訊息對話框
+ * @param page - Playwright Page 對象
+ */
+export async function closeUndoRejectedDialog(page: Page) {
+    console.log('🔘 關閉悔棋被拒絕對話框...');
+
+    try {
+        // 等待對話框出現
+        const dialog = page.locator('text=/悔棋被拒絕|Undo Rejected/i');
+        await dialog.waitFor({ state: 'visible', timeout: 5000 });
+        console.log('✅ 悔棋被拒絕對話框已顯示');
+
+        // 點擊確認按鈕
+        const confirmButton = page.locator('button', { hasText: /確認|Confirm|關閉|Close/i }).first();
+        await confirmButton.waitFor({ state: 'visible', timeout: 5000 });
+        await confirmButton.click();
+
+        console.log('✅ 已關閉悔棋被拒絕對話框');
+
+        // 等待對話框消失
+        await page.waitForTimeout(500);
+    } catch (error) {
+        console.error('❌ 關閉悔棋被拒絕對話框失敗:', error);
+        await page.screenshot({ path: `test-results/close-undo-rejected-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 驗證悔棋次數顯示
+ * @param page - Playwright Page 對象
+ * @param used - 已使用次數
+ * @param limit - 總次數限制
+ */
+export async function verifyUndoCount(page: Page, used: number, limit: number) {
+    console.log(`🔍 驗證悔棋次數: ${used}/${limit}...`);
+
+    try {
+        // 查找顯示悔棋次數的文字
+        const undoCountText = page.locator(`text=/${used}\\/${limit}/i`);
+        await undoCountText.waitFor({ state: 'visible', timeout: 5000 });
+
+        console.log(`✅ 悔棋次數顯示正確: ${used}/${limit}`);
+    } catch (error) {
+        console.error(`❌ 驗證悔棋次數失敗:`, error);
+        await page.screenshot({ path: `test-results/verify-undo-count-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 驗證悔棋次數已用完的訊息
+ * @param page - Playwright Page 對象
+ */
+export async function verifyUndoLimitReached(page: Page) {
+    console.log('🔍 驗證悔棋次數已用完訊息...');
+
+    try {
+        // 查找對話框標題「無法悔棋」
+        const limitMessage = page.locator('.base-dialog-title', { hasText: /無法悔棋|Cannot Undo/i });
+        await limitMessage.waitFor({ state: 'visible', timeout: 5000 });
+
+        console.log('✅ 悔棋次數已用完訊息已顯示');
+
+        // 等待一下確保對話框完全顯示
+        await page.waitForTimeout(1000);
+
+        // 關閉訊息對話框 - 使用 CSS 類別選擇器
+        console.log('🔍 查找確認按鈕...');
+        const closeButton = page.locator('.dialog-btn').first();
+
+        // 檢查按鈕是否存在
+        const buttonCount = await page.locator('.dialog-btn').count();
+        console.log(`📊 找到 ${buttonCount} 個 .dialog-btn 按鈕`);
+
+        await closeButton.waitFor({ state: 'visible', timeout: 5000 });
+        console.log('✅ 找到確認按鈕，準備點擊');
+
+        // 使用強制點擊，忽略可能的遮擋
+        await closeButton.click({ force: true });
+
+        console.log('✅ 已點擊確認按鈕');
+
+        // 等待對話框消失
+        await page.waitForTimeout(1000);
+
+        console.log('✅ 已關閉訊息對話框');
+    } catch (error) {
+        console.error('❌ 驗證悔棋次數已用完訊息失敗:', error);
+        await page.screenshot({ path: `test-results/verify-undo-limit-error-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+/**
+ * 驗證棋盤上沒有棋子
+ * @param page - Playwright Page 對象
+ */
+export async function verifyBoardEmpty(page: Page) {
+    console.log('🔍 驗證棋盤為空...');
+
+    try {
+        // 查找所有棋子元素
+        const stones = page.locator('g.stone');
+        const count = await stones.count();
+
+        if (count === 0) {
+            console.log('✅ 棋盤為空');
+        } else {
+            throw new Error(`棋盤上還有 ${count} 個棋子`);
+        }
+    } catch (error) {
+        console.error('❌ 驗證棋盤為空失敗:', error);
+        await page.screenshot({ path: `test-results/verify-board-empty-error-${Date.now()}.png` });
+        throw error;
+    }
+}
