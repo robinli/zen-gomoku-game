@@ -197,9 +197,83 @@ async function main() {
         logSuccess('分支檢查通過');
 
         // ============================================
-        // 步驟 2: 啟動 Server
+        // 步驟 2: 停止現有服務
         // ============================================
-        logStep('🖥️  步驟 2: 啟動 Server');
+        logStep('🛑 步驟 2: 停止現有服務');
+
+        logInfo('檢查並停止正在運行的 server 和 client...');
+
+        // Windows 平台停止服務
+        if (process.platform === 'win32') {
+            try {
+                // 停止佔用 3000 端口的進程 (server)
+                exec('for /f "tokens=5" %a in (\'netstat -aon ^| findstr :3000\') do taskkill /F /PID %a', {
+                    ignoreError: true,
+                    silent: true,
+                    shell: 'cmd.exe'
+                });
+
+                // 停止佔用 5173 端口的進程 (client)
+                exec('for /f "tokens=5" %a in (\'netstat -aon ^| findstr :5173\') do taskkill /F /PID %a', {
+                    ignoreError: true,
+                    silent: true,
+                    shell: 'cmd.exe'
+                });
+
+                logSuccess('已停止現有服務');
+            } catch (error) {
+                logInfo('沒有發現運行中的服務');
+            }
+        } else {
+            // Unix-like 平台
+            try {
+                exec('lsof -ti:3000 | xargs kill -9', { ignoreError: true, silent: true });
+                exec('lsof -ti:5173 | xargs kill -9', { ignoreError: true, silent: true });
+                logSuccess('已停止現有服務');
+            } catch (error) {
+                logInfo('沒有發現運行中的服務');
+            }
+        }
+
+        // 等待端口釋放
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // ============================================
+        // 步驟 3: Build Server
+        // ============================================
+        logStep('🔨 步驟 3: Build Server');
+
+        logInfo('正在編譯 TypeScript...');
+        try {
+            exec('npm run build', {
+                cwd: join(rootDir, 'server'),
+            });
+            logSuccess('Server build 完成');
+        } catch (error) {
+            logError('Server build 失敗');
+            process.exit(1);
+        }
+
+        // ============================================
+        // 步驟 4: Build Client
+        // ============================================
+        logStep('🔨 步驟 4: Build Client');
+
+        logInfo('正在編譯 TypeScript 和打包 Vite...');
+        try {
+            exec('npm run build', {
+                cwd: join(rootDir, 'client'),
+            });
+            logSuccess('Client build 完成');
+        } catch (error) {
+            logError('Client build 失敗');
+            process.exit(1);
+        }
+
+        // ============================================
+        // 步驟 5: 啟動 Server
+        // ============================================
+        logStep('🖥️  步驟 5: 啟動 Server');
 
         logInfo('正在啟動 server (http://localhost:3000)...');
 
@@ -218,13 +292,15 @@ async function main() {
         });
 
         // 等待 server 就緒
-        await checkServiceReady('http://localhost:3000');
+        await checkServiceReady('http://localhost:3000/health');
+        logInfo('等待 Socket.IO 完全初始化...');
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 額外等待 3 秒
         logSuccess(`Server 已啟動 (PID: ${serverProcess.pid})`);
 
         // ============================================
-        // 步驟 3: 啟動 Client
+        // 步驟 6: 啟動 Client
         // ============================================
-        logStep('🌐 步驟 3: 啟動 Client');
+        logStep('🌐 步驟 6: 啟動 Client');
 
         logInfo('正在啟動 client (http://localhost:5173)...');
 
@@ -244,12 +320,14 @@ async function main() {
 
         // 等待 client 就緒
         await checkServiceReady('http://localhost:5173');
+        logInfo('等待 Vite 完成編譯和 HMR 準備...');
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 額外等待 5 秒
         logSuccess(`Client 已啟動 (PID: ${clientProcess.pid})`);
 
         // ============================================
-        // 步驟 4: 執行 E2E 測試
+        // 步驟 7: 執行 E2E 測試
         // ============================================
-        logStep('🧪 步驟 4: 執行 E2E 測試');
+        logStep('🧪 步驟 7: 執行 E2E 測試');
 
         logInfo('正在執行所有 E2E 測試案例...');
 
@@ -266,16 +344,16 @@ async function main() {
         }
 
         // ============================================
-        // 步驟 5: 停止服務
+        // 步驟 8: 停止服務
         // ============================================
-        logStep('🛑 步驟 5: 停止服務');
+        logStep('🛑 步驟 8: 停止服務');
         stopServices();
         logSuccess('所有服務已停止');
 
         // ============================================
-        // 步驟 6: 合併分支
+        // 步驟 9: 合併分支
         // ============================================
-        logStep('🔀 步驟 6: 合併 dev 到 main');
+        logStep('🔀 步驟 9: 合併 dev 到 main');
 
         logInfo('切換到 main 分支...');
         exec('git checkout main');
@@ -290,9 +368,9 @@ async function main() {
         }
 
         // ============================================
-        // 步驟 7: 推送到 GitHub
+        // 步驟 10: 推送到 GitHub
         // ============================================
-        logStep('📤 步驟 7: 推送到 GitHub');
+        logStep('📤 步驟 10: 推送到 GitHub');
 
         logInfo('推送 main 分支到 GitHub...');
         try {
