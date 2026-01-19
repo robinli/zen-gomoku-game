@@ -188,10 +188,15 @@ async function main() {
         // 檢查是否有未提交的更改
         const status = exec('git status --porcelain', { silent: true });
         if (status.trim()) {
-            logWarning('有未提交的更改:');
-            console.log(status);
-            logError('請先提交或暫存更改');
-            process.exit(1);
+            if (process.env.CI) {
+                logWarning('⚠️  CI 環境檢測到未提交的更改 (可能是 package-lock.json)，忽略並繼續...');
+                console.log(status);
+            } else {
+                logWarning('有未提交的更改:');
+                console.log(status);
+                logError('請先提交或暫存更改');
+                process.exit(1);
+            }
         }
 
         logSuccess('分支檢查通過');
@@ -332,7 +337,9 @@ async function main() {
         logInfo('正在執行所有 E2E 測試案例...');
 
         try {
-            exec('npx playwright test --headed', {
+            // 在 CI 環境中默認使用 headless 模式，本地使用 headed 模式觀察
+            const testCommand = process.env.CI ? 'npx playwright test' : 'npx playwright test --headed';
+            exec(testCommand, {
                 cwd: join(rootDir, 'client'),
             });
             logSuccess('所有測試通過!');
@@ -354,6 +361,11 @@ async function main() {
         // 步驟 9: 合併分支
         // ============================================
         logStep('🔀 步驟 9: 合併 dev 到 main');
+
+        if (process.env.CI) {
+            logInfo('CI 環境: 重置工作區以清除臨時更改...');
+            exec('git reset --hard HEAD');
+        }
 
         logInfo('切換到 main 分支...');
         exec('git checkout main');
