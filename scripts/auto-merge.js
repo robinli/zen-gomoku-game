@@ -177,12 +177,26 @@ async function main() {
         logStep('📋 步驟 1: 檢查當前分支');
 
         const currentBranch = exec('git branch --show-current', { silent: true }).trim();
-        logInfo(`當前分支: ${currentBranch}`);
+        logInfo(`當前分支: ${currentBranch || '(Detached HEAD)'}`);
 
-        if (currentBranch !== 'dev') {
-            logWarning('當前不在 dev 分支');
-            logError('請先切換到 dev 分支: git checkout dev');
-            process.exit(1);
+        // 在 CI 環境中，Actions checkout 預設會是 Detached HEAD
+        // 我們需要確保本地有 dev 分支供後續合併使用
+        if (process.env.CI) {
+            logInfo('CI 環境檢測: 確保 dev 分支存在...');
+            try {
+                // 強制建立並切換到本地 dev 分支，追蹤 origin/dev
+                exec('git checkout -B dev origin/dev');
+                logSuccess('已切換到本地 dev 分支');
+            } catch (error) {
+                logWarning('無法切換到 dev 分支，嘗試繼續...');
+            }
+        } else {
+            // 本地環境嚴格檢查
+            if (currentBranch !== 'dev') {
+                logWarning('當前不在 dev 分支');
+                logError('請先切換到 dev 分支: git checkout dev');
+                process.exit(1);
+            }
         }
 
         // 檢查是否有未提交的更改
@@ -190,7 +204,7 @@ async function main() {
         if (status.trim()) {
             if (process.env.CI) {
                 logWarning('⚠️  CI 環境檢測到未提交的更改 (可能是 package-lock.json)，忽略並繼續...');
-                console.log(status);
+                // console.log(status); // CI 中通常不需要印出詳細 diff，保持日誌整潔
             } else {
                 logWarning('有未提交的更改:');
                 console.log(status);
