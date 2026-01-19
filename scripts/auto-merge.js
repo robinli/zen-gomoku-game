@@ -337,7 +337,9 @@ async function main() {
         logInfo('正在執行所有 E2E 測試案例...');
 
         try {
-            exec('npx playwright test --headed', {
+            // 在 CI 環境中默認使用 headless 模式，本地使用 headed 模式觀察
+            const testCommand = process.env.CI ? 'npx playwright test' : 'npx playwright test --headed';
+            exec(testCommand, {
                 cwd: join(rootDir, 'client'),
             });
             logSuccess('所有測試通過!');
