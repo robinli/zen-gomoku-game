@@ -332,7 +332,7 @@ async function main() {
         logInfo('正在執行所有 E2E 測試案例...');
 
         try {
-            exec('npx playwright test', {
+            exec('npx playwright test --headed', {
                 cwd: join(rootDir, 'client'),
             });
             logSuccess('所有測試通過!');
