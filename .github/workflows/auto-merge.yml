@@ -1,0 +1,45 @@
+name: Auto Merge Dev to Main
+
+on:
+  push:
+    branches: [ "dev" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: dev
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          cd server && npm install
+          cd ../client && npm install
+
+      - name: Install Playwright Browsers
+        run: |
+          cd client
+          npx playwright install --with-deps
+
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Auto Merge Script
+        run: node scripts/auto-merge.js
+        env:
+          CI: true
