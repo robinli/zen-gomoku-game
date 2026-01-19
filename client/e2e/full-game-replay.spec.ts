@@ -22,6 +22,9 @@ import {
  */
 
 test.describe('完整遊戲流程與回放功能', () => {
+    // 增加測試超時時間到 120 秒 (headed 模式下耗時較長)
+    test.setTimeout(120000);
+
     test('完整流程：加入 → 遊戲 → 回放 → 關閉', async ({ browser }) => {
         console.log('📝 測試：完整遊戲流程與回放功能');
 
