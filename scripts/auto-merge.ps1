@@ -246,7 +246,7 @@ Set-Location "$rootDir\client"
 Write-ColorOutput "正在執行所有 E2E 測試案例..." "White"
 
 try {
-    npx playwright test
+    npx playwright test --headed
     $testExitCode = $LASTEXITCODE
     
     if ($testExitCode -eq 0) {
