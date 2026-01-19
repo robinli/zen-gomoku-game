@@ -413,6 +413,9 @@ async function main() {
         log('📊 查看測試報告: npx playwright show-report', 'cyan');
         log('🌐 GitHub: https://github.com/your-username/zen-gomoku-game', 'cyan');
 
+        // 強制退出以確保不會因為未關閉的 handle 而掛起
+        process.exit(0);
+
     } catch (error) {
         logError(`執行失敗: ${error.message}`);
         stopServices();
