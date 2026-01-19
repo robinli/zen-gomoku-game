@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     自動化測試並合併 dev 分支到 main 分支
 
@@ -184,6 +184,14 @@ catch {
 Write-Step "🖥️  步驟 5: 啟動 Server"
 
 Set-Location "$rootDir\server"
+
+# 檢查 .env 文件是否存在
+if (!(Test-Path ".env")) {
+    Write-ColorOutput "⚠️  未找到 .env 文件，從 .env.example 複製..." "Yellow"
+    Copy-Item ".env.example" ".env"
+    Write-ColorOutput "✓ 已創建 .env 文件" "Green"
+}
+
 Write-ColorOutput "正在啟動 server (http://localhost:3000)..." "White"
 
 $serverProcess = Start-Process -FilePath "npm" -ArgumentList "run", "dev" -PassThru -WindowStyle Hidden
@@ -198,12 +206,21 @@ Start-Sleep -Seconds 3
 
 Write-ColorOutput "✓ Server 已啟動 (PID: $($serverProcess.Id))" "Green"
 
+
 # ============================================
 # 步驟 6: 啟動 Client
 # ============================================
 Write-Step "🌐 步驟 6: 啟動 Client"
 
 Set-Location "$rootDir\client"
+
+# 檢查 .env.local 文件是否存在
+if (!(Test-Path ".env.local")) {
+    Write-ColorOutput "⚠️  未找到 .env.local 文件，從 .env.example 複製..." "Yellow"
+    Copy-Item ".env.example" ".env.local"
+    Write-ColorOutput "✓ 已創建 .env.local 文件" "Green"
+}
+
 Write-ColorOutput "正在啟動 client (http://localhost:5173)..." "White"
 
 $clientProcess = Start-Process -FilePath "npm" -ArgumentList "run", "dev" -PassThru -WindowStyle Hidden
@@ -218,6 +235,7 @@ Write-ColorOutput "等待 Vite 完成編譯和 HMR 準備..." "White"
 Start-Sleep -Seconds 5
 
 Write-ColorOutput "✓ Client 已啟動 (PID: $($clientProcess.Id))" "Green"
+
 
 # ============================================
 # 步驟 7: 等待服務就緒
@@ -246,7 +264,7 @@ Set-Location "$rootDir\client"
 Write-ColorOutput "正在執行所有 E2E 測試案例..." "White"
 
 try {
-    npx playwright test
+    npx playwright test --headed
     $testExitCode = $LASTEXITCODE
     
     if ($testExitCode -eq 0) {
