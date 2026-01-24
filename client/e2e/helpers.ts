@@ -5,6 +5,66 @@ import { Page, expect } from '@playwright/test';
  */
 
 /**
+ * 🔐 Mock 登入（用於 E2E 測試）
+ * @param page - Playwright Page 對象
+ * @param playerName - 玩家名稱 (例如: 'Player 1', 'Player 2')
+ */
+export async function loginAsPlayer(page: Page, playerName: string) {
+    console.log(`🔐 執行 Mock 登入: ${playerName}...`);
+
+    try {
+        // 導航到首頁
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+
+        // 檢查是否已經登入（localStorage 中有 mock_user）
+        const isLoggedIn = await page.evaluate(() => {
+            return localStorage.getItem('mock_user') !== null;
+        });
+
+        if (isLoggedIn) {
+            console.log(`✅ ${playerName} 已經登入，跳過登入步驟`);
+            return;
+        }
+
+        // 等待登入頁面載入
+        console.log('⏳ 等待登入頁面...');
+        await page.waitForTimeout(1000);
+
+        // 使用 JavaScript 直接設定 localStorage 並觸發登入
+        await page.evaluate((name) => {
+            const mockUser = {
+                uid: `mock-user-${Date.now()}-${Math.random()}`,
+                displayName: name,
+                photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+            };
+            localStorage.setItem('mock_user', JSON.stringify(mockUser));
+        }, playerName);
+
+        console.log(`✅ 已設定 Mock 用戶: ${playerName}`);
+
+        // 重新載入頁面以觸發 AuthContext 讀取
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+
+        // 等待大廳載入
+        console.log('⏳ 等待大廳載入...');
+        await page.waitForTimeout(2000);
+
+        // 驗證已進入大廳（檢查創建房間按鈕）
+        const createButton = page.locator('button', { hasText: /創建.*房間|Create.*Room/i });
+        await createButton.waitFor({ state: 'visible', timeout: 10000 });
+
+        console.log(`✅ ${playerName} 登入成功，已進入大廳`);
+    } catch (error) {
+        console.error(`❌ ${playerName} 登入失敗:`, error);
+        await page.screenshot({ path: `test-results/login-error-${playerName}-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+
+/**
  * 切換語言
  * @param page - Playwright Page 對象
  * @param language - 語言 ('zh' 中文 或 'en' 英文)
@@ -47,10 +107,13 @@ export async function switchLanguage(page: Page, language: 'zh' | 'en') {
  * @returns 房間的分享連結
  */
 export async function createRoom(page: Page, side: 'black' | 'white'): Promise<string> {
-    await page.goto('/');
-
-    // 等待頁面加載
-    await page.waitForLoadState('networkidle');
+    // 檢查是否已在大廳，如果不在則導航
+    const currentUrl = page.url();
+    if (currentUrl === 'about:blank' || currentUrl === '' || currentUrl.includes('#room=')) {
+        console.log('🌐 導航到大廳...');
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+    }
 
     try {
         // 選擇顏色按鈕（使用正則表達式匹配）

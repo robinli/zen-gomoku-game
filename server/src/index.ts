@@ -112,14 +112,49 @@ function formatUptime(seconds: number): string {
     return parts.join(' ');
 }
 
+// 🔐 Authentication Middleware
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+
+    console.log(`🔑 驗證連線: Socket ID ${socket.id}, Token: ${token ? token.substring(0, 20) + '...' : '無'}`);
+
+    if (!token) {
+        console.log(`❌ 拒絕連線: 缺少認證 Token`);
+        return next(new Error('Authentication required'));
+    }
+
+    // Mock Token 驗證 (開發用)
+    if (token.startsWith('mock-user-')) {
+        // 將用戶資訊存入 socket.data
+        socket.data.user = {
+            uid: token,
+            displayName: `Mock User ${token.slice(-4)}`,
+            isMock: true
+        };
+        console.log(`✅ Mock 用戶驗證成功: ${socket.data.user.displayName}`);
+        return next();
+    }
+
+    // TODO: 未來可在此加入真實 Firebase Token 驗證
+    // 使用 firebase-admin SDK 驗證 token
+    // const decodedToken = await admin.auth().verifyIdToken(token);
+    // socket.data.user = { uid: decodedToken.uid, ... };
+
+    console.log(`❌ 拒絕連線: Token 格式無效`);
+    next(new Error('Invalid token'));
+});
+
 // WebSocket 連線處理
 io.on('connection', (socket) => {
-    console.log(`🔌 新連線: ${socket.id}`);
+    const user = socket.data.user;
+    console.log(`🔌 新連線: ${socket.id} | 用戶: ${user?.displayName || 'Unknown'}`);
 
     // 創建房間
     socket.on('CREATE_ROOM', ({ side, settings }, callback) => {
         try {
-            const room = roomManager.createRoom(socket.id, side, settings);
+            const user = socket.data.user;
+            const displayName = user?.displayName || 'Unknown Player';
+            const room = roomManager.createRoom(socket.id, side, displayName, settings);
 
             // 產生分享 URL
             const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -212,7 +247,9 @@ io.on('connection', (socket) => {
             }
 
             // 正常加入房間流程
-            const room = roomManager.joinRoom(roomId, socket.id);
+            const user = socket.data.user;
+            const displayName = user?.displayName || 'Unknown Player';
+            const room = roomManager.joinRoom(roomId, socket.id, displayName);
 
             if (!room) {
                 const errorMsg = existingRoom

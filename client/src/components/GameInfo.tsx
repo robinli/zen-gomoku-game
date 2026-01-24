@@ -15,9 +15,10 @@ interface GameInfoProps {
   isWaitingUndo?: boolean;
   isWaitingReset?: boolean;
   roomStats: RoomStats;
+  playerNames?: { black?: string; white?: string };  // 新增：玩家名稱
 }
 
-const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset, roomStats }) => {
+const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHome, onRequestUndo, onStartReplay, isConnected, isReconnecting, isWaitingUndo, isWaitingReset, roomStats, playerNames }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [shareStatus, setShareStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -227,34 +228,48 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       {/* 房間統計 - 只在雙方都已加入時顯示 */}
       {Object.keys(room.players).length === 2 && (
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+          <div className="flex items-center justify-between gap-3 text-sm">
             {/* 黑方 */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              {/* 玩家名稱 */}
+              {playerNames?.black && (
+                <span className="text-xs text-slate-500 font-medium truncate max-w-[60px]">
+                  {playerNames.black}
+                </span>
+              )}
               <div className="w-4 h-4 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full border border-white/20"></div>
               </div>
-              <span className={`${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+              <span className={`text-xs whitespace-nowrap ${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
                 {t('game_info.black_player')}{localPlayer === 'black' ? t('game_info.you') : ''}
               </span>
             </div>
 
             {/* 比分 */}
-            <span className="font-bold text-slate-700 mx-1">
-              {roomStats.black.wins}
-            </span>
-            <span className="text-slate-400 font-medium">{t('game_info.vs')}</span>
-            <span className="font-bold text-slate-700 mx-1">
-              {roomStats.white.wins}
-            </span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="font-bold text-slate-700">
+                {roomStats.black.wins}
+              </span>
+              <span className="text-slate-400 font-medium">{t('game_info.vs')}</span>
+              <span className="font-bold text-slate-700">
+                {roomStats.white.wins}
+              </span>
+            </div>
 
             {/* 白方 */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+              <span className={`text-xs whitespace-nowrap ${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+                {t('game_info.white_player')}{localPlayer === 'white' ? t('game_info.you') : ''}
+              </span>
               <div className="w-4 h-4 rounded-full bg-white ring-1 ring-slate-300 flex items-center justify-center flex-shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full border border-slate-900/10 bg-white"></div>
               </div>
-              <span className={`${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
-                {t('game_info.white_player')}{localPlayer === 'white' ? t('game_info.you') : ''}
-              </span>
+              {/* 玩家名稱 */}
+              {playerNames?.white && (
+                <span className="text-xs text-slate-500 font-medium truncate max-w-[60px]">
+                  {playerNames.white}
+                </span>
+              )}
             </div>
           </div>
         </div>

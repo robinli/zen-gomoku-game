@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameRoom, Player, Position, UndoRequest, ResetRequest, BoardState, MoveHistory, RoomStats } from './types';
@@ -14,9 +13,12 @@ import ConfirmDialog from './components/ConfirmDialog';
 import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { useAuth } from './context/AuthContext';
+import LoginPage from './components/LoginPage';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [localPlayer, setLocalPlayer] = useState<Player | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -104,9 +106,19 @@ const App: React.FC = () => {
       console.log(t('message.socket_init_skip'));
       return;
     }
+
+    // 等待用戶登入後才初始化 Socket
+    if (!user) {
+      console.log('⏳ 等待用戶登入...');
+      return;
+    }
+
     hasInitialized.current = true;
 
     console.log(t('message.socket_init_start'));
+
+    // 🔑 設置認證 Token
+    socketService.setAuthToken(user.uid);
     socketService.connect();
 
     // 監聽連線成功事件
@@ -411,7 +423,7 @@ const App: React.FC = () => {
 
     // ⚠️ 不要在 cleanup 中 disconnect，避免 React Strict Mode 導致的問題
     // 只有在真正離開應用時才斷線（例如 goHome 函數中）
-  }, []);
+  }, [user]);
 
   // 檢查 URL Hash 自動加入房間（處理 hashchange 事件）
   useEffect(() => {
@@ -756,6 +768,25 @@ const App: React.FC = () => {
   // 決定何時顯示致命錯誤畫面
   const showFatalError = error && !room;
 
+  // 🔐 Auth Loading State
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#f8f5f2] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-8 h-8 border-4 border-white rounded-full"></div>
+          </div>
+          <p className="text-slate-600">{t('app.loading', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🔐 Not Authenticated - Show Login Page
+  if (!user) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="min-h-screen bg-[#f8f5f2] flex flex-col">
       {/* 固定頂部資訊條 - 方案 A */}
@@ -892,21 +923,44 @@ const App: React.FC = () => {
               )}
 
               {/* 遊戲資訊面板 - 非回放模式下顯示 */}
-              {!isReplaying && (
-                <GameInfo
-                  room={room}
-                  localPlayer={localPlayer}
-                  onReset={handleReset}
-                  onGoHome={handleGoHome}
-                  onRequestUndo={handleRequestUndo}
-                  onStartReplay={handleStartReplay}
-                  isConnected={isConnected}
-                  isReconnecting={isReconnecting}
-                  isWaitingUndo={isWaitingUndo}
-                  isWaitingReset={isWaitingReset}
-                  roomStats={roomStats}
-                />
-              )}
+              {!isReplaying && (() => {
+                // 計算玩家名稱
+                const playerNames: { black?: string; white?: string } = {};
+
+                if (localPlayer && user && room) {
+                  // 從 server 端的房間資料獲取玩家名稱
+                  const serverRoom = room as any;
+
+                  // 確定哪一方是房主，哪一方是訪客
+                  const hostSide: Player = (serverRoom.hostSide || 'black') as Player;
+                  const guestSide: Player = hostSide === 'black' ? 'white' : 'black';
+
+                  // 設定房主和訪客的名稱
+                  if (serverRoom.hostDisplayName) {
+                    playerNames[hostSide] = serverRoom.hostDisplayName;
+                  }
+                  if (serverRoom.guestDisplayName) {
+                    playerNames[guestSide] = serverRoom.guestDisplayName;
+                  }
+                }
+
+                return (
+                  <GameInfo
+                    room={room}
+                    localPlayer={localPlayer}
+                    onReset={handleReset}
+                    onGoHome={handleGoHome}
+                    onRequestUndo={handleRequestUndo}
+                    onStartReplay={handleStartReplay}
+                    isConnected={isConnected}
+                    isReconnecting={isReconnecting}
+                    isWaitingUndo={isWaitingUndo}
+                    isWaitingReset={isWaitingReset}
+                    roomStats={roomStats}
+                    playerNames={playerNames}
+                  />
+                );
+              })()}
             </aside>
           </main>
         )}

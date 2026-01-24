@@ -62,7 +62,14 @@ const resources = {
         cannot_undo_limit: "Undo limit reached ({{used}}/{{limit}})",
         cannot_undo_no_steps: "No steps to undo",
         cannot_undo_only_own: "You can only undo your own last move",
-        room_id: "Room {{id}}"
+        room_id: "Room {{id}}",
+        loading: "Loading..."
+      },
+      login: {
+        nickname_label: "Nickname",
+        nickname_placeholder: "Enter your nickname",
+        enter_as_guest: "Enter as Guest",
+        dev_options: "Developer Options"
       },
       lobby: {
         title: "Clear Mind Gomoku",
@@ -236,7 +243,14 @@ const resources = {
         cannot_undo_limit: "悔棋次數已用完（{{used}}/{{limit}}）",
         cannot_undo_no_steps: "沒有可以悔棋的步驟",
         cannot_undo_only_own: "只能悔自己剛下的棋",
-        room_id: "房間 {{id}}"
+        room_id: "房間 {{id}}",
+        loading: "載入中..."
+      },
+      login: {
+        nickname_label: "暱稱",
+        nickname_placeholder: "請輸入您的暱稱",
+        enter_as_guest: "以訪客身份進入",
+        dev_options: "開發者選項"
       },
       lobby: {
         title: "靜弈五子棋",

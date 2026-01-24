@@ -24,7 +24,7 @@ class RoomManager {
     }
 
     // 創建房間
-    createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings): GameRoom {
+    createRoom(hostSocketId: string, hostSide: Player, hostDisplayName: string, settings?: GameSettings): GameRoom {
         const roomId = this.generateRoomId();
 
         // 預設設定：允許悔棋 3 次
@@ -42,6 +42,8 @@ class RoomManager {
             hostSocketId,
             guestSocketId: null,
             hostSide,
+            hostDisplayName,
+            guestDisplayName: null,
             createdAt: Date.now(),
             updatedAt: Date.now(),
             settings: settings || defaultSettings,  // 使用傳入的設定或預設值
@@ -58,12 +60,12 @@ class RoomManager {
             : room.settings.undoLimit === 0
                 ? '不允許'
                 : `${room.settings.undoLimit}次`;
-        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostSocketId}, 執${hostSide}, 悔棋: ${undoLimitText})`);
+        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostDisplayName}, 執${hostSide}, 悔棋: ${undoLimitText})`);
         return room;
     }
 
     // 加入房間
-    joinRoom(roomId: string, guestSocketId: string): GameRoom | null {
+    joinRoom(roomId: string, guestSocketId: string, guestDisplayName: string): GameRoom | null {
         const room = this.rooms.get(roomId);
         if (!room) {
             console.log(`❌ 房間不存在: ${roomId}`);
@@ -84,8 +86,9 @@ class RoomManager {
         }
 
         room.guestSocketId = guestSocketId;
+        room.guestDisplayName = guestDisplayName;
         room.updatedAt = Date.now();
-        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestSocketId})`);
+        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestDisplayName})`);
         return room;
     }
 

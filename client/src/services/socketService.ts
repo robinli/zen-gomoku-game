@@ -7,11 +7,18 @@ import type { GameRoom, Player, Position, GameSettings, BoardState } from '../ty
 class SocketService {
     private socket: any = null;
     private serverUrl: string;
+    private authToken: string | null = null;
 
     constructor() {
         // 從環境變數讀取 Server URL，開發環境預設為 localhost:3000
         this.serverUrl = (import.meta.env.VITE_SOCKET_URL as string) || 'http://localhost:3000';
         console.log('🏗️ SocketService 已創建，Server URL:', this.serverUrl);
+    }
+
+    // 設置認證 Token
+    setAuthToken(token: string): void {
+        this.authToken = token;
+        console.log('🔑 已設置認證 Token');
     }
 
     // 連線到 Server
@@ -34,6 +41,9 @@ class SocketService {
                 reconnection: true,
                 reconnectionAttempts: 5,
                 reconnectionDelay: 1000,
+                auth: {
+                    token: this.authToken
+                }
             });
 
             // 立即設置事件監聽

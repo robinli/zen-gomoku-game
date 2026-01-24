@@ -31,6 +31,8 @@ export interface GameRoom {
     hostSocketId: string;
     guestSocketId: string | null;
     hostSide: Player;
+    hostDisplayName: string;    // 房主顯示名稱
+    guestDisplayName: string | null;  // 訪客顯示名稱
     createdAt: number;
     updatedAt: number;
     settings: GameSettings;     // 遊戲設定
