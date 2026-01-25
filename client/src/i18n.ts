@@ -66,6 +66,9 @@ const resources = {
       },
       lobby: {
         title: "Clear Mind Gomoku",
+        welcome: "Welcome",
+        guest: "Guest",
+        sign_out: "Sign Out",
         description: "Create a game room, choose your side, and invite friends to play.",
         choose_side: "CHOOSE YOUR SIDE",
         black_side: "Black (First)",
@@ -105,6 +108,7 @@ const resources = {
         black_player: "Black",
         white_player: "White",
         you: "(You)",
+        you_label: "You",
         vs: "vs"
       },
       replay: {
@@ -176,6 +180,28 @@ const resources = {
         respond_undo_log: "Responding to undo request: {{accept}}",
         request_reset_log: "Requesting restart",
         respond_reset_log: "Responding to reset request: {{accept}}"
+      },
+      login: {
+        signin_subtitle: "Sign in to start playing",
+        signup_subtitle: "Create an account to play",
+        display_name: "Display Name",
+        display_name_placeholder: "Enter your name",
+        email: "Email",
+        email_placeholder: "your@email.com",
+        password: "Password",
+        password_placeholder: "••••••••",
+        signin_button: "Sign In",
+        signup_button: "Sign Up",
+        loading: "Loading...",
+        have_account: "Already have an account? Sign in",
+        no_account: "Don't have an account? Sign up",
+        test_accounts: "Test Accounts:",
+        error_name_required: "Display name is required",
+        error_invalid_email: "Invalid email address",
+        error_user_not_found: "User not found",
+        error_wrong_password: "Incorrect password",
+        error_email_in_use: "Email already in use",
+        error_weak_password: "Password should be at least 6 characters"
       }
     }
   },
@@ -240,6 +266,9 @@ const resources = {
       },
       lobby: {
         title: "靜弈五子棋",
+        welcome: "歡迎",
+        guest: "訪客",
+        sign_out: "登出",
         description: "建立遊戲房間，選擇您的棋子顏色，並邀請好友進行對弈。",
         choose_side: "選擇您的立場",
         black_side: "執黑 (先行)",
@@ -279,6 +308,7 @@ const resources = {
         black_player: "黑方",
         white_player: "白方",
         you: "(您)",
+        you_label: "您",
         vs: "vs"
       },
       replay: {
@@ -350,6 +380,28 @@ const resources = {
         respond_undo_log: "回應悔棋請求: {{accept}}",
         request_reset_log: "請求重新開始",
         respond_reset_log: "回應重置請求: {{accept}}"
+      },
+      login: {
+        signin_subtitle: "登入以開始遊戲",
+        signup_subtitle: "建立帳號以開始遊戲",
+        display_name: "顯示名稱",
+        display_name_placeholder: "輸入您的名稱",
+        email: "電子郵件",
+        email_placeholder: "your@email.com",
+        password: "密碼",
+        password_placeholder: "••••••••",
+        signin_button: "登入",
+        signup_button: "註冊",
+        loading: "載入中...",
+        have_account: "已有帳號？立即登入",
+        no_account: "還沒有帳號？立即註冊",
+        test_accounts: "測試帳號:",
+        error_name_required: "請輸入顯示名稱",
+        error_invalid_email: "電子郵件格式不正確",
+        error_user_not_found: "找不到此使用者",
+        error_wrong_password: "密碼錯誤",
+        error_email_in_use: "此電子郵件已被使用",
+        error_weak_password: "密碼至少需要 6 個字元"
       }
     }
   }

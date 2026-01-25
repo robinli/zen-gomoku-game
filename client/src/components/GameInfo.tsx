@@ -68,20 +68,20 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
 
   const getStatusColor = () => {
     if (isReconnecting) return 'bg-amber-500 animate-pulse';
-    if (isConnected && Object.keys(room.players).length === 2) return 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
+    if (isConnected && Object.keys(room.playerNames).length === 2) return 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
     return 'bg-amber-500 animate-pulse-soft';
   };
 
   const getStatusText = () => {
     if (isReconnecting) return t('app.reconnecting');
-    if (isConnected && Object.keys(room.players).length === 2) return t('app.connected');
+    if (isConnected && Object.keys(room.playerNames).length === 2) return t('app.connected');
     return t('app.waiting');
   };
 
   return (
     <div className="space-y-4">
       {/* Share Section - 只在等待對手加入時顯示 */}
-      {Object.keys(room.players).length < 2 && !isReconnecting && (
+      {Object.keys(room.playerNames).length < 2 && !isReconnecting && (
         <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white animate-in zoom-in duration-500">
           <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">{t('game_info.invite_friend')}</h3>
           <p className="text-sm text-white/80 mb-4 font-light leading-relaxed">
@@ -162,7 +162,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       )}
 
       {/* 悔棋按鈕 */}
-      {localPlayer && Object.keys(room.players).length === 2 && !room.winner && (
+      {localPlayer && Object.keys(room.playerNames).length === 2 && !room.winner && (
         <button
           onClick={onRequestUndo}
           disabled={!isConnected || isWaitingUndo || room.settings.undoLimit === 0}
@@ -225,35 +225,43 @@ const GameInfo: React.FC<GameInfoProps> = ({ room, localPlayer, onReset, onGoHom
       </button>
 
       {/* 房間統計 - 只在雙方都已加入時顯示 */}
-      {Object.keys(room.players).length === 2 && (
+      {Object.keys(room.playerNames).length === 2 && (
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
             {/* 黑方 */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+              <span className={`truncate ${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+                {room.playerNames.black === 'me'
+                  ? t('game_info.you_label')
+                  : (room.playerNames.black === 'opponent' ? t('game_info.black_player') : room.playerNames.black)}
+                {localPlayer === 'black' ? t('game_info.you') : ''}
+              </span>
               <div className="w-4 h-4 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full border border-white/20"></div>
               </div>
-              <span className={`${localPlayer === 'black' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
-                {t('game_info.black_player')}{localPlayer === 'black' ? t('game_info.you') : ''}
-              </span>
             </div>
 
             {/* 比分 */}
-            <span className="font-bold text-slate-700 mx-1">
-              {roomStats.black.wins}
-            </span>
-            <span className="text-slate-400 font-medium">{t('game_info.vs')}</span>
-            <span className="font-bold text-slate-700 mx-1">
-              {roomStats.white.wins}
-            </span>
+            <div className="flex items-center gap-1.5 px-2 py-0.5">
+              <span className="font-bold text-slate-800 text-base min-w-[1ch] text-center">
+                {roomStats.black.wins}
+              </span>
+              <span className="text-slate-300 font-black text-xs">:</span>
+              <span className="font-bold text-slate-800 text-base min-w-[1ch] text-center">
+                {roomStats.white.wins}
+              </span>
+            </div>
 
             {/* 白方 */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <div className="w-4 h-4 rounded-full bg-white ring-1 ring-slate-300 flex items-center justify-center flex-shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full border border-slate-900/10 bg-white"></div>
               </div>
-              <span className={`${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
-                {t('game_info.white_player')}{localPlayer === 'white' ? t('game_info.you') : ''}
+              <span className={`truncate ${localPlayer === 'white' ? 'text-slate-700 font-semibold' : 'text-slate-400'}`}>
+                {room.playerNames.white === 'me'
+                  ? t('game_info.you_label')
+                  : (room.playerNames.white === 'opponent' ? t('game_info.white_player') : room.playerNames.white)}
+                {localPlayer === 'white' ? t('game_info.you') : ''}
               </span>
             </div>
           </div>

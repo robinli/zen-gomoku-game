@@ -24,7 +24,7 @@ class RoomManager {
     }
 
     // 創建房間
-    createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings): GameRoom {
+    createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings, hostName?: string): GameRoom {
         const roomId = this.generateRoomId();
 
         // 預設設定：允許悔棋 3 次
@@ -50,6 +50,9 @@ class RoomManager {
                 white: 0,
             },
             history: [],                            // 初始化歷史記錄
+            playerNames: {                          // 初始化玩家名稱
+                [hostSide]: hostName || 'Player'
+            }
         };
 
         this.rooms.set(roomId, room);
@@ -63,7 +66,7 @@ class RoomManager {
     }
 
     // 加入房間
-    joinRoom(roomId: string, guestSocketId: string): GameRoom | null {
+    joinRoom(roomId: string, guestSocketId: string, guestName?: string): GameRoom | null {
         const room = this.rooms.get(roomId);
         if (!room) {
             console.log(`❌ 房間不存在: ${roomId}`);
@@ -84,8 +87,13 @@ class RoomManager {
         }
 
         room.guestSocketId = guestSocketId;
+
+        // 設定訪客名稱
+        const guestSide = room.hostSide === 'black' ? 'white' : 'black';
+        room.playerNames[guestSide] = guestName || 'Player';
+
         room.updatedAt = Date.now();
-        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestSocketId})`);
+        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestSocketId}, 名稱: ${room.playerNames[guestSide]})`);
         return room;
     }
 

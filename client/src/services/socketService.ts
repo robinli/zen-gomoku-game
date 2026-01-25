@@ -7,11 +7,19 @@ import type { GameRoom, Player, Position, GameSettings, BoardState } from '../ty
 class SocketService {
     private socket: any = null;
     private serverUrl: string;
+    private authToken: string | null = null;
+    private pendingListeners: Array<{ event: string, callback: Function }> = [];
 
     constructor() {
         // 從環境變數讀取 Server URL，開發環境預設為 localhost:3000
         this.serverUrl = (import.meta.env.VITE_SOCKET_URL as string) || 'http://localhost:3000';
         console.log('🏗️ SocketService 已創建，Server URL:', this.serverUrl);
+    }
+
+    // 設定認證 Token
+    setAuthToken(token: string | null): void {
+        this.authToken = token;
+        console.log('🔐 Auth Token 已設定:', token ? '***' : 'null');
     }
 
     // 連線到 Server
@@ -29,12 +37,32 @@ class SocketService {
         console.log('🔗 開始連線到:', this.serverUrl);
 
         try {
-            this.socket = io(this.serverUrl, {
+            // 🔐 準備連線選項,如果有 auth token 則帶上
+            const socketOptions: any = {
                 transports: ['polling', 'websocket'],
                 reconnection: true,
                 reconnectionAttempts: 5,
                 reconnectionDelay: 1000,
-            });
+            };
+
+            // 如果有 auth token,加入認證資訊
+            if (this.authToken) {
+                socketOptions.auth = {
+                    token: this.authToken
+                };
+                console.log('🔐 連線時帶上 Auth Token');
+            }
+
+            this.socket = io(this.serverUrl, socketOptions);
+
+            // 應用所有等待中的監聽器
+            if (this.pendingListeners.length > 0) {
+                console.log(`📥 應用 ${this.pendingListeners.length} 個等待中的監聽器`);
+                this.pendingListeners.forEach(({ event, callback }) => {
+                    this.socket.on(event, callback);
+                });
+                this.pendingListeners = [];
+            }
 
             // 立即設置事件監聽
             this.socket.on('connect', () => {
@@ -69,6 +97,7 @@ class SocketService {
     createRoom(
         side: Player,
         settings: GameSettings,
+        userName: string | undefined, // 新增：可選的使用者名稱
         callback: (data: { roomId: string; shareUrl: string; settings: GameSettings }) => void
     ): void {
         if (!this.socket) {
@@ -76,9 +105,9 @@ class SocketService {
             return;
         }
 
-        console.log('📤 發送 CREATE_ROOM 事件, side:', side, 'settings:', settings);
+        console.log('📤 發送 CREATE_ROOM 事件, side:', side, 'settings:', settings, 'userName:', userName);
 
-        this.socket.emit('CREATE_ROOM', { side, settings }, (response: any) => {
+        this.socket.emit('CREATE_ROOM', { side, settings, userName }, (response: any) => {
             console.log('📥 收到 CREATE_ROOM 回應:', response);
             if (response && response.success) {
                 callback({
@@ -96,7 +125,7 @@ class SocketService {
     }
 
     // 重新連線到房間
-    reconnectRoom(roomId: string, callback: (data: { success: boolean; roomId?: string; shareUrl?: string; error?: string }) => void): void {
+    reconnectRoom(roomId: string, callback: (data: { success: boolean; roomId?: string; shareUrl?: string; room?: GameRoom; error?: string }) => void): void {
         if (!this.socket) {
             console.error('❌ Socket 未初始化');
             callback({ success: false, error: 'Socket 未初始化' });
@@ -113,20 +142,20 @@ class SocketService {
         });
 
         // 監聽重連成功事件
-        this.socket.once('ROOM_RECONNECTED', (data: { roomId: string; shareUrl: string }) => {
+        this.socket.once('ROOM_RECONNECTED', (data: { roomId: string; shareUrl: string; room: GameRoom }) => {
             console.log('📥 收到 ROOM_RECONNECTED 事件:', data);
             callback({ success: true, ...data });
         });
     }
 
     // 加入房間
-    joinRoom(roomId: string, callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
+    joinRoom(roomId: string, userName: string | undefined, callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
         if (!this.socket) {
             console.error('❌ Socket 未初始化');
             return;
         }
 
-        console.log('📤 發送 JOIN_ROOM 事件, roomId:', roomId);
+        console.log('📤 發送 JOIN_ROOM 事件, roomId:', roomId, 'userName:', userName);
 
         // 使用 once 避免重複監聽
         const onRoomJoined = (data: { room: GameRoom; yourSide: Player }) => {
@@ -144,7 +173,7 @@ class SocketService {
         this.socket.once('ROOM_JOINED', onRoomJoined);
         this.socket.once('ERROR', onError);
 
-        this.socket.emit('JOIN_ROOM', { roomId });
+        this.socket.emit('JOIN_ROOM', { roomId, userName });
     }
 
     // 落子
@@ -160,15 +189,17 @@ class SocketService {
 
     // 監聽遊戲更新
     onGameUpdate(callback: (data: any) => void): void {
+        const wrapper = (data: any) => {
+            console.log('📥 收到 GAME_UPDATE 事件:', data);
+            callback(data);
+        };
+
         if (!this.socket) {
-            console.error('❌ Socket 未初始化');
+            this.pendingListeners.push({ event: 'GAME_UPDATE', callback: wrapper });
             return;
         }
 
-        this.socket.on('GAME_UPDATE', (data: any) => {
-            console.log('📥 收到 GAME_UPDATE 事件:', data);
-            callback(data);
-        });
+        this.socket.on('GAME_UPDATE', wrapper);
     }
 
     // 重新開始
@@ -195,49 +226,64 @@ class SocketService {
 
     // 監聽連線成功
     onConnect(callback: () => void): void {
+        const wrapper = () => {
+            console.log('📥 觸發 connect 事件回調');
+            callback();
+        };
+
         if (!this.socket) {
-            console.error('❌ Socket 未初始化');
+            this.pendingListeners.push({ event: 'connect', callback: wrapper });
             return;
         }
 
-        this.socket.on('connect', () => {
-            console.log('📥 觸發 connect 事件回調');
-            callback();
-        });
+        this.socket.on('connect', wrapper);
     }
 
     // 監聽連線錯誤
     onConnectError(callback: (error: Error) => void): void {
+        const wrapper = (error: Error) => {
+            console.log('📥 觸發 connect_error 事件回調:', error);
+            callback(error);
+        };
+
         if (!this.socket) {
-            console.error('❌ Socket 未初始化');
+            this.pendingListeners.push({ event: 'connect_error', callback: wrapper });
             return;
         }
 
-        this.socket.on('connect_error', (error: Error) => {
-            console.log('📥 觸發 connect_error 事件回調:', error);
-            callback(error);
-        });
+        this.socket.on('connect_error', wrapper);
     }
 
     // 監聽對手離開
     onOpponentLeft(callback: () => void): void {
-        if (!this.socket) return;
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'OPPONENT_LEFT', callback });
+            return;
+        }
         this.socket.on('OPPONENT_LEFT', callback);
     }
 
     // 監聽錯誤
     onError(callback: (data: { message: string }) => void): void {
-        if (!this.socket) return;
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'ERROR', callback });
+            return;
+        }
         this.socket.on('ERROR', callback);
     }
 
     // 監聽房間加入（用於房主收到對手加入的通知）
     onRoomJoined(callback: (data: { room: GameRoom; yourSide: Player }) => void): void {
-        if (!this.socket) return;
-        this.socket.on('ROOM_JOINED', (data: { room: GameRoom; yourSide: Player }) => {
+        const wrapper = (data: { room: GameRoom; yourSide: Player }) => {
             console.log('📥 收到 ROOM_JOINED 全局事件:', data);
             callback(data);
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'ROOM_JOINED', callback: wrapper });
+            return;
+        }
+        this.socket.on('ROOM_JOINED', wrapper);
     }
 
     // 移除所有事件監聽器
@@ -245,6 +291,7 @@ class SocketService {
         if (this.socket) {
             this.socket.removeAllListeners();
         }
+        this.pendingListeners = [];
     }
 
     // 檢查連線狀態
@@ -285,12 +332,17 @@ class SocketService {
 
     // 監聽悔棋請求
     onUndoRequested(callback: (data: { requestedBy: Player }) => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('UNDO_REQUESTED', (data: { requestedBy: Player }) => {
+        const wrapper = (data: { requestedBy: Player }) => {
             console.log('📥 收到 UNDO_REQUESTED 事件:', data);
             callback(data);
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'UNDO_REQUESTED', callback: wrapper });
+            return;
+        }
+
+        this.socket.on('UNDO_REQUESTED', wrapper);
     }
 
     // 監聽悔棋成功
@@ -300,27 +352,30 @@ class SocketService {
         lastMove: Position | null;
         undoCount: { black: number; white: number };
     }) => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('UNDO_ACCEPTED', (data: {
-            board: BoardState;
-            turn: Player;
-            lastMove: Position | null;
-            undoCount: { black: number; white: number };
-        }) => {
+        const wrapper = (data: any) => {
             console.log('📥 收到 UNDO_ACCEPTED 事件:', data);
             callback(data);
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'UNDO_ACCEPTED', callback: wrapper });
+            return;
+        }
+        this.socket.on('UNDO_ACCEPTED', wrapper);
     }
 
     // 監聽悔棋被拒絕
     onUndoRejected(callback: () => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('UNDO_REJECTED', () => {
+        const wrapper = () => {
             console.log('📥 收到 UNDO_REJECTED 事件');
             callback();
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'UNDO_REJECTED', callback: wrapper });
+            return;
+        }
+        this.socket.on('UNDO_REJECTED', wrapper);
     }
 
     // 移除悔棋事件監聽器
@@ -359,32 +414,44 @@ class SocketService {
 
     // 監聽重置請求
     onResetRequested(callback: (data: { requestedBy: Player }) => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('RESET_REQUESTED', (data: { requestedBy: Player }) => {
+        const wrapper = (data: { requestedBy: Player }) => {
             console.log('📥 收到 RESET_REQUESTED 事件:', data);
             callback(data);
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'RESET_REQUESTED', callback: wrapper });
+            return;
+        }
+        this.socket.on('RESET_REQUESTED', wrapper);
     }
 
     // 監聽重置成功
     onResetAccepted(callback: () => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('RESET_ACCEPTED', () => {
+        const wrapper = () => {
             console.log('📥 收到 RESET_ACCEPTED 事件');
             callback();
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'RESET_ACCEPTED', callback: wrapper });
+            return;
+        }
+        this.socket.on('RESET_ACCEPTED', wrapper);
     }
 
     // 監聽重置被拒絕
     onResetRejected(callback: () => void): void {
-        if (!this.socket) return;
-
-        this.socket.on('RESET_REJECTED', () => {
+        const wrapper = () => {
             console.log('📥 收到 RESET_REJECTED 事件');
             callback();
-        });
+        };
+
+        if (!this.socket) {
+            this.pendingListeners.push({ event: 'RESET_REJECTED', callback: wrapper });
+            return;
+        }
+        this.socket.on('RESET_REJECTED', wrapper);
     }
 
     // 移除重置事件監聽器

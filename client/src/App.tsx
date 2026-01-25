@@ -14,9 +14,13 @@ import ConfirmDialog from './components/ConfirmDialog';
 import ReplayControls from './components/ReplayControls';
 import { socketService } from './services/socketService';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginPage from './components/LoginPage';
+import { auth, isAuthEnabled } from './services/firebase';
 
-const App: React.FC = () => {
+const GameApp: React.FC = () => {
   const { t } = useTranslation();
+  const { user, loading } = useAuth();
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [localPlayer, setLocalPlayer] = useState<Player | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -81,6 +85,9 @@ const App: React.FC = () => {
 
   // 提取共用的檢查和加入房間函數
   const checkAndJoinRoom = () => {
+    // 如果還在載入 Auth 狀態，先不急著加入，以免名字沒帶上
+    if (loading) return;
+
     const hash = window.location.hash.replace('#', '');
     const params = new URLSearchParams(hash);
     const roomId = params.get('room');
@@ -106,8 +113,28 @@ const App: React.FC = () => {
     }
     hasInitialized.current = true;
 
-    console.log(t('message.socket_init_start'));
-    socketService.connect();
+    // 🔐 設定 Auth Token (如果啟用認證)
+    const initializeSocket = async () => {
+      if (isAuthEnabled) {
+        try {
+          if (auth) {
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+              const token = await currentUser.getIdToken();
+              socketService.setAuthToken(token);
+              console.log('🔐 已設定 Auth Token 到 Socket');
+            }
+          }
+        } catch (error) {
+          console.error('❌ 取得 Auth Token 失敗:', error);
+        }
+      }
+
+      console.log(t('message.socket_init_start'));
+      socketService.connect();
+    };
+
+    initializeSocket();
 
     // 監聽連線成功事件
     socketService.onConnect(() => {
@@ -125,22 +152,19 @@ const App: React.FC = () => {
 
         // 嘗試重連
         socketService.reconnectRoom(savedRoomId, (response) => {
-          if (response.success && response.roomId) {
+          if (response.success && response.roomId && response.room) {
             console.log(t('message.room_reconnected'));
-            // 恢復房間狀態
+            // 🎯 使用伺服器回傳的完整房間狀態恢復
+            const serverRoom = response.room;
+            const serverPlayerNames = serverRoom.playerNames || {};
+
             setRoom({
-              id: response.roomId,
-              board: Array(15).fill(null).map(() => Array(15).fill(null)),
-              turn: 'black',
-              winner: null,
-              winningLine: null,
-              threatLine: null,
-              lastMove: null,
-              players: { [savedSide]: 'me' },
-              updatedAt: Date.now(),
-              settings: { undoLimit: 3 },  // 預設值
-              undoCount: { black: 0, white: 0 },
-              history: [],
+              ...serverRoom,
+              playerNames: {
+                black: serverPlayerNames.black || (savedSide === 'black' ? 'me' : 'opponent'),
+                white: serverPlayerNames.white || (savedSide === 'white' ? 'me' : 'opponent')
+              },
+              updatedAt: Date.now()
             });
             setLocalPlayer(savedSide);
             window.location.hash = `room=${response.roomId}`;
@@ -364,49 +388,50 @@ const App: React.FC = () => {
     });
 
     // 監聽房間加入事件（當第二個玩家加入時，房主也會收到這個事件）
-    socketService.onRoomJoined(({ room: serverRoom, yourSide }) => {
-      console.log(t('message.opponent_joined_log', { room: serverRoom }));
+    socketService.onRoomJoined(({ room: serverRoom, yourSide }: { room: any, yourSide: Player }) => {
+      console.log('📥 收到 ROOM_JOINED 事件:', {
+        yourSide,
+        playerNames: serverRoom.playerNames,
+        guestSocketId: serverRoom.guestSocketId
+      });
 
+      // 🎯 更新房間狀態，確保玩家清單正確
       setRoom(prev => {
-        // 轉換服務器端的房間數據為客戶端格式
-        // 服務器端使用 hostSocketId/guestSocketId/hostSide
-        // 客戶端使用 players: { black?: string, white?: string }
-        const hasGuest = (serverRoom as any).guestSocketId !== null;
-        const hostSide = (serverRoom as any).hostSide as Player;
-        const guestSide: Player = hostSide === 'black' ? 'white' : 'black';
+        // 🎯 決定玩家名稱
+        // 優先使用伺服器傳回的真實名稱清單
+        const serverPlayerNames = serverRoom.playerNames || {};
+        const playerNames: { black: string; white: string } = {
+          black: serverPlayerNames.black || 'Player',
+          white: serverPlayerNames.white || 'Player'
+        };
 
-        const players: { black?: string; white?: string } = {};
-        players[hostSide as 'black' | 'white'] = yourSide === hostSide ? 'me' : 'opponent';
-        if (hasGuest) {
-          players[guestSide as 'black' | 'white'] = yourSide === guestSide ? 'me' : 'opponent';
-        }
+        console.log('👥 處理後的玩家名稱:', playerNames);
 
         if (!prev) {
-          // 訪客加入，直接設置房間狀態
+          // 第一次加入 (Guest 流程)
+          console.log('🆕 訪客首次加入房間');
           return {
-            id: serverRoom.id,
-            board: serverRoom.board,
-            turn: serverRoom.turn,
-            winner: serverRoom.winner,
-            winningLine: serverRoom.winningLine,
-            threatLine: null,
-            lastMove: serverRoom.lastMove,
-            players,
+            ...serverRoom,
+            playerNames,
             updatedAt: Date.now(),
             settings: serverRoom.settings || { undoLimit: 3 },
             undoCount: serverRoom.undoCount || { black: 0, white: 0 },
             history: serverRoom.history || [],
           };
         } else {
-          // 房主收到對手加入的通知，更新 players
+          // 房主收到對手加入的通知，或重連成功，更新狀態
+          console.log('🔄 房主更新房間狀態 (對手加入)');
           return {
             ...prev,
-            players,
+            ...serverRoom, // 直接使用伺服器最新的狀態
+            playerNames,   // 使用我們校正過的名稱清單
             updatedAt: Date.now()
           };
         }
       });
+
       setIsConnected(true);
+      setIsConnecting(false); // 確保取消載入狀態
     });
 
     // ⚠️ 不要在 cleanup 中 disconnect，避免 React Strict Mode 導致的問題
@@ -424,7 +449,7 @@ const App: React.FC = () => {
       clearTimeout(timer);
       window.removeEventListener('hashchange', checkAndJoinRoom);
     };
-  }, [room, isConnecting]);
+  }, [room, isConnecting, loading, user]);
 
   // 建立房主模式 (Host)
   const handleCreate = (side: Player) => {
@@ -438,7 +463,8 @@ const App: React.FC = () => {
     setIsConnecting(true);
     setError(null);
 
-    socketService.createRoom(side, roomSettings, ({ roomId, shareUrl, settings }) => {
+    // 傳入當前用戶名稱
+    socketService.createRoom(side, roomSettings, user?.displayName || undefined, ({ roomId, shareUrl, settings }) => {
       window.location.hash = `room=${roomId}`;
 
       // ✅ 儲存房間資訊到 localStorage（用於寬限期重連）
@@ -453,7 +479,7 @@ const App: React.FC = () => {
         winningLine: null,
         threatLine: null,
         lastMove: null,
-        players: { [side]: 'me' },
+        playerNames: { [side]: 'me' },
         updatedAt: Date.now(),
         settings: settings || roomSettings,  // 使用 Server 返回的設定
         undoCount: {                         // 初始化悔棋次數
@@ -488,13 +514,20 @@ const App: React.FC = () => {
     setIsConnecting(true);
     setError(null);
 
-    socketService.joinRoom(roomId, ({ room: serverRoom, yourSide }) => {
+    // 傳入當前用戶名稱
+    socketService.joinRoom(roomId, user?.displayName || undefined, ({ room: serverRoom, yourSide }) => {
+      // 🎯 決定玩家名稱
+      const hostSide = (serverRoom as any).hostSide as Player;
+      const serverPlayerNames = serverRoom.playerNames || {};
+
+      const playerNames: { black: string; white: string } = {
+        black: serverPlayerNames.black || (yourSide === 'black' ? 'me' : 'opponent'),
+        white: serverPlayerNames.white || (yourSide === 'white' ? 'me' : 'opponent')
+      };
+
       setRoom({
         ...serverRoom,
-        players: {
-          [yourSide]: 'me',
-          [yourSide === 'black' ? 'white' : 'black']: 'opponent'
-        }
+        playerNames
       });
       setLocalPlayer(yourSide);
       setIsConnected(true);
@@ -735,7 +768,7 @@ const App: React.FC = () => {
     }
 
     // 游戏未开始（等待对手）或已结束，直接返回
-    const gameNotStarted = Object.keys(room.players).length < 2;
+    const gameNotStarted = Object.keys(room.playerNames).length < 2;
     const gameEnded = room.winner !== null;
     const connectionLost = !isConnected;  // 連線已斷開（對手離開）
 
@@ -749,7 +782,7 @@ const App: React.FC = () => {
 
   const isBoardDisabled =
     !socketService.isConnected() ||
-    (room !== null && Object.keys(room.players).length < 2) ||  // 等待第二個玩家
+    (room !== null && Object.keys(room.playerNames).length < 2) ||  // 等待第二個玩家
     (room !== null && room.turn !== localPlayer) ||
     (room !== null && room.winner !== null);
 
@@ -795,12 +828,12 @@ const App: React.FC = () => {
             {/* 右側：連線狀態 */}
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${isReconnecting ? 'bg-amber-500 animate-pulse' :
-                (isConnected && Object.keys(room.players).length === 2) ? 'bg-green-500' :
+                (isConnected && Object.keys(room.playerNames).length === 2) ? 'bg-green-500' :
                   'bg-amber-500 animate-pulse'
                 }`}></span>
               <span className="text-xs sm:text-sm font-medium text-slate-600">
                 {isReconnecting ? t('app.reconnecting') :
-                  (isConnected && Object.keys(room.players).length === 2) ? t('app.connected') :
+                  (isConnected && Object.keys(room.playerNames).length === 2) ? t('app.connected') :
                     t('app.waiting')}
               </span>
             </div>
@@ -863,7 +896,7 @@ const App: React.FC = () => {
                 threatLine={isReplaying ? null : room.threatLine}
                 turn={room.turn}
                 disabled={isBoardDisabled || isReplaying}
-                hasOpponent={Object.keys(room.players).length === 2}
+                hasOpponent={Object.keys(room.playerNames).length === 2}
               />
               {/* 修正後的提示層：僅在真正的斷線重連 (isReconnecting) 且對局未結束時顯示 */}
               {isReconnecting && !room.winner && (
@@ -981,6 +1014,45 @@ const App: React.FC = () => {
       )}
     </div>
   );
+};
+
+// 🔐 認證包裝組件
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
+};
+
+// 🎮 根據認證狀態顯示不同頁面
+const AuthenticatedApp: React.FC = () => {
+  const { user, loading } = useAuth();
+
+  // 🔄 載入中
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f5f2] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-slate-900 rounded-full mx-auto flex items-center justify-center shadow-lg animate-pulse">
+            <div className="w-8 h-8 border-4 border-white rounded-full"></div>
+          </div>
+          <p className="text-slate-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 🎯 認證邏輯判斷
+  // 開發環境 (VITE_ENABLE_AUTH=false): 直接進入遊戲
+  // 生產環境 (VITE_ENABLE_AUTH=true): 需要登入
+  const shouldShowLogin = isAuthEnabled && !user;
+
+  if (shouldShowLogin) {
+    return <LoginPage />;
+  }
+
+  return <GameApp />;
 };
 
 export default App;
