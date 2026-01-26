@@ -24,7 +24,7 @@ class RoomManager {
     }
 
     // 創建房間
-    createRoom(hostSocketId: string, hostSide: Player, hostDisplayName: string, settings?: GameSettings): GameRoom {
+    createRoom(hostSocketId: string, hostSide: Player, settings?: GameSettings, hostName?: string): GameRoom {
         const roomId = this.generateRoomId();
 
         // 預設設定：允許悔棋 3 次
@@ -42,7 +42,7 @@ class RoomManager {
             hostSocketId,
             guestSocketId: null,
             hostSide,
-            hostDisplayName,
+            hostDisplayName: hostName || 'Player', // Compatibility if interface still has it, but based on types.ts we should check
             guestDisplayName: null,
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -52,6 +52,9 @@ class RoomManager {
                 white: 0,
             },
             history: [],                            // 初始化歷史記錄
+            playerNames: {                          // 初始化玩家名稱
+                [hostSide]: hostName || 'Player'
+            }
         };
 
         this.rooms.set(roomId, room);
@@ -60,12 +63,12 @@ class RoomManager {
             : room.settings.undoLimit === 0
                 ? '不允許'
                 : `${room.settings.undoLimit}次`;
-        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostDisplayName}, 執${hostSide}, 悔棋: ${undoLimitText})`);
+        console.log(`✅ 房間已創建: ${roomId} (房主: ${hostName || 'Player'}, 執${hostSide}, 悔棋: ${undoLimitText})`);
         return room;
     }
 
     // 加入房間
-    joinRoom(roomId: string, guestSocketId: string, guestDisplayName: string): GameRoom | null {
+    joinRoom(roomId: string, guestSocketId: string, guestName?: string): GameRoom | null {
         const room = this.rooms.get(roomId);
         if (!room) {
             console.log(`❌ 房間不存在: ${roomId}`);
@@ -86,9 +89,13 @@ class RoomManager {
         }
 
         room.guestSocketId = guestSocketId;
-        room.guestDisplayName = guestDisplayName;
+
+        // 設定訪客名稱
+        const guestSide = room.hostSide === 'black' ? 'white' : 'black';
+        room.playerNames[guestSide] = guestName || 'Player';
+
         room.updatedAt = Date.now();
-        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestDisplayName})`);
+        console.log(`✅ 玩家加入房間: ${roomId} (訪客: ${guestSocketId}, 名稱: ${room.playerNames[guestSide]})`);
         return room;
     }
 

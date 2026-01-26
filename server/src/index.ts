@@ -12,6 +12,8 @@ import type {
     Position
 } from './types.js';
 
+import { authMiddleware } from './middleware/auth.js';
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -35,6 +37,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
         methods: ['GET', 'POST']
     }
 });
+
+// 🔒 認證中間件
+io.use(authMiddleware);
 
 console.log('🎯 Socket.IO 伺服器已初始化');
 console.log('📌 CORS: 允許 localhost 所有端口 + ', process.env.CLIENT_URL || '(未設定)');
@@ -150,11 +155,14 @@ io.on('connection', (socket) => {
     console.log(`🔌 新連線: ${socket.id} | 用戶: ${user?.displayName || 'Unknown'}`);
 
     // 創建房間
-    socket.on('CREATE_ROOM', ({ side, settings }, callback) => {
+    socket.on('CREATE_ROOM', ({ side, settings, userName: explicitUserName }, callback) => {
         try {
-            const user = socket.data.user;
-            const displayName = user?.displayName || 'Unknown Player';
-            const room = roomManager.createRoom(socket.id, side, displayName, settings);
+            // 優先使用參數傳來的名稱，其次是 Token 解析的名稱
+            const userName = explicitUserName || (socket as any).user?.name;
+            const room = roomManager.createRoom(socket.id, side, settings, userName);
+
+            // 讓創建者加入 Socket.IO 房間
+            socket.join(room.id);
 
             // 產生分享 URL
             const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -193,13 +201,16 @@ io.on('connection', (socket) => {
             if (success) {
                 const room = roomManager.getRoom(roomId);
                 if (room) {
+                    // 重新加入 Socket.IO 房間
+                    socket.join(room.id);
+
                     const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
                     const shareUrl = `${baseUrl}/#room=${room.id}`;
 
-                    socket.emit('ROOM_RECONNECTED', { roomId: room.id, shareUrl });
+                    socket.emit('ROOM_RECONNECTED', { roomId: room.id, shareUrl, room });
 
                     if (callback) {
-                        callback({ success: true, roomId: room.id, shareUrl });
+                        callback({ success: true, roomId: room.id, shareUrl, room });
                     }
                     console.log(`✅ 房主重新連線成功: ${roomId}`);
                 } else {
@@ -222,7 +233,7 @@ io.on('connection', (socket) => {
     });
 
     // 加入房間
-    socket.on('JOIN_ROOM', ({ roomId }, callback) => {
+    socket.on('JOIN_ROOM', ({ roomId, userName: explicitUserName }, callback) => {
         try {
             console.log(`🔍 嘗試加入房間: ${roomId}, Socket ID: ${socket.id}`);
 
@@ -234,6 +245,7 @@ io.on('connection', (socket) => {
                 const success = roomManager.reconnectGuest(roomId, socket.id);
 
                 if (success) {
+                    socket.join(roomId);
                     const guestSide: Player = existingRoom.hostSide === 'black' ? 'white' : 'black';
                     socket.emit('ROOM_JOINED', { room: existingRoom, yourSide: guestSide });
 
@@ -247,9 +259,8 @@ io.on('connection', (socket) => {
             }
 
             // 正常加入房間流程
-            const user = socket.data.user;
-            const displayName = user?.displayName || 'Unknown Player';
-            const room = roomManager.joinRoom(roomId, socket.id, displayName);
+            const userName = explicitUserName || (socket as any).user?.name;
+            const room = roomManager.joinRoom(roomId, socket.id, userName);
 
             if (!room) {
                 const errorMsg = existingRoom
@@ -264,11 +275,16 @@ io.on('connection', (socket) => {
                 return;
             }
 
+            // 加入 Socket.IO 房間
+            socket.join(roomId);
+
             // 通知訪客
             const guestSide: Player = room.hostSide === 'black' ? 'white' : 'black';
+            console.log(`📡 發送 ROOM_JOINED 給訪客 (${socket.id}): guestSide=${guestSide}`);
             socket.emit('ROOM_JOINED', { room, yourSide: guestSide });
 
-            // 通知房主
+            // 通知房主 (使用定點發送更可靠)
+            console.log(`📡 發送 ROOM_JOINED 給房主 (${room.hostSocketId}): hostSide=${room.hostSide}`);
             io.to(room.hostSocketId).emit('ROOM_JOINED', { room, yourSide: room.hostSide });
 
             if (callback) {

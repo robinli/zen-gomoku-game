@@ -41,6 +41,10 @@ export interface GameRoom {
         white: number;
     };
     history: MoveHistory[];     // 歷史記錄
+    playerNames: {             // 玩家名稱 (用於已登入用戶)
+        black?: string;
+        white?: string;
+    };
 }
 
 export interface SocketMeta {
@@ -53,7 +57,7 @@ export interface SocketMeta {
 // WebSocket 事件定義
 export interface ServerToClientEvents {
     ROOM_CREATED: (data: { roomId: string; shareUrl: string; settings: GameSettings }) => void;
-    ROOM_RECONNECTED: (data: { roomId: string; shareUrl: string }) => void;
+    ROOM_RECONNECTED: (data: { roomId: string; shareUrl: string; room: GameRoom }) => void;
     ROOM_JOINED: (data: { room: GameRoom; yourSide: Player }) => void;
     GAME_UPDATE: (data: {
         board: BoardState;
@@ -84,9 +88,9 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-    CREATE_ROOM: (data: { side: Player; settings?: GameSettings }, callback?: (response: any) => void) => void;
+    CREATE_ROOM: (data: { side: Player; settings?: GameSettings; userName?: string }, callback?: (response: any) => void) => void;
     RECONNECT_ROOM: (data: { roomId: string }, callback?: (response: any) => void) => void;
-    JOIN_ROOM: (data: { roomId: string }, callback?: (response: any) => void) => void;
+    JOIN_ROOM: (data: { roomId: string; userName?: string }, callback?: (response: any) => void) => void;
     MAKE_MOVE: (data: { x: number; y: number }) => void;
     RESET_GAME: () => void;
 
