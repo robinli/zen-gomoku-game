@@ -43,3 +43,5 @@ jobs:
         run: node scripts/auto-merge.js
         env:
           CI: true
+          VITE_ENABLE_AUTH: false
+          ENABLE_AUTH: false

@@ -5,6 +5,47 @@ import { Page, expect } from '@playwright/test';
  */
 
 /**
+ * 🔐 登入（支援訪客模式和 Mock 登入）
+ * @param page - Playwright Page 對象
+ * @param playerName - 玩家名稱 (例如: 'Player 1', 'Player 2')
+ */
+export async function loginAsPlayer(page: Page, playerName: string) {
+    console.log(`🔐 執行登入: ${playerName}...`);
+
+    try {
+        // 導航到首頁
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+
+        // 在訪客模式下（VITE_ENABLE_AUTH=false），直接設定訪客名稱
+        await page.evaluate((name) => {
+            localStorage.setItem('guestDisplayName', name);
+        }, playerName);
+
+        console.log(`✅ 已設定訪客名稱: ${playerName}`);
+
+        // 重新載入頁面以觸發 AuthContext 讀取
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+
+        // 等待大廳載入
+        console.log('⏳ 等待大廳載入...');
+        await page.waitForTimeout(2000);
+
+        // 驗證已進入大廳（檢查創建房間按鈕）
+        const createButton = page.locator('button', { hasText: /創建.*房間|Create.*Room/i });
+        await createButton.waitFor({ state: 'visible', timeout: 10000 });
+
+        console.log(`✅ ${playerName} 登入成功，已進入大廳`);
+    } catch (error) {
+        console.error(`❌ ${playerName} 登入失敗:`, error);
+        await page.screenshot({ path: `test-results/login-error-${playerName}-${Date.now()}.png` });
+        throw error;
+    }
+}
+
+
+/**
  * 切換語言
  * @param page - Playwright Page 對象
  * @param language - 語言 ('zh' 中文 或 'en' 英文)
@@ -47,10 +88,13 @@ export async function switchLanguage(page: Page, language: 'zh' | 'en') {
  * @returns 房間的分享連結
  */
 export async function createRoom(page: Page, side: 'black' | 'white'): Promise<string> {
-    await page.goto('/');
-
-    // 等待頁面加載
-    await page.waitForLoadState('networkidle');
+    // 檢查是否已在大廳，如果不在則導航
+    const currentUrl = page.url();
+    if (currentUrl === 'about:blank' || currentUrl === '' || currentUrl.includes('#room=')) {
+        console.log('🌐 導航到大廳...');
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+    }
 
     try {
         // 選擇顏色按鈕（使用正則表達式匹配）

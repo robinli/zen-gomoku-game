@@ -29,7 +29,7 @@ export interface GameRoom {
   winningLine: Position[] | null;
   threatLine: Position[] | null;  // 威脅棋子位置（活三、活四）
   lastMove: Position | null;
-  players: {
+  playerNames: {
     black?: string;
     white?: string;
   };
