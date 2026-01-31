@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
+import ForgotPasswordDialog from './ForgotPasswordDialog';
+import MessageDialog from './MessageDialog';
 
 const LoginPage: React.FC = () => {
     const { t } = useTranslation();
@@ -14,6 +16,8 @@ const LoginPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -167,6 +171,18 @@ const LoginPage: React.FC = () => {
                     </button>
                 </form>
 
+                {/* 忘記密碼連結 - 僅在登入模式顯示（選項 B）*/}
+                {!isSignUp && (
+                    <div className="text-center">
+                        <button
+                            onClick={() => setShowForgotPassword(true)}
+                            className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                        >
+                            {t('login.forgot_password')}
+                        </button>
+                    </div>
+                )}
+
                 {/* 切換登入/註冊 */}
                 <div className="text-center">
                     <button
@@ -194,6 +210,29 @@ const LoginPage: React.FC = () => {
             <div className="mt-6">
                 <LanguageSwitcher />
             </div>
+
+            {/* 忘記密碼對話框 */}
+            {showForgotPassword && (
+                <ForgotPasswordDialog
+                    onClose={() => setShowForgotPassword(false)}
+                    onSuccess={() => {
+                        setSuccessMessage(t('login.forgot_password_success_message'));
+                    }}
+                    onError={(message) => {
+                        setError(message);
+                    }}
+                />
+            )}
+
+            {/* 成功訊息對話框 */}
+            {successMessage && (
+                <MessageDialog
+                    title={t('login.forgot_password_success_title')}
+                    message={successMessage}
+                    icon="success"
+                    onClose={() => setSuccessMessage(null)}
+                />
+            )}
         </div>
     );
 };
