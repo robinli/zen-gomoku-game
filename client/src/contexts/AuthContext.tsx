@@ -44,8 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 🎯 如果認證未啟用,直接設為已載入
+        // 🎯 如果認證未啟用，創建一個本地訪客用戶
         if (!isAuthEnabled) {
+            // 從 localStorage 讀取訪客名稱，或使用預設值
+            const guestName = localStorage.getItem('guestDisplayName') || 'Guest';
+            setUser({
+                uid: 'guest-' + Date.now(),
+                email: 'guest@local',
+                displayName: guestName
+            });
             setLoading(false);
             return;
         }
@@ -86,6 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 登出
     const signOut = async () => {
+        if (!isAuthEnabled) {
+            // 認證被禁用時，清除訪客資料並重新載入頁面
+            localStorage.removeItem('guestDisplayName');
+            window.location.reload();
+            return;
+        }
+
         if (!auth) return;
 
         await firebaseSignOut(auth as Auth);
@@ -94,6 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 更新顯示名稱
     const updateDisplayName = async (name: string) => {
+        if (!isAuthEnabled) {
+            // 認證被禁用時，儲存到 localStorage
+            localStorage.setItem('guestDisplayName', name);
+            setUser(prev => prev ? { ...prev, displayName: name } : null);
+            return;
+        }
+
         if (!auth || !(auth as Auth).currentUser) throw new Error('No user logged in');
 
         const currentUser = (auth as Auth).currentUser!;

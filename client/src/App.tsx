@@ -795,24 +795,10 @@ const GameApp: React.FC = () => {
   // 決定何時顯示致命錯誤畫面
   const showFatalError = error && !room;
 
-  // 🔐 Auth Loading State
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f8f5f2] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <div className="w-8 h-8 border-4 border-white rounded-full"></div>
-          </div>
-          <p className="text-slate-600">{t('app.loading', 'Loading...')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 🔐 Not Authenticated - Show Login Page
-  if (!user) {
-    return <LoginPage />;
-  }
+  // 🎯 注意：認證邏輯已在 AuthenticatedApp 中處理
+  // 如果能進入 GameApp，表示：
+  // 1. 認證已禁用 (isAuthEnabled=false)，或
+  // 2. 用戶已登入 (user !== null)
 
   return (
     <div className="min-h-screen bg-[#f8f5f2] flex flex-col">

@@ -5,43 +5,24 @@ import { Page, expect } from '@playwright/test';
  */
 
 /**
- * 🔐 Mock 登入（用於 E2E 測試）
+ * 🔐 登入（支援訪客模式和 Mock 登入）
  * @param page - Playwright Page 對象
  * @param playerName - 玩家名稱 (例如: 'Player 1', 'Player 2')
  */
 export async function loginAsPlayer(page: Page, playerName: string) {
-    console.log(`🔐 執行 Mock 登入: ${playerName}...`);
+    console.log(`🔐 執行登入: ${playerName}...`);
 
     try {
         // 導航到首頁
         await page.goto('/');
         await page.waitForLoadState('networkidle');
 
-        // 檢查是否已經登入（localStorage 中有 mock_user）
-        const isLoggedIn = await page.evaluate(() => {
-            return localStorage.getItem('mock_user') !== null;
-        });
-
-        if (isLoggedIn) {
-            console.log(`✅ ${playerName} 已經登入，跳過登入步驟`);
-            return;
-        }
-
-        // 等待登入頁面載入
-        console.log('⏳ 等待登入頁面...');
-        await page.waitForTimeout(1000);
-
-        // 使用 JavaScript 直接設定 localStorage 並觸發登入
+        // 在訪客模式下（VITE_ENABLE_AUTH=false），直接設定訪客名稱
         await page.evaluate((name) => {
-            const mockUser = {
-                uid: `mock-user-${Date.now()}-${Math.random()}`,
-                displayName: name,
-                photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-            };
-            localStorage.setItem('mock_user', JSON.stringify(mockUser));
+            localStorage.setItem('guestDisplayName', name);
         }, playerName);
 
-        console.log(`✅ 已設定 Mock 用戶: ${playerName}`);
+        console.log(`✅ 已設定訪客名稱: ${playerName}`);
 
         // 重新載入頁面以觸發 AuthContext 讀取
         await page.reload();
