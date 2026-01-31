@@ -202,7 +202,16 @@ const resources = {
         error_user_not_found: "User not found",
         error_wrong_password: "Incorrect password",
         error_email_in_use: "Email already in use",
-        error_weak_password: "Password should be at least 6 characters"
+        error_weak_password: "Password should be at least 6 characters",
+        forgot_password: "Forgot Password?",
+        forgot_password_title: "Reset Password",
+        forgot_password_description: "Enter your registered email and we'll send you a reset link",
+        forgot_password_send: "Send Reset Link",
+        forgot_password_cancel: "Cancel",
+        forgot_password_success_title: "Email Sent",
+        forgot_password_success_message: "Password reset link has been sent to your email. Please check your inbox (including spam folder)",
+        forgot_password_error_title: "Send Failed",
+        forgot_password_error_message: "Unable to send reset email. Please try again later"
       }
     }
   },
@@ -403,7 +412,16 @@ const resources = {
         error_user_not_found: "找不到此使用者",
         error_wrong_password: "密碼錯誤",
         error_email_in_use: "此電子郵件已被使用",
-        error_weak_password: "密碼至少需要 6 個字元"
+        error_weak_password: "密碼至少需要 6 個字元",
+        forgot_password: "忘記密碼？",
+        forgot_password_title: "重設密碼",
+        forgot_password_description: "請輸入您的註冊電子郵件，我們將發送重設連結給您",
+        forgot_password_send: "發送重設連結",
+        forgot_password_cancel: "取消",
+        forgot_password_success_title: "郵件已發送",
+        forgot_password_success_message: "重設連結已發送至您的信箱，請檢查您的郵件（包含垃圾郵件資料夾）",
+        forgot_password_error_title: "發送失敗",
+        forgot_password_error_message: "無法發送重設郵件，請稍後再試"
       }
     }
   }
